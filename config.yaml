@@ -1,0 +1,22 @@
+# EDIT THIS FILE ACCORDING TO YOUR EXPERIMENTAL SETUP
+# SAMPLES
+list_of_samples:
+    SRR3199338 SRR3199339 SRR3199340 SRR3199341
+# PARAMETERS
+ref_annotation_file:
+    references/Escherichia_coli_str_k_12_substr_mg1655.GCA_000005845.1.21.gtf
+ref_fasta_file:
+    references/Escherichia_coli_str_k_12_substr_mg1655.GCA_000005845.1.21.dna_sm.chromosome.Chromosome.fa
+ref_index_name:
+    K12
+# PATHS
+bowtie2_path:
+    ./libraries/bowtie2/bowtie2
+bowtie2_build_path:
+    ./libraries/bowtie2/bowtie2-build
+fastqc_path:
+    ./libraries/fastqc/fastqc
+featurecounts_path:
+    ./libraries/subread/bin/featureCounts
+flexbar_path:
+    ./libraries/flexbar/flexbar
