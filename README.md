@@ -1,1 +1,1 @@
-Test
+SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria
