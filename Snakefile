@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCOPE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 05.06.2018
-# Version: 0.0.9
+# Last Modified: Wed, 06.06.2018
+# Version: 0.1.0
 # Usage:
 #       snakemake -n
 #       snakemake --dag | dot -Tsvg > dag.svg
@@ -91,7 +91,7 @@ rule mapping:
         
 # Quality control and basequality trimming
 # FastQC Version 0.11.7
-# Flexbar Version 3.2
+# Flexbar Version 3.3.0
 rule quality_control_and_trimming:
     input:
         "raw/{sample}.fastq"

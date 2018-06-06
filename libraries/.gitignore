@@ -2,6 +2,7 @@
 # Using this file, the directory is not empty
 # Ignore all other files
 bowtie2/
+edger/
 fastqc/
 flexbar/
 subread/
