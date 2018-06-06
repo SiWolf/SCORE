@@ -1,6 +1,9 @@
 # Git (by default) does not allow empty directories
 # Using this file, the directory is not empty
 # Ignore all other files
-*
+bowtie2/
+fastqc/
+flexbar/
+subread/
 # Add an exception for this file
 !.gitignore
