@@ -60,10 +60,8 @@ run_deseq2 <- function(read_counts, list_of_gene_names){
   head(resdata)
   
   # Write results
-  path_final_1 = "../../../../"
-  setwd(path_final_1)
-  path_final_2 = "deg/"
-  setwd(path_final_2)
+  results_folder = "../../../../deg/"
+  setwd(results_folder)
   write.csv(new_resdata, file="deseq2-diffexpr-results.csv")
   # Plots
   hist(res$padj, breaks=50, col="grey")
