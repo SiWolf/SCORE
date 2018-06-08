@@ -7,4 +7,5 @@ fastqc/
 flexbar/
 subread/
 # Add an exception for this file
+!SCORE
 !.gitignore

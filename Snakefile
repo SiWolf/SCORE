@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCOPE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 06.06.2018
-# Version: 0.1.0
+# Last Modified: Fr, 08.06.2018
+# Version: 0.1.1
 # Usage:
 #       snakemake -n
 #       snakemake --dag | dot -Tsvg > dag.svg
@@ -52,10 +52,9 @@ rule DEG_analysis:
     output:
         "deg/"
     run:
-        shell("cd libraries/deseq2/")
-        shell("Rscript /libraries/deseq2/DESeq2.R SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
-		#shell("cd ../edger")
-		#shell("Rscript /libraries/edger/edgeR.R SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
+        shell("cd libraries/")
+        shell("Rscript SCOPE.R DeSeq2 SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
+		#shell("Rscript /libraries/SCOPE.R EdgeR SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
         shell("cd ../../")
 		
 # featureCounts Version 1.6.2
