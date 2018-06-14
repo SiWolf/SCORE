@@ -6,6 +6,7 @@ edger/
 fastqc/
 flexbar/
 subread/
+.Rhistory
 # Add an exception for this file
 !SCORE
 !.gitignore
