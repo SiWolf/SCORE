@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCOPE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 08.06.2018
-# Version: 0.1.1
+# Last Modified: Thur, 14.06.2018
+# Version: 0.1.2
 # Usage:
 #       snakemake -n
 #       snakemake --dag | dot -Tsvg > dag.svg
@@ -22,7 +22,7 @@ PATH_FLEXBAR = config["flexbar_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
 REF_FASTA = config["ref_fasta_file"]
 REF_INDEX = config["ref_index_name"]
-SAMPLES = config["list_of_samples"].split(" ")
+SAMPLES, = glob_wildcards("raw/{id}.fastq")
 
 # Salmon
 # Quasi-Mapping and transcript quanitification
@@ -52,8 +52,7 @@ rule DEG_analysis:
     output:
         "deg/"
     run:
-        shell("cd libraries/")
-        shell("Rscript SCOPE.R DeSeq2 SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
+        shell("Rscript libraries/SCORE.R DeSeq2 " + (" ".join(SAMPLES)))
 		#shell("Rscript /libraries/SCOPE.R EdgeR SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
         shell("cd ../../")
 		

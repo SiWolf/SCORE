@@ -2,7 +2,7 @@
 #biocLite("DESeq2")
 
 create_gene_list <- function(sample_1){
-  path_1 <- paste("../mapped/bowtie2/featureCounts/", sample_1, sep = "")
+  path_1 <- paste("mapped/bowtie2/featureCounts/", sample_1, sep = "")
   setwd(path_1)
   gene_list = read.csv("counts", sep="", head=T, skip=1)[,c("Geneid")]
   return(gene_list)
