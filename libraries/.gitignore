@@ -1,12 +1,7 @@
-# Git (by default) does not allow empty directories
-# Using this file, the directory is not empty
-# Ignore all other files
+# Ignore the following files
 bowtie2/
 edger/
 fastqc/
 flexbar/
 subread/
 .Rhistory
-# Add an exception for this file
-!SCORE.R
-!.gitignore

@@ -3,5 +3,5 @@
 # Ignore all other files
 *
 # Add an exception for this file
-!.gitignore
 !Metadata.tsv
+!.gitignore
