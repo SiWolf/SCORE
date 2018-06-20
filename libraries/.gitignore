@@ -8,5 +8,5 @@ flexbar/
 subread/
 .Rhistory
 # Add an exception for this file
-!SCORE
+!SCORE.R
 !.gitignore
