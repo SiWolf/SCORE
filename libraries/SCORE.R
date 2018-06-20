@@ -1,6 +1,8 @@
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("DESeq2")
 
+library("DESeq2")
+
 create_gene_list <- function(sample_1){
   path_1 <- paste("mapped/bowtie2/featureCounts/", sample_1, sep = "")
   setwd(path_1)
@@ -36,8 +38,6 @@ create_count_matrix <- function(sample_2, sample_3, sample_4){
 }
 
 run_deseq2 <- function(read_counts, list_of_gene_names){
-  library("DESeq2")
-  
   # Assign condition
   condition <- factor(c(rep("normal", 2), rep("treated", 2)))
   
@@ -80,26 +80,23 @@ run_edger <- function(Counts){
 args<-commandArgs(TRUE)
 argument_1 = args[1]
 argument_2 = args[2]
-argument_3 = args[3]
-argument_4 = args[4]
-argument_5 = args[5]
 
 if (is.na(argument_1)){
   argument_1 = "DeSeq2"
-  argument_2 = "SRR3199338"
-  argument_3 = "SRR3199339"
-  argument_4 = "SRR3199340"
-  argument_5 = "SRR3199341"
+  argument_2 = "Metadata.tsv"
+  setwd("../")
 }
 
-gene_names <- create_gene_list(argument_2)
-counts <- create_count_matrix(argument_3, argument_4, argument_5)
+metadata = read.table(file = paste("raw/", argument_2, sep = ""), sep = "\t", header = FALSE)
+# Brauche neue Lösung -> Tabelle dynamisch erstellen (je nach wildtyp/mutante), gefolgt von DESeq2
+gene_names <- create_gene_list(metadata$V1[1])
+counts <- create_count_matrix(metadata$V1[2], metadata$V1[3], metadata$V1[4])
+
+#unique(unlist(metadata[c("V2")]))[1]
+#unique(unlist(metadata[c("V2")]))[2]
 
 if (argument_1 == "DeSeq2"){
   run_deseq2(counts, gene_names)
 } else{
   run_edger(counts)
 }
-
-#getwd()
-#rld <- rlog(dds)

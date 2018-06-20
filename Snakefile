@@ -11,9 +11,6 @@
 #       snakemake --config {parameter}={value}
 # --------------------------------------------
 
-#print("Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
-#print("Please ensure all input files are located within the raw/ folder and parameters have been set accordingly.")
-
 # Imports
 import csv
 
@@ -44,6 +41,9 @@ def read_tsv(tsv_filename):
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
+#print("Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
+#print("Please ensure all input files are located within the raw/ folder and parameters have been set accordingly.")
+
 # DESeq2 Version 1.18.1
 rule DEG_analysis:
     input:
@@ -52,14 +52,14 @@ rule DEG_analysis:
         "deg/"
     run:
 		# Idea: Rscript <folder>/SCORE.R <DEG-Analysis-Type> <SAMPLES>
-        shell("Rscript libraries/SCORE.R DeSeq2 " + (" ".join(SAMPLES)))
+        shell("Rscript libraries/SCORE.R DeSeq2 " + {METADATA})
 		#shell("Rscript /libraries/SCOPE.R EdgeR SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
         shell("cd ../../")
 		
 # featureCounts Version 1.6.2
 # Counting mapped reads
 # Needed for the quantification of Bowtie2 results
-# Currently discards multi-mapping reads
+# Discards multi-mapping reads by default
 rule counting:
     input:
         "mapped/bowtie2/{sample}.sam"
