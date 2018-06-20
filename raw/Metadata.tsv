@@ -1,0 +1,6 @@
+# SampleName	Condition
+# Please ensure that all meantioned files below are located within the raw/ directory
+SRR3199338	Wildtype
+SRR3199339	Wildtype
+SRR3199340	Mutant
+SRR3199341	Mutant

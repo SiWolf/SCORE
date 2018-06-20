@@ -4,3 +4,4 @@
 *
 # Add an exception for this file
 !.gitignore
+!Metadata.tsv
