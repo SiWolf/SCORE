@@ -3,48 +3,47 @@
 
 library("DESeq2")
 
-create_gene_list <- function(sample_1){
-  path_1 <- paste("mapped/bowtie2/featureCounts/", sample_1, sep = "")
-  setwd(path_1)
+create_gene_list <- function(sample){
+  sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
+  setwd(sample_path)
   gene_list = read.csv("counts", sep="", head=T, skip=1)[,c("Geneid")]
   return(gene_list)
 }
 
-create_count_matrix <- function(sample_2, sample_3, sample_4){
-  counts_1 = read.csv("counts", sep="", head=T, skip=1, row.names = "Geneid")
-  # Remove first six columns (genesymbol, chr, start, end, strand, length)
-  counts_1 <- counts_1[ ,6:ncol(counts_1)]
-  
-  path_2 <- paste("../", sample_2, sep = "")
-  setwd(path_2)
-  counts_2 = read.csv("counts", sep="", head=T, skip=1, row.names = 1)
-  counts_2 <- counts_2[ ,6:ncol(counts_2)]
-  
-  path_3 <- paste("../", sample_3, sep = "")
-  setwd(path_3)
-  counts_3 = read.csv("counts", sep="", head=T, skip=1, row.names = 1)
-  counts_3 <- counts_3[ ,6:ncol(counts_3)]
-  
-  path_4 <- paste("../", sample_4, sep = "")
-  setwd(path_4)
-  counts_4 = read.csv("counts", sep="", head=T, skip=1, row.names = 1)
-  counts_4 <- counts_4[ ,6:ncol(counts_4)]
+create_count_matrix <- function(sample_list, gene_list){
+  sample_nr = 0
+  # Lets receive the rest of the counts...
+  for (sample in sample_list){
+    sample_nr = sample_nr + 1
+    path <- paste("../", sample, sep = "")
+    setwd(path)
+    counts = read.csv("counts", sep="", head=T, skip=1, row.names = 1)
+    # Remove first six columns (genesymbol, chr, start, end, strand, length)
+    counts <- counts[ ,6:ncol(counts)]
+    if (sample_nr == 1){
+      count_matrix <- counts
+    } else {
+      count_matrix <- cbind(count_matrix, counts)  
+    }
+  }
   
   # Convert to matrix
-  count_matrix <- cbind(counts_1, counts_2, counts_3, counts_4)
   count_matrix <- as.matrix(count_matrix)
-  #head(count_matrix)
+  # Rename columns
+  colnames(count_matrix) <- paste(sample_list)
+  rownames(count_matrix) <- paste(gene_list)
+  # head(count_matrix)
   return(count_matrix)
 }
 
-run_deseq2 <- function(read_counts, list_of_gene_names){
+run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Assign condition
-  condition <- factor(c(rep("normal", 2), rep("treated", 2)))
+  # condition <- factor(c(rep("normal", 2), rep("treated", 2)))
   
   # Create a coldata frame and instantiate the DESeqDataSet
-  coldata <- data.frame(row.names=colnames(read_counts), condition)
+  coldata <- data.frame(row.names=colnames(sample_counts), sample_conditions)
   
-  dds <- DESeqDataSetFromMatrix(countData=read_counts, colData=coldata, design=~condition)
+  dds <- DESeqDataSetFromMatrix(countData=sample_counts, colData=coldata, design=~sample_conditions)
   # Run the DESeq pipeline
   dds <- DESeq(dds)
   # Get differential expression results
@@ -69,14 +68,13 @@ run_deseq2 <- function(read_counts, list_of_gene_names){
   plotCounts(dds, gene=which.min(res$padj), intgroup="condition")
 }
 
-run_edger <- function(Counts){
+run_edger <- function(read_counts){
   library("edgeR")
-  dgList <- DGEList(counts=Counts, genes=rownames(Counts))
+  dgList <- DGEList(counts=read_counts, genes=rownames(read_counts))
   print("This shouldn't be running")
 }
 
 # Main
-
 args<-commandArgs(TRUE)
 argument_1 = args[1]
 argument_2 = args[2]
@@ -88,15 +86,12 @@ if (is.na(argument_1)){
 }
 
 metadata = read.table(file = paste("raw/", argument_2, sep = ""), sep = "\t", header = FALSE)
-# Brauche neue Lösung -> Tabelle dynamisch erstellen (je nach wildtyp/mutante), gefolgt von DESeq2
+# metadata = read.table(file="raw/Metadata.tsv", sep = "\t", header = FALSE)
 gene_names <- create_gene_list(metadata$V1[1])
-counts <- create_count_matrix(metadata$V1[2], metadata$V1[3], metadata$V1[4])
-
-#unique(unlist(metadata[c("V2")]))[1]
-#unique(unlist(metadata[c("V2")]))[2]
+gene_counts <- create_count_matrix(metadata$V1, gene_names)
 
 if (argument_1 == "DeSeq2"){
-  run_deseq2(counts, gene_names)
+  run_deseq2(gene_names, gene_counts, metadata$V2)
 } else{
-  run_edger(counts)
+  run_edger(gene_counts)
 }
