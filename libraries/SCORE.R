@@ -2,6 +2,7 @@
 #biocLite("DESeq2")
 
 library("DESeq2")
+library("edgeR")
 
 create_gene_list <- function(sample){
   sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
@@ -32,6 +33,20 @@ create_count_matrix <- function(sample_list, gene_list){
   # Rename columns
   colnames(count_matrix) <- paste(sample_list)
   rownames(count_matrix) <- paste(gene_list)
+  # unfiltered_count_matrix <- count_matrix
+  
+  # First: Cutoff for low-expressed genes
+  # Using cpm (edgeR) to calculate counts per gene per million
+  # Might add additional filters later on
+  cpm_log <- cpm(count_matrix, log = TRUE)
+  median_log2_cpm <- apply(cpm_log, 1, median)
+  expr_cutoff <- -1
+  # Filter out any gene which does not have median(gene_across_samples) > cutoff
+  count_matrix <- count_matrix[median_log2_cpm > expr_cutoff, ]
+  # hist(median_log2_cpm)
+  # abline(v = expr_cutoff, col = "red", lwd = 3)
+  # sum(median_log2_cpm > expr_cutoff)
+  
   # head(count_matrix)
   return(count_matrix)
 }
@@ -42,8 +57,8 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   
   # Create a coldata frame and instantiate the DESeqDataSet
   coldata <- data.frame(row.names=colnames(sample_counts), sample_conditions)
-  
   dds <- DESeqDataSetFromMatrix(countData=sample_counts, colData=coldata, design=~sample_conditions)
+  
   # Run the DESeq pipeline
   dds <- DESeq(dds)
   # Get differential expression results
@@ -69,7 +84,15 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
 }
 
 run_edger <- function(read_counts){
-  library("edgeR")
+  cpm_log <- cpm(read_counts, log = TRUE)
+  # Heatmap
+  heatmap(cor(cpm_log))
+  # PCA
+  pca <- prcomp(t(cpm_log), scale. = TRUE)
+  plot(pca$x[, 1], pca$x[, 2], pch = ".", xlab = "PC1", ylab = "PC2")
+  text(pca$x[, 1], pca$x[, 2], labels = colnames(cpm_log))
+  summary(pca)
+  
   dgList <- DGEList(counts=read_counts, genes=rownames(read_counts))
   print("This shouldn't be running")
 }
@@ -79,6 +102,7 @@ args<-commandArgs(TRUE)
 argument_1 = args[1]
 argument_2 = args[2]
 
+# Special case if script is run manually using RStudio
 if (is.na(argument_1)){
   argument_1 = "DeSeq2"
   argument_2 = "Metadata.tsv"
@@ -86,12 +110,12 @@ if (is.na(argument_1)){
 }
 
 metadata = read.table(file = paste("raw/", argument_2, sep = ""), sep = "\t", header = FALSE)
-# metadata = read.table(file="raw/Metadata.tsv", sep = "\t", header = FALSE)
 gene_names <- create_gene_list(metadata$V1[1])
-gene_counts <- create_count_matrix(metadata$V1, gene_names)
+filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
+filtered_gene_names <- rownames(filtered_gene_counts)
 
 if (argument_1 == "DeSeq2"){
-  run_deseq2(gene_names, gene_counts, metadata$V2)
+  run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 } else{
   run_edger(gene_counts)
 }
