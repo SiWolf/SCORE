@@ -47,12 +47,29 @@ create_count_matrix <- function(sample_list, gene_list){
   # abline(v = expr_cutoff, col = "red", lwd = 3)
   # sum(median_log2_cpm > expr_cutoff)
   
+  cpm_log_filtered <- cpm(count_matrix, log = TRUE)
+  # Heatmap
+  heatmap(cor(cpm_log_filtered))
+  # PCA
+  pca <- prcomp(t(cpm_log_filtered), scale. = TRUE)
+  plot(pca$x[, 1], pca$x[, 2], pch = ".", xlab = "PC1", ylab = "PC2")
+  text(pca$x[, 1], pca$x[, 2], labels = colnames(cpm_log_filtered))
+  summary(pca)
+  
   # head(count_matrix)
   return(count_matrix)
 }
 
+export_results <- function(deseq2_result, edgeR_result){
+  # Write results
+  results_folder = "../../../../deg/"
+  setwd(results_folder)
+  write.csv(deseq2_result, file="deseq2-diffexpr-results.csv")
+  write.csv(edgeR_result, file="edger-diffexpr-results.csv")
+}
+
 run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
-  # Assign condition
+  # Assign conditions
   # condition <- factor(c(rep("normal", 2), rep("treated", 2)))
   
   # Create a coldata frame and instantiate the DESeqDataSet
@@ -73,49 +90,52 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   names(new_resdata)[11] <- "Gene"
   head(resdata)
   
-  # Write results
-  results_folder = "../../../../deg/"
-  setwd(results_folder)
-  write.csv(new_resdata, file="deseq2-diffexpr-results.csv")
   # Plots
   hist(res$padj, breaks=50, col="grey")
   plotMA(res, ylim=c(-2,2))
-  plotCounts(dds, gene=which.min(res$padj), intgroup="condition")
+  # plotCounts(dds, gene=which.min(res$padj), intgroup="condition")
+  
+  return(new_resdata)
 }
 
-run_edger <- function(read_counts){
-  cpm_log <- cpm(read_counts, log = TRUE)
-  # Heatmap
-  heatmap(cor(cpm_log))
-  # PCA
-  pca <- prcomp(t(cpm_log), scale. = TRUE)
-  plot(pca$x[, 1], pca$x[, 2], pch = ".", xlab = "PC1", ylab = "PC2")
-  text(pca$x[, 1], pca$x[, 2], labels = colnames(cpm_log))
-  summary(pca)
+run_edger <- function(read_counts, metadata_labels){
+  dgList <- DGEList(counts = read_counts, group = metadata_labels)
+  # edgeR Normalization
+  dgList <- calcNormFactors(dgList)
+  dgList <- estimateDisp(dgList)
+  # Biological coefficient of variation
+  sqrt(dgList$common.dispersion)
+  plotBCV(dgList)
   
-  dgList <- DGEList(counts=read_counts, genes=rownames(read_counts))
-  print("This shouldn't be running")
+  # Test for differential expression between two classes
+  et <- exactTest(dgList)
+  results_edgeR <- topTags(et, n = nrow(read_counts), sort.by = "none")
+  head(results_edgeR$table)
+  
+  # How many genes are differentially expressed at an FDR of 10%?
+  sum(results_edgeR$table$FDR < .1)
+  plotSmear(et, de.tags = rownames(results_edgeR)[results_edgeR$table$FDR < .1])
+  abline(h = c(-2, 2), col = "blue")
+  
+  return(results_edgeR)
 }
 
 # Main
-args<-commandArgs(TRUE)
+args <- commandArgs(TRUE)
 argument_1 = args[1]
-argument_2 = args[2]
 
 # Special case if script is run manually using RStudio
 if (is.na(argument_1)){
-  argument_1 = "DeSeq2"
-  argument_2 = "Metadata.tsv"
+  argument_1 = "Metadata.tsv"
   setwd("../")
 }
 
-metadata = read.table(file = paste("raw/", argument_2, sep = ""), sep = "\t", header = FALSE)
+metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE)
 gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)
 
-if (argument_1 == "DeSeq2"){
-  run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
-} else{
-  run_edger(gene_counts)
-}
+results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
+results_edger = run_edger(filtered_gene_counts, metadata$V2)
+
+export_results(results_deseq2, results_edger)

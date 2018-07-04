@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 20.06.2018
-# Version: 0.1.5
+# Last Modified: Wed, 04.07.2018
+# Version: 0.1.6
 # Usage:
 #		sequanix
 #       snakemake -n
@@ -45,16 +45,16 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 #print("Please ensure all input files are located within the raw/ folder and parameters have been set accordingly.")
 
 # DESeq2 Version 1.18.1
+# edgeR Version 3.20.9
 rule DEG_analysis:
     input:
         expand("mapped/bowtie2/featureCounts/{sample}/", sample=SAMPLES)
     output:
         "deg/"
     run:
-		# Idea: Rscript <folder>/SCORE.R <DEG-Analysis-Type> <SAMPLES>
-        shell("Rscript libraries/SCORE.R DeSeq2 " + {METADATA})
-		#shell("Rscript /libraries/SCOPE.R EdgeR SAMPLES[0] SAMPLES[1] SAMPLES[2] SAMPLES[3]")
-        shell("cd ../../")
+		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
+		# DESeq2 / edgeR
+        shell("Rscript libraries/SCORE.R " + {METADATA})
 		
 # featureCounts Version 1.6.2
 # Counting mapped reads
