@@ -83,7 +83,8 @@ rule mapping:
 		4
 	run:
 		shell("{PATH_BOWTIE2_BUILD} {REF_FASTA} {REF_INDEX}")
-		shell("{PATH_BOWTIE2} -p {threads} -x {REF_INDEX} -U {input} -S {output}")
+		#shell("{PATH_BOWTIE2} -q --phred33 -p {threads} -x {REF_INDEX} -U {input} -S {output}")
+		shell("{PATH_BOWTIE2} -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -U {input} -S {output}")
 		shell("mv {REF_INDEX}* references/")
 # Verify that mapping went well?
         
