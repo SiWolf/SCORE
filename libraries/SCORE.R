@@ -60,12 +60,20 @@ create_count_matrix <- function(sample_list, gene_list){
   return(count_matrix)
 }
 
-export_results <- function(deseq2_result, edgeR_result){
+export_results <- function(deseq2_result, edgeR_result, gene_names_list){
   # Write results
   results_folder = "../../../../deg/"
   setwd(results_folder)
-  write.csv(deseq2_result, file="deseq2-diffexpr-results.csv")
-  write.csv(edgeR_result, file="edger-diffexpr-results.csv")
+  write.csv(deseq2_result, file="deseq2_diffexpr_results_extended.csv")
+  write.csv(edgeR_result, file="edger_diffexpr_results_extended.csv")
+  
+  edger_pvalues <- unlist(edgeR_result[, "PValue"])[1:length(gene_names_list)]
+  deseq2_pvalues <- deseq2_result[, "padj"]
+  final_results <- structure(list(DESeq2 = deseq2_pvalues, edgeR = edger_pvalues), row.names = gene_names_list, class = "data.frame")
+  #final_results <- merge(as.data.frame(edger_pvalues), as.data.frame(deseq2_pvalues))
+  
+  write.csv(final_results, file="all_diffexpr_results.csv")
+  return(final_results)
 }
 
 run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
@@ -82,7 +90,7 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   res <- results(dds)
   table(res$padj<0.05)
   # Order by adjusted p-value
-  res <- res[order(res$padj), ]
+  # res <- res[order(res$padj), ]
   # Merge with normalized count data and gene symbols
   resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized=TRUE)), by="row.names", sort=FALSE)
   new_resdata <- merge(as.data.frame(resdata), as.data.frame(list_of_gene_names), by="row.names", sort=FALSE)
@@ -138,4 +146,11 @@ filtered_gene_names <- rownames(filtered_gene_counts)
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
-export_results(results_deseq2, results_edger)
+results = export_results(results_deseq2, results_edger, filtered_gene_names)
+binary_results <- results
+# THIS DOES NOT WORK FOR E VALUES!! 
+binary_results[is.na(binary_results)] <- 1
+binary_results[binary_results<=0.05] <- 0
+binary_results[binary_results>0.05] <- 1
+binary_results[binary_results==1] <- 0
+binary_results[binary_results==0] <- 1
