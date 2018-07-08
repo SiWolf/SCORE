@@ -147,10 +147,13 @@ results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
 results = export_results(results_deseq2, results_edger, filtered_gene_names)
-binary_results <- results
-# THIS DOES NOT WORK FOR E VALUES!! 
-binary_results[is.na(binary_results)] <- 1
+raw_binary_results <- read.csv(file="all_diffexpr_results.csv", header=TRUE, sep=",")
+binary_results <- raw_binary_results[,-1]
+rownames(binary_results) <- raw_binary_results[,1]
+binary_results[is.na(binary_results)] <- 100
+binary_results[binary_results>0.05] <- 100
 binary_results[binary_results<=0.05] <- 0
-binary_results[binary_results>0.05] <- 1
-binary_results[binary_results==1] <- 0
 binary_results[binary_results==0] <- 1
+binary_results[binary_results==100] <- 0
+v <- vennCounts(binary_results)
+vennDiagram(v, circle.col = c("red", "blue"))
