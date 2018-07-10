@@ -1,6 +1,9 @@
 #source("https://bioconductor.org/biocLite.R")
+#biocLite("baySeq")
 #biocLite("DESeq2")
+#biocLite("edgeR")
 
+library("baySeq")
 library("DESeq2")
 library("edgeR")
 
@@ -76,6 +79,10 @@ export_results <- function(deseq2_result, edgeR_result, gene_names_list){
   return(final_results)
 }
 
+run_bayseq <- function(input){
+  print("This should not be running.")
+}
+
 run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Assign conditions
   # condition <- factor(c(rep("normal", 2), rep("treated", 2)))
@@ -128,6 +135,19 @@ run_edger <- function(read_counts, metadata_labels){
   return(results_edgeR)
 }
 
+visualization <- function(){
+  raw_binary_results <- read.csv(file="all_diffexpr_results.csv", header=TRUE, sep=",")
+  binary_results <- raw_binary_results[,-1]
+  rownames(binary_results) <- raw_binary_results[,1]
+  binary_results[is.na(binary_results)] <- 100
+  binary_results[binary_results>0.05] <- 100
+  binary_results[binary_results<=0.05] <- 0
+  binary_results[binary_results==0] <- 1
+  binary_results[binary_results==100] <- 0
+  v <- vennCounts(binary_results)
+  vennDiagram(v, circle.col = c("red", "blue"))  
+}
+
 # Main
 args <- commandArgs(TRUE)
 argument_1 = args[1]
@@ -147,13 +167,4 @@ results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
 results = export_results(results_deseq2, results_edger, filtered_gene_names)
-raw_binary_results <- read.csv(file="all_diffexpr_results.csv", header=TRUE, sep=",")
-binary_results <- raw_binary_results[,-1]
-rownames(binary_results) <- raw_binary_results[,1]
-binary_results[is.na(binary_results)] <- 100
-binary_results[binary_results>0.05] <- 100
-binary_results[binary_results<=0.05] <- 0
-binary_results[binary_results==0] <- 1
-binary_results[binary_results==100] <- 0
-v <- vennCounts(binary_results)
-vennDiagram(v, circle.col = c("red", "blue"))
+visualization()
