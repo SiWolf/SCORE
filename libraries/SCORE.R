@@ -63,24 +63,40 @@ create_count_matrix <- function(sample_list, gene_list){
   return(count_matrix)
 }
 
-export_results <- function(deseq2_result, edgeR_result, gene_names_list){
+export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_names_list){
   # Write results
   results_folder = "../../../../deg/"
   setwd(results_folder)
+  write.csv(bayseq_result, file="bayseq_diffexpr_results_extended.csv")
   write.csv(deseq2_result, file="deseq2_diffexpr_results_extended.csv")
   write.csv(edgeR_result, file="edger_diffexpr_results_extended.csv")
   
+  bayseq_reordered <- bayseq_de[order(match(bayseq_de$annotation, gene_names_list)), ]
+  bayseq_likelihood <- bayseq_reordered$Likelihood
   edger_pvalues <- unlist(edgeR_result[, "PValue"])[1:length(gene_names_list)]
   deseq2_pvalues <- deseq2_result[, "padj"]
-  final_results <- structure(list(DESeq2 = deseq2_pvalues, edgeR = edger_pvalues), row.names = gene_names_list, class = "data.frame")
+  final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues), row.names = gene_names_list, class = "data.frame")
   #final_results <- merge(as.data.frame(edger_pvalues), as.data.frame(deseq2_pvalues))
   
   write.csv(final_results, file="all_diffexpr_results.csv")
   return(final_results)
 }
 
-run_bayseq <- function(input){
-  print("This should not be running.")
+run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
+  # THIS WILL BREAK IF MORE THAN 2 CATEGORIES ARE AVAILABLE -> WARNING?
+  DE <- as.numeric(raw_replicates_list == unique(raw_replicates_list)[2])
+  groups <- list(NDE=rep(1, length(metadata$V2)), DE=DE +1)
+  CD <- new("countData", data = gene_counts, replicates = raw_replicates_list, groups = groups)
+  libsizes(CD) <- getLibsizes(CD)
+  CD@annotation <- as.data.frame(gene_list)
+  cl <- NULL
+  CDP.NBML <- getPriors.NB(CD, samplesize = 10000, estimation="QL", cl=cl)
+  CDPost.NBML <- getLikelihoods(CDP.NBML, pET = "BIC", cl = cl)
+  #CDPost.NBML@estProps
+  #topCounts(CDPost.NBML, group = 2)
+  #NBML.TPs <- getTPs(CDPost.NBML, group = 2, TPs= 1:100)
+  bayseq_de = topCounts(CDPost.NBML, group=2, number = length(gene_list))
+  return(bayseq_de)
 }
 
 run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
@@ -139,13 +155,17 @@ visualization <- function(){
   raw_binary_results <- read.csv(file="all_diffexpr_results.csv", header=TRUE, sep=",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
+  bayseq_column <- binary_results$baySeq
+  bayseq_column[bayseq_column>=0.95] <- 1
+  bayseq_column[bayseq_column<0.95] <- 0
   binary_results[is.na(binary_results)] <- 100
   binary_results[binary_results>0.05] <- 100
   binary_results[binary_results<=0.05] <- 0
   binary_results[binary_results==0] <- 1
   binary_results[binary_results==100] <- 0
+  binary_results$baySeq <- bayseq_column
   v <- vennCounts(binary_results)
-  vennDiagram(v, circle.col = c("red", "blue"))  
+  vennDiagram(v, circle.col = c("blue", "red", "green"))  
 }
 
 # Main
@@ -163,8 +183,10 @@ gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)
 
+#Also possible to try baySeq in edgeR mode?
+results_bayseq = run_bayseq(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
-results = export_results(results_deseq2, results_edger, filtered_gene_names)
+results = export_results(results_bayseq, results_deseq2, results_edger, filtered_gene_names)
 visualization()
