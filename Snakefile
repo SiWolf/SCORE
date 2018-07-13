@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 04.07.2018
-# Version: 0.1.6
+# Last Modified: Fr, 13.07.2018
+# Version: 0.1.7
 # Usage:
 #		sequanix
 #       snakemake -n
@@ -76,7 +76,7 @@ rule counting:
 # Followed by quanitification of transcripts (counting of reads)
 rule mapping:
 	input:
-		"trimmed/{sample}_trimmed.fastq"
+		"trimmed/{sample}_trimmed.fastq.gz"
 	output:
 		"mapped/bowtie2/{sample}.sam"
 	threads:
@@ -96,7 +96,7 @@ rule quality_control_and_trimming:
 	input:
 		"raw/{sample}.fastq.gz"
 	output:
-		"trimmed/{sample}_trimmed.fastq"
+		"trimmed/{sample}_trimmed.fastq.gz"
 	threads:
 		4
 	run:
@@ -104,11 +104,13 @@ rule quality_control_and_trimming:
 		shell("mkdir -p fastqc/{wildcards.sample}/")
 		shell("{PATH_FASTQC} {input} -o fastqc/{wildcards.sample}/")
 		# Trimming
-		shell("{PATH_FLEXBAR} -r {input} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20")
+		#TO-DO: Adjust Flexbar for paired-end sequencing (samples were already adapter trimmed)
+		#shell("{PATH_FLEXBAR} -r {input} -p {PAIR_2} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20 -z GZ")
+		shell("{PATH_FLEXBAR} -r {input} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20 -z GZ")
 		shell("mkdir -p trimmed/logs/")
-		shell("mv {wildcards.sample}_trimmed.fastq trimmed/")
+		shell("mv {wildcards.sample}_trimmed.fastq.gz trimmed/")
 		shell("mv {wildcards.sample}_trimmed.log trimmed/logs/")
 		shell("mkdir -p fastqc/{wildcards.sample}_trimmed/")
 		# Second FastQC
-		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed.fastq -o fastqc/{wildcards.sample}_trimmed/")
+		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")
 # Should not forget adapter trimming when using new data!
