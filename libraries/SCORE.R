@@ -1,16 +1,25 @@
+# --------------------------------------------
+# Title: SCORE.R
+# Author: Silver A. Wolf
+# Last Modified: We, 25.07.2018
+# Version: 0.0.1
+# --------------------------------------------
+
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("baySeq")
 #biocLite("DESeq2")
 #biocLite("edgeR")
 
+# Imports
 library("baySeq")
 library("DESeq2")
 library("edgeR")
 
+# Functions
 create_gene_list <- function(sample){
   sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
   setwd(sample_path)
-  gene_list = read.csv("counts", sep="", head=T, skip=1)[,c("Geneid")]
+  gene_list = read.csv("counts", sep = "", head = T, skip = 1)[,c("Geneid")]
   return(gene_list)
 }
 
@@ -21,7 +30,7 @@ create_count_matrix <- function(sample_list, gene_list){
     sample_nr = sample_nr + 1
     path <- paste("../", sample, sep = "")
     setwd(path)
-    counts = read.csv("counts", sep="", head=T, skip=1, row.names = 1)
+    counts = read.csv("counts", sep = "", head = T, skip = 1, row.names = 1)
     # Remove first six columns (genesymbol, chr, start, end, strand, length)
     counts <- counts[ ,6:ncol(counts)]
     if (sample_nr == 1){
@@ -67,35 +76,35 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_name
   # Write results
   results_folder = "../../../../deg/"
   setwd(results_folder)
-  write.csv(bayseq_result, file="bayseq_diffexpr_results_extended.csv")
-  write.csv(deseq2_result, file="deseq2_diffexpr_results_extended.csv")
-  write.csv(edgeR_result, file="edger_diffexpr_results_extended.csv")
+  write.csv(bayseq_result, file = "bayseq_diffexpr_results_extended.csv")
+  write.csv(deseq2_result, file = "deseq2_diffexpr_results_extended.csv")
+  write.csv(edgeR_result, file = "edger_diffexpr_results_extended.csv")
   
-  bayseq_reordered <- bayseq_de[order(match(bayseq_de$annotation, gene_names_list)), ]
+  bayseq_reordered <- bayseq_result[order(match(bayseq_result$annotation, gene_names_list)), ]
   bayseq_likelihood <- bayseq_reordered$Likelihood
   edger_pvalues <- unlist(edgeR_result[, "PValue"])[1:length(gene_names_list)]
   deseq2_pvalues <- deseq2_result[, "padj"]
   final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues), row.names = gene_names_list, class = "data.frame")
   #final_results <- merge(as.data.frame(edger_pvalues), as.data.frame(deseq2_pvalues))
   
-  write.csv(final_results, file="all_diffexpr_results.csv")
+  write.csv(final_results, file = "all_diffexpr_results.csv")
   return(final_results)
 }
 
 run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
   # THIS WILL BREAK IF MORE THAN 2 CATEGORIES ARE AVAILABLE -> WARNING?
   DE <- as.numeric(raw_replicates_list == unique(raw_replicates_list)[2])
-  groups <- list(NDE=rep(1, length(metadata$V2)), DE=DE +1)
+  groups <- list(NDE = rep(1, length(metadata$V2)), DE = DE +1)
   CD <- new("countData", data = gene_counts, replicates = raw_replicates_list, groups = groups)
   libsizes(CD) <- getLibsizes(CD)
   CD@annotation <- as.data.frame(gene_list)
   cl <- NULL
-  CDP.NBML <- getPriors.NB(CD, samplesize = 10000, estimation="QL", cl=cl)
+  CDP.NBML <- getPriors.NB(CD, samplesize = 10000, estimation = "QL", cl = cl)
   CDPost.NBML <- getLikelihoods(CDP.NBML, pET = "BIC", cl = cl)
   #CDPost.NBML@estProps
   #topCounts(CDPost.NBML, group = 2)
   #NBML.TPs <- getTPs(CDPost.NBML, group = 2, TPs= 1:100)
-  bayseq_de = topCounts(CDPost.NBML, group=2, number = length(gene_list))
+  bayseq_de = topCounts(CDPost.NBML, group = 2, number = length(gene_list))
   return(bayseq_de)
 }
 
@@ -104,8 +113,8 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # condition <- factor(c(rep("normal", 2), rep("treated", 2)))
   
   # Create a coldata frame and instantiate the DESeqDataSet
-  coldata <- data.frame(row.names=colnames(sample_counts), sample_conditions)
-  dds <- DESeqDataSetFromMatrix(countData=sample_counts, colData=coldata, design=~sample_conditions)
+  coldata <- data.frame(row.names = colnames(sample_counts), sample_conditions)
+  dds <- DESeqDataSetFromMatrix(countData = sample_counts, colData = coldata, design =~ sample_conditions)
   
   # Run the DESeq pipeline
   dds <- DESeq(dds)
@@ -115,16 +124,16 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Order by adjusted p-value
   # res <- res[order(res$padj), ]
   # Merge with normalized count data and gene symbols
-  resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized=TRUE)), by="row.names", sort=FALSE)
-  new_resdata <- merge(as.data.frame(resdata), as.data.frame(list_of_gene_names), by="row.names", sort=FALSE)
+  resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized = TRUE)), by = "row.names", sort = FALSE)
+  new_resdata <- merge(as.data.frame(resdata), as.data.frame(list_of_gene_names), by = "row.names", sort = FALSE)
   new_resdata <- new_resdata[3:13]
   names(new_resdata)[11] <- "Gene"
   head(resdata)
   
   # Plots
-  hist(res$padj, breaks=50, col="grey")
-  plotMA(res, ylim=c(-2,2))
-  # plotCounts(dds, gene=which.min(res$padj), intgroup="condition")
+  hist(res$padj, breaks = 50, col = "grey")
+  plotMA(res, ylim = c(-2, 2))
+  # plotCounts(dds, gene = which.min(res$padj), intgroup = "condition")
   
   return(new_resdata)
 }
@@ -152,17 +161,17 @@ run_edger <- function(read_counts, metadata_labels){
 }
 
 visualization <- function(){
-  raw_binary_results <- read.csv(file="all_diffexpr_results.csv", header=TRUE, sep=",")
+  raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
   bayseq_column <- binary_results$baySeq
-  bayseq_column[bayseq_column>=0.95] <- 1
-  bayseq_column[bayseq_column<0.95] <- 0
+  bayseq_column[bayseq_column >= 0.95] <- 1
+  bayseq_column[bayseq_column < 0.95] <- 0
   binary_results[is.na(binary_results)] <- 100
-  binary_results[binary_results>0.05] <- 100
-  binary_results[binary_results<=0.05] <- 0
-  binary_results[binary_results==0] <- 1
-  binary_results[binary_results==100] <- 0
+  binary_results[binary_results > 0.05] <- 100
+  binary_results[binary_results <= 0.05] <- 0
+  binary_results[binary_results == 0] <- 1
+  binary_results[binary_results == 100] <- 0
   binary_results$baySeq <- bayseq_column
   v <- vennCounts(binary_results)
   vennDiagram(v, circle.col = c("blue", "red", "green"))  
@@ -172,7 +181,7 @@ visualization <- function(){
 args <- commandArgs(TRUE)
 argument_1 = args[1]
 
-# Special case if script is run manually using RStudio
+# Special case if this script is run manually using RStudio
 if (is.na(argument_1)){
   argument_1 = "Metadata.tsv"
   setwd("../")
