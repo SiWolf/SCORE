@@ -1,6 +1,11 @@
-SCORE
-=======
+# SCORE
 
-Setup
-Sequanix
-Usage
+## Getting started
+
+### Setup
+
+## Usage
+
+## Additional tools
+
+### Sequanix
