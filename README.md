@@ -1,3 +1,6 @@
 SCORE
 =======
 
+Setup
+Sequanix
+Usage
