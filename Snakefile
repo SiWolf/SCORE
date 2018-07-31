@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 13.07.2018
-# Version: 0.1.7
+# Last Modified: Thue, 31.07.2018
+# Version: 0.1.8
 # Usage:
 #		sequanix
 #       snakemake -n
@@ -25,6 +25,8 @@ PATH_FASTQC = config["fastqc_path"]
 PATH_FEATURECOUNTS = config["featurecounts_path"]
 PATH_FLEXBAR = config["flexbar_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
+REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature_type"]
+REF_ANNOTATION_GENE_ID = config["ref_annotation_gene_type"]
 REF_FASTA = config["ref_fasta_file"]
 REF_INDEX = config["ref_index_name"]
 
@@ -44,6 +46,7 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 #print("Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
 #print("Please ensure all input files are located within the raw/ folder and any parameters have been set accordingly.")
 
+# baySeq Version 2.12.0
 # DESeq2 Version 1.18.1
 # edgeR Version 3.20.9
 rule DEG_analysis:
@@ -53,8 +56,8 @@ rule DEG_analysis:
 		"deg/"
 	run:
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		# DESeq2 / edgeR
 		shell("Rscript libraries/SCORE.R " + {METADATA})
+		shell("mv deg_analysis_graphs.pdf deg/")
 		
 # featureCounts Version 1.6.2
 # Counts mapped reads to genomic features
@@ -68,35 +71,39 @@ rule counting:
 	threads:
 		4
 	run:
-		shell("{PATH_FEATURECOUNTS} -T {threads} -a {REF_ANNOTATION} -o counts {input} -g gene_name")
+		shell("{PATH_FEATURECOUNTS} -T {threads} -a {REF_ANNOTATION} -o counts {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}")
 		shell("mv counts* {output}")
 
 # Bowtie2 Version 2.3.4.1
 # Ungapped genome mapping
 # Followed by quanitification of transcripts (counting of reads)
+# TO-DO: Verify that mapping went well?
 rule mapping:
 	input:
-		"trimmed/{sample}_trimmed.fastq.gz"
+		"trimmed/{sample}_trimmed_1.fastq.gz",
+		"trimmed/{sample}_trimmed_2.fastq.gz"
 	output:
 		"mapped/bowtie2/{sample}.sam"
 	threads:
 		4
 	run:
 		shell("{PATH_BOWTIE2_BUILD} {REF_FASTA} {REF_INDEX}")
-		#shell("{PATH_BOWTIE2} -q --phred33 -p {threads} -x {REF_INDEX} -U {input} -S {output}")
-		#shell("{PATH_BOWTIE2} -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -1 {input_1} -2 {input_2} -S {output}")
-		shell("{PATH_BOWTIE2} -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -U {input} -S {output}")
+		p1 = input[0]
+		p2 = input[1]
+		shell("{PATH_BOWTIE2} -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -1 {p1} -2 {p2} -S {output}")
 		shell("mv {REF_INDEX}* references/")
-# Verify that mapping went well?
         
 # FastQC Version 0.11.7
 # Flexbar Version 3.3.0
 # Quality control and basequality trimming
+# TO-DO: Should not forget adapter trimming when using new data!
 rule quality_control_and_trimming:
 	input:
-		"raw/{sample}.fastq.gz"
+		"raw/{sample}_1.fastq.gz",
+		"raw/{sample}_2.fastq.gz"
 	output:
-		"trimmed/{sample}_trimmed.fastq.gz"
+		"trimmed/{sample}_trimmed_1.fastq.gz",
+		"trimmed/{sample}_trimmed_2.fastq.gz",
 	threads:
 		4
 	run:
@@ -104,13 +111,14 @@ rule quality_control_and_trimming:
 		shell("mkdir -p fastqc/{wildcards.sample}/")
 		shell("{PATH_FASTQC} {input} -o fastqc/{wildcards.sample}/")
 		# Trimming
-		#TO-DO: Adjust Flexbar for paired-end sequencing (samples were already adapter trimmed)
-		#shell("{PATH_FLEXBAR} -r {input} -p {PAIR_2} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20 -z GZ")
-		shell("{PATH_FLEXBAR} -r {input} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20 -z GZ")
+		r1 = input[0]
+		r2 = input[1]
+		shell("{PATH_FLEXBAR} -r {r1} -p {r2} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20 -z GZ")
 		shell("mkdir -p trimmed/logs/")
-		shell("mv {wildcards.sample}_trimmed.fastq.gz trimmed/")
+		shell("mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/")
+		shell("mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/")
 		shell("mv {wildcards.sample}_trimmed.log trimmed/logs/")
 		shell("mkdir -p fastqc/{wildcards.sample}_trimmed/")
 		# Second FastQC
-		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")
-# Should not forget adapter trimming when using new data!
+		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed_1.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")
+		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed_2.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")

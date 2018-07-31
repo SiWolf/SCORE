@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: We, 25.07.2018
-# Version: 0.0.1
+# Last Modified: Thue, 31.07.2018
+# Version: 0.0.2
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -160,7 +160,7 @@ run_edger <- function(read_counts, metadata_labels){
   return(results_edgeR)
 }
 
-visualization <- function(){
+visualization_vennDiagram <- function(){
   raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
@@ -174,7 +174,7 @@ visualization <- function(){
   binary_results[binary_results == 100] <- 0
   binary_results$baySeq <- bayseq_column
   v <- vennCounts(binary_results)
-  vennDiagram(v, circle.col = c("blue", "red", "green"))  
+  vennDiagram(v, circle.col = c("blue", "red", "green"))
 }
 
 # Main
@@ -187,6 +187,8 @@ if (is.na(argument_1)){
   setwd("../")
 }
 
+pdf("deg_analysis_graphs.pdf")
+
 metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE)
 gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
@@ -198,4 +200,6 @@ results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
 results = export_results(results_bayseq, results_deseq2, results_edger, filtered_gene_names)
-visualization()
+visualization_vennDiagram()
+
+dev.off()
