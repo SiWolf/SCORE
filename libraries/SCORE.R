@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 31.07.2018
-# Version: 0.0.2
+# Last Modified: Thur, 02.08.2018
+# Version: 0.0.3
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -189,7 +189,7 @@ if (is.na(argument_1)){
 
 pdf("deg_analysis_graphs.pdf")
 
-metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE)
+metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE, comment.char = "@")
 gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)

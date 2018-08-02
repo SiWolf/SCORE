@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 31.07.2018
-# Version: 0.1.8
+# Last Modified: Thur, 02.08.2018
+# Version: 0.1.9
 # Usage:
 #		sequanix
 #       snakemake -n
@@ -35,7 +35,7 @@ def read_tsv(tsv_filename):
 	samples_dic = {}
 	with open("raw/" + tsv_filename) as tsv:
 		for line in csv.reader(tsv, delimiter = "\t"):
-			if line[0][0] != "#":
+			if line[0][0] != "@":
 				samples_dic[line[0]] = line[1]
 	return(samples_dic)
 
@@ -56,7 +56,7 @@ rule DEG_analysis:
 		"deg/"
 	run:
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		shell("Rscript libraries/SCORE.R " + {METADATA})
+		shell("Rscript libraries/SCORE.R {METADATA}")
 		shell("mv deg_analysis_graphs.pdf deg/")
 		
 # featureCounts Version 1.6.2
