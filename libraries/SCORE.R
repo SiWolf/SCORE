@@ -92,7 +92,6 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_name
 }
 
 run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
-  # THIS WILL BREAK IF MORE THAN 2 CATEGORIES ARE AVAILABLE -> WARNING?
   DE <- as.numeric(raw_replicates_list == unique(raw_replicates_list)[2])
   groups <- list(NDE = rep(1, length(metadata$V2)), DE = DE +1)
   CD <- new("countData", data = gene_counts, replicates = raw_replicates_list, groups = groups)
@@ -124,8 +123,8 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Order by adjusted p-value
   # res <- res[order(res$padj), ]
   # Merge with normalized count data and gene symbols
-  resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized = TRUE)), by = "row.names", sort = FALSE)
-  new_resdata <- merge(as.data.frame(resdata), as.data.frame(list_of_gene_names), by = "row.names", sort = FALSE)
+  resdata <- merge(as.matrix(res), as.matrix(counts(dds, normalized = TRUE)), by = "row.names", sort = FALSE)
+  new_resdata <- merge(as.matrix(resdata), as.matrix(list_of_gene_names), by = "row.names", sort = FALSE)
   new_resdata <- new_resdata[3:13]
   names(new_resdata)[11] <- "Gene"
   head(resdata)
@@ -183,7 +182,7 @@ argument_1 = args[1]
 
 # Special case if this script is run manually using RStudio
 if (is.na(argument_1)){
-  argument_1 = "Metadata.tsv"
+  argument_1 = "Metadata_Test.tsv"
   setwd("../")
 }
 
@@ -194,7 +193,7 @@ gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)
 
-#Also possible to try baySeq in edgeR mode?
+# Also possible to try baySeq in edgeR mode?
 results_bayseq = run_bayseq(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
