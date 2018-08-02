@@ -130,9 +130,13 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   head(resdata)
   
   # Plots
-  hist(res$padj, breaks = 50, col = "grey")
-  plotMA(res, ylim = c(-2, 2))
-  # plotCounts(dds, gene = which.min(res$padj), intgroup = "condition")
+  # Normalized counts across groups for most significant gene
+  plotCounts(dds, gene = which.min(res$padj), intgroup = "sample_conditions")
+  # Histogram of adjusted p-values
+  hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust")
+  # Principal component analysis
+  vsd <- vst(dds, blind = FALSE)
+  plotPCA(vsd, intgroup = c("sample_conditions"))
   
   return(new_resdata)
 }
@@ -182,7 +186,7 @@ argument_1 = args[1]
 
 # Special case if this script is run manually using RStudio
 if (is.na(argument_1)){
-  argument_1 = "Metadata_Test.tsv"
+  argument_1 = "Metadata.tsv"
   setwd("../")
 }
 

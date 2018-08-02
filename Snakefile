@@ -55,6 +55,8 @@ rule DEG_analysis:
 	output:
 		"deg/"
 	run:
+		# Moving the alignment reference index now, since it's not used anymore
+		shell("mv {REF_INDEX}* references/")
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
 		shell("Rscript libraries/SCORE.R {METADATA}")
 		shell("mv deg_analysis_graphs.pdf deg/")
@@ -91,7 +93,6 @@ rule mapping:
 		p1 = input[0]
 		p2 = input[1]
 		shell("{PATH_BOWTIE2} -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -1 {p1} -2 {p2} -S {output}")
-		shell("mv {REF_INDEX}* references/")
         
 # FastQC Version 0.11.7
 # Flexbar Version 3.3.0
