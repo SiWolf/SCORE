@@ -135,6 +135,7 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Histogram of adjusted p-values
   hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust")
   # Principal component analysis
+  # Does not work with low-count genes and should be silenced in these cases
   vsd <- vst(dds, blind = FALSE)
   plotPCA(vsd, intgroup = c("sample_conditions"))
   
