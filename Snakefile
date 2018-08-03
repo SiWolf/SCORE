@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 02.08.2018
-# Version: 0.1.9
+# Last Modified: Fr, 03.08.2018
+# Version: 0.2.0
 # Usage:
 #		sequanix
 #       snakemake -n
@@ -46,20 +46,28 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 #print("Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
 #print("Please ensure all input files are located within the raw/ folder and any parameters have been set accordingly.")
 
-# baySeq Version 2.12.0
-# DESeq2 Version 1.18.1
-# edgeR Version 3.20.9
-rule DEG_analysis:
+rule postprocessing:
 	input:
-		expand("mapped/bowtie2/featureCounts/{sample}/", sample=SAMPLES)
+		"deg_analysis_graphs.pdf"
 	output:
-		"deg/"
+		"deg/deg_analysis_graphs.pdf"
 	run:
 		# Moving the alignment reference index now, since it's not used anymore
 		shell("mv {REF_INDEX}* references/")
+		shell("mv {input} deg/")
+
+# baySeq Version 2.12.0
+# DESeq2 Version 1.18.1
+# edgeR Version 3.20.9
+# TO-DO: Create a Conda enviroment for the R packages
+rule DEG_analysis:
+	input:
+		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
+	output:
+		"deg_analysis_graphs.pdf"
+	run:
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
 		shell("Rscript libraries/SCORE.R {METADATA}")
-		shell("mv deg_analysis_graphs.pdf deg/")
 		
 # featureCounts Version 1.6.2
 # Counts mapped reads to genomic features
