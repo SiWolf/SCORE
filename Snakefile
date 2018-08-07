@@ -1,11 +1,12 @@
 # --------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 03.08.2018
-# Version: 0.2.0
+# Last Modified: Thue, 07.08.2018
+# Version: 0.2.1
 # Usage:
 #		sequanix
 #       snakemake -n
+#		snakemake --use-conda
 #       snakemake --dag | dot -Tsvg > dag.svg
 #       snakemake -j {max_amount_of_threads}
 #       snakemake --config {parameter}={value}
@@ -18,7 +19,7 @@ import csv
 configfile: "config.yaml"
 
 # Global parameters
-METADATA = config["metadata_file"]
+METADATA = "Metadata.tsv"
 PATH_BOWTIE2 = config["bowtie2_path"]
 PATH_BOWTIE2_BUILD = config["bowtie2_build_path"]
 PATH_FASTQC = config["fastqc_path"]
@@ -52,22 +53,23 @@ rule postprocessing:
 	output:
 		"deg/deg_analysis_graphs.pdf"
 	run:
-		# Moving the alignment reference index now, since it's not used anymore
+		# Moving the alignment reference index file now, since it's not used anymore
 		shell("mv {REF_INDEX}* references/")
 		shell("mv {input} deg/")
 
 # baySeq Version 2.12.0
 # DESeq2 Version 1.18.1
-# edgeR Version 3.20.9
-# TO-DO: Create a Conda enviroment for the R packages
+# edgeR Version 3.20.7
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
 	output:
 		"deg_analysis_graphs.pdf"
-	run:
+	conda:
+		"libraries/score_deg_environment.yml"
+	script:
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		shell("Rscript libraries/SCORE.R {METADATA}")
+		"libraries/SCORE.R"
 		
 # featureCounts Version 1.6.2
 # Counts mapped reads to genomic features
