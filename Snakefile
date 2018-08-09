@@ -1,14 +1,14 @@
 # --------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 07.08.2018
-# Version: 0.2.1
+# Last Modified: Thur, 09.08.2018
+# Version: 0.2.2
 # Usage:
+#		snakemake -j {max_amount_of_threads} snakemake --use-conda
+# Additional options:
 #		sequanix
 #       snakemake -n
-#		snakemake --use-conda
 #       snakemake --dag | dot -Tsvg > dag.svg
-#       snakemake -j {max_amount_of_threads}
 #       snakemake --config {parameter}={value}
 # --------------------------------------------
 
@@ -19,11 +19,10 @@ import csv
 configfile: "config.yaml"
 
 # Global parameters
-METADATA = "Metadata.tsv"
+METADATA = config["metadata_file"]
 PATH_BOWTIE2 = config["bowtie2_path"]
 PATH_BOWTIE2_BUILD = config["bowtie2_build_path"]
 PATH_FASTQC = config["fastqc_path"]
-PATH_FEATURECOUNTS = config["featurecounts_path"]
 PATH_FLEXBAR = config["flexbar_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
 REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature_type"]
@@ -43,9 +42,6 @@ def read_tsv(tsv_filename):
 # Samples
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
-
-#print("Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
-#print("Please ensure all input files are located within the raw/ folder and any parameters have been set accordingly.")
 
 rule postprocessing:
 	input:
@@ -67,9 +63,9 @@ rule DEG_analysis:
 		"deg_analysis_graphs.pdf"
 	conda:
 		"libraries/score_deg_environment.yml"
-	script:
+	shell:
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		"libraries/SCORE.R"
+		"Rscript libraries/SCORE.R {METADATA}"
 		
 # featureCounts Version 1.6.2
 # Counts mapped reads to genomic features
@@ -80,16 +76,18 @@ rule counting:
 		"mapped/bowtie2/{sample}.sam"
 	output:
 		"mapped/bowtie2/featureCounts/{sample}/"
+	conda:
+		"libraries/score_count_environment.yml"
 	threads:
 		4
-	run:
-		shell("{PATH_FEATURECOUNTS} -T {threads} -a {REF_ANNOTATION} -o counts {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}")
-		shell("mv counts* {output}")
+	shell:
+		"featureCounts -T {threads} -a {REF_ANNOTATION} -o counts {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID} && mv counts* {output}"
 
 # Bowtie2 Version 2.3.4.1
 # Ungapped genome mapping
 # Followed by quanitification of transcripts (counting of reads)
 # TO-DO: Verify that mapping went well?
+# TO-DO: Create Conda environment for Bowtie2 (does not work as of 9-8-18)
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
@@ -108,13 +106,16 @@ rule mapping:
 # Flexbar Version 3.3.0
 # Quality control and basequality trimming
 # TO-DO: Should not forget adapter trimming when using new data!
+# TO-DO: Create Conda environment for FastQC and Flexbar (does not work as of 9-8-18)
 rule quality_control_and_trimming:
 	input:
 		"raw/{sample}_1.fastq.gz",
 		"raw/{sample}_2.fastq.gz"
 	output:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
-		"trimmed/{sample}_trimmed_2.fastq.gz",
+		"trimmed/{sample}_trimmed_2.fastq.gz"
+	log:
+		"trimmed/logs/"
 	threads:
 		4
 	run:
@@ -125,11 +126,20 @@ rule quality_control_and_trimming:
 		r1 = input[0]
 		r2 = input[1]
 		shell("{PATH_FLEXBAR} -r {r1} -p {r2} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20 -z GZ")
-		shell("mkdir -p trimmed/logs/")
 		shell("mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/")
 		shell("mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/")
-		shell("mv {wildcards.sample}_trimmed.log trimmed/logs/")
+		shell("mv {wildcards.sample}_trimmed.log {log}")
 		shell("mkdir -p fastqc/{wildcards.sample}_trimmed/")
 		# Second FastQC
 		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed_1.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")
 		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed_2.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")
+
+onstart:
+	print("\n Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
+	print(" Please ensure all input files are located within the raw/ folder and your parameters have been set accordingly.")		
+		
+onerror:
+	print("\n Something went wrong. Please refer to the error messages above. \n")
+
+onsuccess:
+	print("\n SCORE finished successfully. \n")

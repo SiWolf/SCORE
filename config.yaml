@@ -9,5 +9,6 @@ ref_index_name: REF_Transduziert
 bowtie2_path: ./libraries/bowtie2/bowtie2
 bowtie2_build_path: ./libraries/bowtie2/bowtie2-build
 fastqc_path: ./libraries/fastqc/fastqc
-featurecounts_path: ./libraries/subread/bin/featureCounts
 flexbar_path: ./libraries/flexbar/flexbar
+# SAMPLES
+metadata_file: Metadata.tsv

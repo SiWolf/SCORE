@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 02.08.2018
-# Version: 0.0.3
+# Last Modified: Thur, 09.08.2018
+# Version: 0.0.5
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -182,9 +182,18 @@ visualization_vennDiagram <- function(){
 }
 
 # Main
+args <- commandArgs(TRUE)
+argument_1 = args[1]
+
+# Special case if this script is run manually using RStudio
+if (is.na(argument_1)){
+  argument_1 = "Metadata.tsv"
+  setwd("../")
+}
+
 pdf("deg_analysis_graphs.pdf")
 
-metadata = read.table(file = "raw/Metadata.tsv", sep = "\t", header = FALSE, comment.char = "@")
+metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE, comment.char = "@")
 gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)
