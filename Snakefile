@@ -1,16 +1,16 @@
-# --------------------------------------------
+# -------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 09.08.2018
-# Version: 0.2.2
+# Last Modified: Thur, 10.08.2018
+# Version: 0.2.3
 # Usage:
-#		snakemake -j {max_amount_of_threads} snakemake --use-conda
+#		snakemake -j {max_amount_of_threads} --use-conda
 # Additional options:
 #		sequanix
 #       snakemake -n
 #       snakemake --dag | dot -Tsvg > dag.svg
 #       snakemake --config {parameter}={value}
-# --------------------------------------------
+# -------------------------------------------------------
 
 # Imports
 import csv
@@ -20,6 +20,9 @@ configfile: "config.yaml"
 
 # Global parameters
 METADATA = config["metadata_file"]
+PARAM_FLEXBAR_LENGTH = config["flexbar_min_length"]
+PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
+PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
 PATH_BOWTIE2 = config["bowtie2_path"]
 PATH_BOWTIE2_BUILD = config["bowtie2_build_path"]
 PATH_FASTQC = config["fastqc_path"]
@@ -98,9 +101,7 @@ rule mapping:
 		4
 	run:
 		shell("{PATH_BOWTIE2_BUILD} {REF_FASTA} {REF_INDEX}")
-		p1 = input[0]
-		p2 = input[1]
-		shell("{PATH_BOWTIE2} -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -1 {p1} -2 {p2} -S {output}")
+		shell("{PATH_BOWTIE2} -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -1 {input[0]} -2 {input[1]} -S {output}")
         
 # FastQC Version 0.11.7
 # Flexbar Version 3.3.0
@@ -123,9 +124,7 @@ rule quality_control_and_trimming:
 		shell("mkdir -p fastqc/{wildcards.sample}/")
 		shell("{PATH_FASTQC} {input} -o fastqc/{wildcards.sample}/")
 		# Trimming
-		r1 = input[0]
-		r2 = input[1]
-		shell("{PATH_FLEXBAR} -r {r1} -p {r2} -t {wildcards.sample}_trimmed -n {threads} -u 20 -q TAIL -qf sanger -m 20 -z GZ")
+		shell("{PATH_FLEXBAR} -r {input[0]} -p {input[1]} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ")
 		shell("mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/")
 		shell("mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/")
 		shell("mv {wildcards.sample}_trimmed.log {log}")

@@ -168,6 +168,7 @@ visualization_vennDiagram <- function(){
   raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
+  # TO-DO: BaySeq dynamic treshold? Compare with DESeq?
   bayseq_column <- binary_results$baySeq
   bayseq_column[bayseq_column >= 0.95] <- 1
   bayseq_column[bayseq_column < 0.95] <- 0
