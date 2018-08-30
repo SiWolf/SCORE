@@ -58,6 +58,7 @@ def fetch_annotation(gff_file, annotation_feature):
 					for bayseq_line in csv.reader(bayseq_results, delimiter = ","):
 						if id == bayseq_line[0]:
 							direction = bayseq_line[9]
+							break
 				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + direction + "\n")
 	consensus_extended.close()
 
