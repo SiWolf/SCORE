@@ -38,11 +38,12 @@ def fetch_annotation(gff_file, annotation_feature):
 	consensus_extended = open("deg/consensus_diffexpr_results_extended.csv", "w") 
 	with open("deg/consensus_diffexpr_results.csv") as consensus_results:
 		for consensus_line in csv.reader(consensus_results, delimiter = ","):
+			direction = ""
 			gene = ""
 			product = ""
 			id = consensus_line[0]
 			if id == "":
-				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "\n")
+				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + ",ordering\n")
 			else:
 				with open(gff_file) as gff_annotation:
 					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
@@ -53,7 +54,11 @@ def fetch_annotation(gff_file, annotation_feature):
 								if gff_line[8].split("ID=")[1].count("gene=") > 0:
 									gene = gff_line[8].split("gene=")[1].split(";")[0]
 								break
-				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "\n")
+				with open("deg/bayseq_diffexpr_results_extended.csv") as bayseq_results:
+					for bayseq_line in csv.reader(bayseq_results, delimiter = ","):
+						if id == bayseq_line[0]:
+							direction = bayseq_line[9]
+				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + direction + "\n")
 	consensus_extended.close()
 
 def read_tsv(tsv_filename):

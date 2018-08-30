@@ -93,11 +93,12 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_name
 
 run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
   DE <- as.numeric(raw_replicates_list == unique(raw_replicates_list)[2])
-  groups <- list(NDE = rep(1, length(metadata$V2)), DE = DE +1)
+  groups <- list(NDE = rep(1, length(metadata$V2)), DE = DE + 1)
   CD <- new("countData", data = gene_counts, replicates = raw_replicates_list, groups = groups)
   libsizes(CD) <- getLibsizes(CD)
   CD@annotation <- as.data.frame(gene_list)
   cl <- NULL
+  # TO-DO: Test different samplesizes
   CDP.NBML <- getPriors.NB(CD, samplesize = 10000, estimation = "QL", cl = cl)
   CDPost.NBML <- getLikelihoods(CDP.NBML, pET = "BIC", cl = cl)
   #CDPost.NBML@estProps
