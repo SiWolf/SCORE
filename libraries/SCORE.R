@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 23.08.2018
-# Version: 0.0.6
+# Last Modified: Thur, 29.08.2018
+# Version: 0.0.8
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -164,17 +164,17 @@ run_edger <- function(read_counts, metadata_labels){
   return(results_edgeR)
 }
 
-visualization_vennDiagram <- function(){
+visualization_vennDiagram <- function(cutoff_bayseq, cutoff_general){
   raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
   # TO-DO: BaySeq dynamic treshold? Compare with DESeq?
   bayseq_column <- binary_results$baySeq
-  bayseq_column[bayseq_column >= 0.95] <- 1
-  bayseq_column[bayseq_column < 0.95] <- 0
+  bayseq_column[bayseq_column >= (1 - cutoff_bayseq)] <- 1
+  bayseq_column[bayseq_column < (1 - cutoff_bayseq)] <- 0
   binary_results[is.na(binary_results)] <- 100
-  binary_results[binary_results > 0.05] <- 100
-  binary_results[binary_results <= 0.05] <- 0
+  binary_results[binary_results > cutoff_general] <- 100
+  binary_results[binary_results <= cutoff_general] <- 0
   binary_results[binary_results == 0] <- 1
   binary_results[binary_results == 100] <- 0
   binary_results$baySeq <- bayseq_column
@@ -196,6 +196,11 @@ if (is.na(argument_1)){
   setwd("../")
 }
 
+# Thresholds for DEG tools
+# Might need to be adjusted per experiment
+threshold_bayseq = 0.1
+threshold_general = 0.05
+
 pdf("deg_analysis_graphs.pdf")
 
 metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE, comment.char = "@")
@@ -209,7 +214,7 @@ results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
 results = export_results(results_bayseq, results_deseq2, results_edger, filtered_gene_names)
-results_consensus = visualization_vennDiagram()
+results_consensus = visualization_vennDiagram(threshold_bayseq, threshold_general)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 
 dev.off()
