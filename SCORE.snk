@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 30.08.2018
-# Version: 0.2.5
+# Last Modified: Wed, 05.09.2018
+# Version: 0.2.6
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -25,7 +25,6 @@ PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
 PATH_BOWTIE2 = config["bowtie2_path"]
 PATH_BOWTIE2_BUILD = config["bowtie2_build_path"]
-PATH_FASTQC = config["fastqc_path"]
 PATH_FLEXBAR = config["flexbar_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
 REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature_type"]
@@ -121,7 +120,7 @@ rule counting:
 # Ungapped genome mapping
 # Followed by quanitification of transcripts (counting of reads)
 # TO-DO: Verify that mapping went well?
-# TO-DO: Create Conda environment for Bowtie2 (does not work as of 9-8-18)
+# TO-DO: Create Conda environment for Bowtie2
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
@@ -138,7 +137,7 @@ rule mapping:
 # Flexbar Version 3.3.0
 # Quality control and basequality trimming
 # TO-DO: Should not forget adapter trimming when using new data!
-# TO-DO: Create Conda environment for FastQC and Flexbar (does not work as of 9-8-18)
+# TO-DO: Create Conda environment for Flexbar
 rule quality_control_and_trimming:
 	input:
 		"raw/{sample}_1.fastq.gz",
@@ -146,30 +145,34 @@ rule quality_control_and_trimming:
 	output:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
 		"trimmed/{sample}_trimmed_2.fastq.gz"
+	conda:
+		"libraries/score_qc_environment.yml"
 	log:
 		"trimmed/logs/"
 	threads:
 		4
-	run:
+	shell:
+		"""
 		# Initial FastQC
-		shell("mkdir -p fastqc/{wildcards.sample}/")
-		shell("{PATH_FASTQC} {input} -o fastqc/{wildcards.sample}/")
+		mkdir -p fastqc/{wildcards.sample}/
+		fastqc {input} -o fastqc/{wildcards.sample}/
 		# Trimming
-		shell("{PATH_FLEXBAR} -r {input[0]} -p {input[1]} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ")
-		shell("mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/")
-		shell("mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/")
-		shell("mv {wildcards.sample}_trimmed.log {log}")
-		shell("mkdir -p fastqc/{wildcards.sample}_trimmed/")
+		{PATH_FLEXBAR} -r {input[0]} -p {input[1]} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
+		mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/
+		mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/
+		mv {wildcards.sample}_trimmed.log {log}
+		mkdir -p fastqc/{wildcards.sample}_trimmed/
 		# Second FastQC
-		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed_1.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")
-		shell("{PATH_FASTQC} trimmed/{wildcards.sample}_trimmed_2.fastq.gz -o fastqc/{wildcards.sample}_trimmed/")
+		fastqc trimmed/{wildcards.sample}_trimmed_1.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
+		fastqc trimmed/{wildcards.sample}_trimmed_2.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
+		"""
 
 onstart:
 	print("\n Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
 	print(" Please ensure all input files are located within the raw/ folder and your parameters have been set accordingly.")		
 		
 onerror:
-	print("\n Something went wrong. Please refer to the error messages above. \n")
+	print("\n Something went wrong. Please refer to the error messages listed above. \n")
 
 onsuccess:
 	print("\n SCORE finished successfully. \n")

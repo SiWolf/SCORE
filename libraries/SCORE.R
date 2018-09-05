@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 29.08.2018
-# Version: 0.0.8
+# Last Modified: Wed, 05.09.2018
+# Version: 0.0.9
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -104,6 +104,7 @@ run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
   #CDPost.NBML@estProps
   #topCounts(CDPost.NBML, group = 2)
   #NBML.TPs <- getTPs(CDPost.NBML, group = 2, TPs= 1:100)
+  # Fetching the top hits
   bayseq_de = topCounts(CDPost.NBML, group = 2, number = length(gene_list))
   return(bayseq_de)
 }
@@ -145,9 +146,11 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
 
 run_edger <- function(read_counts, metadata_labels){
   dgList <- DGEList(counts = read_counts, group = metadata_labels)
+  
   # edgeR Normalization
   dgList <- calcNormFactors(dgList)
   dgList <- estimateDisp(dgList)
+  
   # Biological coefficient of variation
   sqrt(dgList$common.dispersion)
   plotBCV(dgList)
