@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 05.09.2018
-# Version: 0.0.9
+# Last Modified: Thur, 06.09.2018
+# Version: 0.1.0
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -185,8 +185,7 @@ visualization_vennDiagram <- function(cutoff_bayseq, cutoff_general){
   v <- vennCounts(binary_results)
   vennDiagram(v, circle.col = c("blue", "red", "green"))
   # Export consensus list (majority vote of methods)
-  # Must be updated for each new method included
-  consensus_degs <- subset(binary_results, rowSums(binary_results) > 1)
+  consensus_degs <- subset(binary_results, rowSums(binary_results)/ncol(binary_results) >= 0.5)
   return(consensus_degs)
 }
 
