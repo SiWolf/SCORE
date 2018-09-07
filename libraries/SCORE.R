@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 06.09.2018
-# Version: 0.1.0
+# Last Modified: Thur, 07.09.2018
+# Version: 0.1.1
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -172,16 +172,26 @@ visualization_vennDiagram <- function(cutoff_bayseq, cutoff_general){
   raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
-  # TO-DO: BaySeq dynamic treshold? Compare with DESeq?
+  
+  # BaySeq uses a dynamic treshold and labels the first 3% of sorted genes as DE
+  # TO-DO: Replace this 3% of sorted genes with 3% of all (nonfiltered) genes
   bayseq_column <- binary_results$baySeq
-  bayseq_column[bayseq_column >= (1 - cutoff_bayseq)] <- 1
-  bayseq_column[bayseq_column < (1 - cutoff_bayseq)] <- 0
+  degs_expected <- round(length(bayseq_column)*cutoff_bayseq)
+  bayseq_column <- as.data.frame(bayseq_column)
+  rownames(bayseq_column) <- raw_binary_results[,1]
+  bayseq_column <- bayseq_column[order(-bayseq_column$bayseq_column), , drop = FALSE]
+  for (i in 1:degs_expected){
+    bayseq_column[1][i, ] <- 1
+  }
+  bayseq_column[bayseq_column != 1] <- 0
+  bayseq_column <- bayseq_column[order(row.names(bayseq_column)), , drop = FALSE]
+
   binary_results[is.na(binary_results)] <- 100
   binary_results[binary_results > cutoff_general] <- 100
   binary_results[binary_results <= cutoff_general] <- 0
   binary_results[binary_results == 0] <- 1
   binary_results[binary_results == 100] <- 0
-  binary_results$baySeq <- bayseq_column
+  binary_results$baySeq <- bayseq_column$bayseq_column
   v <- vennCounts(binary_results)
   vennDiagram(v, circle.col = c("blue", "red", "green"))
   # Export consensus list (majority vote of methods)
@@ -199,9 +209,11 @@ if (is.na(argument_1)){
   setwd("../")
 }
 
-# Thresholds for DEG tools
+# Percentage of expected DEGs
 # Might need to be adjusted per experiment
-threshold_bayseq = 0.1
+# TO-DO: Set this as an input parameter
+# TO-DO: Remove baySeq threshold iff using 5% of all genes instead improves accuracy
+threshold_bayseq = 0.03
 threshold_general = 0.05
 
 pdf("deg_analysis_graphs.pdf")
