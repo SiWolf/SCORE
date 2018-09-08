@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 05.09.2018
-# Version: 0.2.6
+# Last Modified: Sa, 08.09.2018
+# Version: 0.2.7
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -20,6 +20,8 @@ configfile: "config.yaml"
 
 # Global parameters
 METADATA = config["metadata_file"]
+PARAM_DEG_BAYSEQ = config["bayseq_threshold"]
+PARAM_DEG_GENERAL = config["general_threshold"]
 PARAM_FLEXBAR_LENGTH = config["flexbar_min_length"]
 PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
@@ -98,7 +100,7 @@ rule DEG_analysis:
 		"libraries/score_deg_environment.yml"
 	shell:
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		"Rscript libraries/SCORE.R {METADATA}"
+		"Rscript libraries/SCORE.R {METADATA} {PARAM_DEG_BAYSEQ} {PARAM_DEG_GENERAL}"
 		
 # featureCounts Version 1.6.2
 # Counts mapped reads to genomic features

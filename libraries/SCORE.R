@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 07.09.2018
-# Version: 0.1.1
+# Last Modified: Sa, 08.09.2018
+# Version: 0.1.2
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -202,19 +202,22 @@ visualization_vennDiagram <- function(cutoff_bayseq, cutoff_general){
 # Main
 args <- commandArgs(TRUE)
 argument_1 = args[1]
+argument_2 = args[2]
+argument_3 = args[3]
 
 # Special case if this script is run manually using RStudio
 if (is.na(argument_1)){
   argument_1 = "Metadata.tsv"
+  argument_2 = 0.03
+  argument_3 = 0.05
   setwd("../")
 }
 
 # Percentage of expected DEGs
 # Might need to be adjusted per experiment
-# TO-DO: Set this as an input parameter
 # TO-DO: Remove baySeq threshold iff using 5% of all genes instead improves accuracy
-threshold_bayseq = 0.03
-threshold_general = 0.05
+threshold_bayseq = argument_2
+threshold_general = argument_3
 
 pdf("deg_analysis_graphs.pdf")
 
