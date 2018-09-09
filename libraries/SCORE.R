@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Sa, 08.09.2018
-# Version: 0.1.2
+# Last Modified: So, 09.09.2018
+# Version: 0.1.3
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -16,6 +16,8 @@ library("DESeq2")
 library("edgeR")
 
 # Functions
+
+# Reads the first counts file to fetch a list of all gene symbols
 create_gene_list <- function(sample){
   sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
   setwd(sample_path)
@@ -23,6 +25,8 @@ create_gene_list <- function(sample){
   return(gene_list)
 }
 
+# Reads the individual count-files into a matrix
+# Applies cutoff to reduce computational time
 create_count_matrix <- function(sample_list, gene_list){
   sample_nr = 0
   # Lets receive the rest of the counts...
@@ -47,13 +51,14 @@ create_count_matrix <- function(sample_list, gene_list){
   rownames(count_matrix) <- paste(gene_list)
   # unfiltered_count_matrix <- count_matrix
   
-  # First: Cutoff for low-expressed genes
+  # Cutoff for low-expressed genes
   # Using cpm (edgeR) to calculate counts per gene per million
   # Might add additional filters later on
+  # TO-DO: Remove ubiquitous genes?
   cpm_log <- cpm(count_matrix, log = TRUE)
   median_log2_cpm <- apply(cpm_log, 1, median)
   expr_cutoff <- -1
-  # Filter out any gene which does not have median(gene_across_samples) > cutoff
+  # Filter out all genes which do not have median(gene_across_samples) > cutoff
   count_matrix <- count_matrix[median_log2_cpm > expr_cutoff, ]
   # hist(median_log2_cpm)
   # abline(v = expr_cutoff, col = "red", lwd = 3)
@@ -72,6 +77,7 @@ create_count_matrix <- function(sample_list, gene_list){
   return(count_matrix)
 }
 
+# Merges the results of all individual tools into a CSV file
 export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_names_list){
   # Write results
   results_folder = "../../../../deg/"
@@ -91,6 +97,39 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_name
   return(final_results)
 }
 
+# Transforms the individual predictions to a binary table
+# Uses several cutoff values
+probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general){
+  # Reads the results file and sets the first column as the rownames
+  raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
+  binary_results <- raw_binary_results[,-1]
+  rownames(binary_results) <- raw_binary_results[,1]
+  
+  # BaySeq uses a dynamic treshold and labels the first 3% of sorted genes as DE
+  # TO-DO: Replace this 3% of sorted genes with 3% of all (nonfiltered) genes
+  bayseq_column <- binary_results$baySeq
+  degs_expected <- round(length(bayseq_column)*cutoff_bayseq)
+  bayseq_column <- as.data.frame(bayseq_column)
+  rownames(bayseq_column) <- raw_binary_results[,1]
+  bayseq_column <- bayseq_column[order(-bayseq_column$bayseq_column), , drop = FALSE]
+  for (i in 1:degs_expected){
+    bayseq_column[1][i, ] <- 1
+  }
+  bayseq_column[bayseq_column != 1] <- 0
+  bayseq_column <- bayseq_column[order(row.names(bayseq_column)), , drop = FALSE]
+  
+  # DESeq and edgeR results are simply transformed
+  binary_results[is.na(binary_results)] <- 100
+  binary_results[binary_results > cutoff_general] <- 100
+  binary_results[binary_results <= cutoff_general] <- 0
+  binary_results[binary_results == 0] <- 1
+  binary_results[binary_results == 100] <- 0
+  # Overwrite the current baySeq results with the precomputed ones
+  binary_results$baySeq <- bayseq_column$bayseq_column
+  return(binary_results)
+}
+
+# Function to call baySeq
 run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
   DE <- as.numeric(raw_replicates_list == unique(raw_replicates_list)[2])
   groups <- list(NDE = rep(1, length(metadata$V2)), DE = DE + 1)
@@ -109,6 +148,7 @@ run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
   return(bayseq_de)
 }
 
+# Function to call DESeq2
 run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Assign conditions
   # condition <- factor(c(rep("normal", 2), rep("treated", 2)))
@@ -137,13 +177,14 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Histogram of adjusted p-values
   hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust")
   # Principal component analysis
-  # Does not work with low-count genes and should be silenced in these cases
+  # This will not work with low-count genes and should be silenced in these cases
   vsd <- vst(dds, blind = FALSE)
   plotPCA(vsd, intgroup = c("sample_conditions"))
   
   return(new_resdata)
 }
 
+# Function to call edgeR
 run_edger <- function(read_counts, metadata_labels){
   dgList <- DGEList(counts = read_counts, group = metadata_labels)
   
@@ -155,7 +196,7 @@ run_edger <- function(read_counts, metadata_labels){
   sqrt(dgList$common.dispersion)
   plotBCV(dgList)
   
-  # Test for differential expression between two classes
+  # Test for differential expression between the two classes
   et <- exactTest(dgList)
   results_edgeR <- topTags(et, n = nrow(read_counts), sort.by = "none")
   head(results_edgeR$table)
@@ -168,35 +209,16 @@ run_edger <- function(read_counts, metadata_labels){
   return(results_edgeR)
 }
 
-visualization_vennDiagram <- function(cutoff_bayseq, cutoff_general){
-  raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
-  binary_results <- raw_binary_results[,-1]
-  rownames(binary_results) <- raw_binary_results[,1]
-  
-  # BaySeq uses a dynamic treshold and labels the first 3% of sorted genes as DE
-  # TO-DO: Replace this 3% of sorted genes with 3% of all (nonfiltered) genes
-  bayseq_column <- binary_results$baySeq
-  degs_expected <- round(length(bayseq_column)*cutoff_bayseq)
-  bayseq_column <- as.data.frame(bayseq_column)
-  rownames(bayseq_column) <- raw_binary_results[,1]
-  bayseq_column <- bayseq_column[order(-bayseq_column$bayseq_column), , drop = FALSE]
-  for (i in 1:degs_expected){
-    bayseq_column[1][i, ] <- 1
-  }
-  bayseq_column[bayseq_column != 1] <- 0
-  bayseq_column <- bayseq_column[order(row.names(bayseq_column)), , drop = FALSE]
+# Export consensus list (uses a majority vote of methods)
+smart_consensus <- function(binary_file){
+  consensus_degs <- subset(binary_file, rowSums(binary_file)/ncol(binary_file) >= 0.5)
+  return(consensus_degs) 
+}
 
-  binary_results[is.na(binary_results)] <- 100
-  binary_results[binary_results > cutoff_general] <- 100
-  binary_results[binary_results <= cutoff_general] <- 0
-  binary_results[binary_results == 0] <- 1
-  binary_results[binary_results == 100] <- 0
-  binary_results$baySeq <- bayseq_column$bayseq_column
-  v <- vennCounts(binary_results)
+# Visualization of the DEGs as a VennDiagram
+visualization_vennDiagram <- function(binary_table){
+  v <- vennCounts(binary_table)
   vennDiagram(v, circle.col = c("blue", "red", "green"))
-  # Export consensus list (majority vote of methods)
-  consensus_degs <- subset(binary_results, rowSums(binary_results)/ncol(binary_results) >= 0.5)
-  return(consensus_degs)
 }
 
 # Main
@@ -215,7 +237,7 @@ if (is.na(argument_1)){
 
 # Percentage of expected DEGs
 # Might need to be adjusted per experiment
-# TO-DO: Remove baySeq threshold iff using 5% of all genes instead improves accuracy
+# TO-DO: Remove baySeq threshold iff using 3% of all genes instead improves accuracy
 threshold_bayseq = argument_2
 threshold_general = argument_3
 
@@ -226,13 +248,15 @@ gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)
 
-# Also possible to try baySeq in edgeR mode?
+# TO-DO: Also possible to try baySeq in edgeR mode?
 results_bayseq = run_bayseq(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
 results = export_results(results_bayseq, results_deseq2, results_edger, filtered_gene_names)
-results_consensus = visualization_vennDiagram(threshold_bayseq, threshold_general)
+results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general)
+results_consensus = smart_consensus(results_binary)
+visualization_vennDiagram(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 
 dev.off()
