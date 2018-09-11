@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: So, 09.09.2018
-# Version: 0.1.3
+# Last Modified: Thue, 11.09.2018
+# Version: 0.1.4
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -43,7 +43,6 @@ create_count_matrix <- function(sample_list, gene_list){
       count_matrix <- cbind(count_matrix, counts)  
     }
   }
-  
   # Convert to matrix
   count_matrix <- as.matrix(count_matrix)
   # Rename columns
@@ -60,12 +59,15 @@ create_count_matrix <- function(sample_list, gene_list){
   expr_cutoff <- -1
   # Filter out all genes which do not have median(gene_across_samples) > cutoff
   count_matrix <- count_matrix[median_log2_cpm > expr_cutoff, ]
-  # hist(median_log2_cpm)
-  # abline(v = expr_cutoff, col = "red", lwd = 3)
-  # sum(median_log2_cpm > expr_cutoff)
   
-  cpm_log_filtered <- cpm(count_matrix, log = TRUE)
+  # Initial visualization
+  # Histogram
+  hist(median_log2_cpm)
+  abline(v = expr_cutoff, col = "red", lwd = 3)
+  sum(median_log2_cpm > expr_cutoff)
   # Heatmap
+  # TO-DO: Heatmap is distorted
+  cpm_log_filtered <- cpm(count_matrix, log = TRUE)
   heatmap(cor(cpm_log_filtered))
   # PCA
   pca <- prcomp(t(cpm_log_filtered), scale. = TRUE)
@@ -73,7 +75,6 @@ create_count_matrix <- function(sample_list, gene_list){
   text(pca$x[, 1], pca$x[, 2], labels = colnames(cpm_log_filtered))
   summary(pca)
   
-  # head(count_matrix)
   return(count_matrix)
 }
 
@@ -150,19 +151,18 @@ run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
 
 # Function to call DESeq2
 run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
-  # Assign conditions
+  # How to manually assign conditions
   # condition <- factor(c(rep("normal", 2), rep("treated", 2)))
   
-  # Create a coldata frame and instantiate the DESeqDataSet
+  # First create a coldata frame and instantiate the DESeqDataSet
   coldata <- data.frame(row.names = colnames(sample_counts), sample_conditions)
   dds <- DESeqDataSetFromMatrix(countData = sample_counts, colData = coldata, design =~ sample_conditions)
-  
   # Run the DESeq pipeline
   dds <- DESeq(dds)
-  # Get differential expression results
+  # Receive the differential expression results
   res <- results(dds)
   table(res$padj<0.05)
-  # Order by adjusted p-value
+  # Order them by adjusted p-value
   # res <- res[order(res$padj), ]
   # Merge with normalized count data and gene symbols
   resdata <- merge(as.matrix(res), as.matrix(counts(dds, normalized = TRUE)), by = "row.names", sort = FALSE)
@@ -174,6 +174,8 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Plots
   # Normalized counts across groups for most significant gene
   plotCounts(dds, gene = which.min(res$padj), intgroup = "sample_conditions")
+  # As well as marR
+  # plotCounts(dds, gene = "FHHAHKNL_04047", intgroup = "sample_conditions")
   # Histogram of adjusted p-values
   hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust")
   # Principal component analysis
@@ -212,10 +214,10 @@ run_edger <- function(read_counts, metadata_labels){
 # Export consensus list (uses a majority vote of methods)
 smart_consensus <- function(binary_file){
   consensus_degs <- subset(binary_file, rowSums(binary_file)/ncol(binary_file) >= 0.5)
-  return(consensus_degs) 
+  return(consensus_degs)
 }
 
-# Visualization of the DEGs as a VennDiagram
+# Visualization of the DEGs as a venn diagram
 visualization_vennDiagram <- function(binary_table){
   v <- vennCounts(binary_table)
   vennDiagram(v, circle.col = c("blue", "red", "green"))
@@ -237,7 +239,7 @@ if (is.na(argument_1)){
 
 # Percentage of expected DEGs
 # Might need to be adjusted per experiment
-# TO-DO: Remove baySeq threshold iff using 3% of all genes instead improves accuracy
+# TO-DO: Remove baySeq threshold iff using 5% of all genes instead improves accuracy
 threshold_bayseq = argument_2
 threshold_general = argument_3
 
