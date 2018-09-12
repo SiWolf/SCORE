@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 11.09.2018
-# Version: 0.1.4
+# Last Modified: Wed, 12.09.2018
+# Version: 0.1.5
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -100,16 +100,19 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_name
 
 # Transforms the individual predictions to a binary table
 # Uses several cutoff values
-probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general){
+probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_number_of_genes){
   # Reads the results file and sets the first column as the rownames
   raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
   
-  # BaySeq uses a dynamic treshold and labels the first 3% of sorted genes as DE
-  # TO-DO: Replace this 3% of sorted genes with 3% of all (nonfiltered) genes
+  # BaySeq uses a dynamic treshold
+  # Labels the first 3% (default) of all nonfiltered genes as DE
+  # Also possible to use length(bayseq_column) instead of total_number_of_genes
+  # Results will be more specific then
+  # Possibly will have to change back to this if filters become more strict
   bayseq_column <- binary_results$baySeq
-  degs_expected <- round(length(bayseq_column)*cutoff_bayseq)
+  degs_expected <- round(total_number_of_genes*cutoff_bayseq)
   bayseq_column <- as.data.frame(bayseq_column)
   rownames(bayseq_column) <- raw_binary_results[,1]
   bayseq_column <- bayseq_column[order(-bayseq_column$bayseq_column), , drop = FALSE]
@@ -120,6 +123,8 @@ probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general){
   bayseq_column <- bayseq_column[order(row.names(bayseq_column)), , drop = FALSE]
   
   # DESeq and edgeR results are simply transformed
+  # Compare p_values to cutoff
+  # This includes the bayseq column but this will be replaced later
   binary_results[is.na(binary_results)] <- 100
   binary_results[binary_results > cutoff_general] <- 100
   binary_results[binary_results <= cutoff_general] <- 0
@@ -138,7 +143,6 @@ run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
   libsizes(CD) <- getLibsizes(CD)
   CD@annotation <- as.data.frame(gene_list)
   cl <- NULL
-  # TO-DO: Test different samplesizes
   CDP.NBML <- getPriors.NB(CD, samplesize = 10000, estimation = "QL", cl = cl)
   CDPost.NBML <- getLikelihoods(CDP.NBML, pET = "BIC", cl = cl)
   #CDPost.NBML@estProps
@@ -239,7 +243,6 @@ if (is.na(argument_1)){
 
 # Percentage of expected DEGs
 # Might need to be adjusted per experiment
-# TO-DO: Remove baySeq threshold iff using 5% of all genes instead improves accuracy
 threshold_bayseq = argument_2
 threshold_general = argument_3
 
@@ -256,7 +259,7 @@ results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 
 results = export_results(results_bayseq, results_deseq2, results_edger, filtered_gene_names)
-results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general)
+results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
 results_consensus = smart_consensus(results_binary)
 visualization_vennDiagram(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
