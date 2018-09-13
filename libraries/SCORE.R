@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 12.09.2018
-# Version: 0.1.5
+# Last Modified: Thur, 13.09.2018
+# Version: 0.1.6
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -51,7 +51,8 @@ create_count_matrix <- function(sample_list, gene_list){
   # unfiltered_count_matrix <- count_matrix
   
   # Cutoff for low-expressed genes
-  # Using cpm (edgeR) to calculate counts per gene per million
+  # Using CPM (edgeR) to calculate counts per gene per million
+  # More reliable than strict count cutoff (e.g. 3 counts)
   # Might add additional filters later on
   # TO-DO: Remove ubiquitous genes?
   cpm_log <- cpm(count_matrix, log = TRUE)
@@ -263,5 +264,7 @@ results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, 
 results_consensus = smart_consensus(results_binary)
 visualization_vennDiagram(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
+# TO-DO: Add raw counts to final output file
+# Possibly in Python file?
 
 dev.off()
