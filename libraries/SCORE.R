@@ -2,7 +2,7 @@
 # Title: SCORE.R
 # Author: Silver A. Wolf
 # Last Modified: Thur, 13.09.2018
-# Version: 0.1.6
+# Version: 0.1.7
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -264,6 +264,7 @@ results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, 
 results_consensus = smart_consensus(results_binary)
 visualization_vennDiagram(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
+write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
 # TO-DO: Add raw counts to final output file
 # Possibly in Python file?
 
