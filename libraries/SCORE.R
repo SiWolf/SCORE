@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 13.09.2018
-# Version: 0.1.7
+# Last Modified: Mo, 17.09.2018
+# Version: 0.1.8
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -223,6 +223,9 @@ smart_consensus <- function(binary_file){
 }
 
 # Visualization of the DEGs as a venn diagram
+# TO-DO: Prioritize overlapping 49 genes with all tools
+# TO-DO: Then rank rest of genes according to overlaps
+# TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
 visualization_vennDiagram <- function(binary_table){
   v <- vennCounts(binary_table)
   vennDiagram(v, circle.col = c("blue", "red", "green"))
@@ -255,6 +258,7 @@ filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)
 
 # TO-DO: Also possible to try baySeq in edgeR mode?
+# TO-DO: Normalization for sequencing depth?
 results_bayseq = run_bayseq(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
@@ -269,3 +273,5 @@ write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
 # Possibly in Python file?
 
 dev.off()
+
+# TO-DO: Which (open) licence will be used? GPL?
