@@ -1,19 +1,21 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 17.09.2018
-# Version: 0.1.8
+# Last Modified: Wed, 19.09.2018
+# Version: 0.1.9
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("baySeq")
 #biocLite("DESeq2")
 #biocLite("edgeR")
+#biocLite("limma")
 
 # Imports
 library("baySeq")
 library("DESeq2")
 library("edgeR")
+library("limma")
 
 # Functions
 
@@ -80,19 +82,22 @@ create_count_matrix <- function(sample_list, gene_list){
 }
 
 # Merges the results of all individual tools into a CSV file
-export_results <- function(bayseq_result, deseq2_result, edgeR_result, gene_names_list){
+export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, gene_names_list){
   # Write results
   results_folder = "../../../../deg/"
   setwd(results_folder)
   write.csv(bayseq_result, file = "bayseq_diffexpr_results_extended.csv")
   write.csv(deseq2_result, file = "deseq2_diffexpr_results_extended.csv")
   write.csv(edgeR_result, file = "edger_diffexpr_results_extended.csv")
+  write.csv(limma_result, file = "limma_diffexpr_results_extended.csv")
   
   bayseq_reordered <- bayseq_result[order(match(bayseq_result$annotation, gene_names_list)), ]
   bayseq_likelihood <- bayseq_reordered$Likelihood
+  limma_reordered <- limma_result[order(match(rownames(limma_result), gene_names_list)), ]
+  limma_pvalues <- limma_reordered$adj.P.Val
   edger_pvalues <- unlist(edgeR_result[, "PValue"])[1:length(gene_names_list)]
   deseq2_pvalues <- deseq2_result[, "padj"]
-  final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues), row.names = gene_names_list, class = "data.frame")
+  final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues, limma = limma_pvalues), row.names = gene_names_list, class = "data.frame")
   #final_results <- merge(as.data.frame(edger_pvalues), as.data.frame(deseq2_pvalues))
   
   write.csv(final_results, file = "all_diffexpr_results.csv")
@@ -123,7 +128,7 @@ probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_numbe
   bayseq_column[bayseq_column != 1] <- 0
   bayseq_column <- bayseq_column[order(row.names(bayseq_column)), , drop = FALSE]
   
-  # DESeq and edgeR results are simply transformed
+  # DESeq, edgeR and limma results are simply transformed
   # Compare p_values to cutoff
   # This includes the bayseq column but this will be replaced later
   binary_results[is.na(binary_results)] <- 100
@@ -205,15 +210,26 @@ run_edger <- function(read_counts, metadata_labels){
   
   # Test for differential expression between the two classes
   et <- exactTest(dgList)
-  results_edgeR <- topTags(et, n = nrow(read_counts), sort.by = "none")
-  head(results_edgeR$table)
+  edgeR_results <- topTags(et, n = nrow(read_counts), sort.by = "none")
+  head(edgeR_results$table)
   
   # How many genes are differentially expressed at an FDR of 10%?
-  sum(results_edgeR$table$FDR < .1)
-  plotSmear(et, de.tags = rownames(results_edgeR)[results_edgeR$table$FDR < .1])
+  sum(edgeR_results$table$FDR < .1)
+  plotSmear(et, de.tags = rownames(edgeR_results)[edgeR_results$table$FDR < .1])
   abline(h = c(-2, 2), col = "blue")
   
-  return(results_edgeR)
+  return(edgeR_results)
+}
+
+# Function to call voom and limma
+run_limma <- function(counts, groups){
+  DE <- as.matrix(as.numeric(groups == unique(groups)[2]) + 1)
+  dge <- DGEList(counts = counts)
+  v <- voom(counts, design = DE, plot = TRUE, normalize = "quantile")
+  fit <- lmFit(v, DE)
+  fit <- eBayes(fit)
+  limma_results <- topTable(fit, coef = ncol(DE), number = length(counts))
+  return(limma_results)
 }
 
 # Export consensus list (uses a majority vote of methods)
@@ -228,7 +244,7 @@ smart_consensus <- function(binary_file){
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
 visualization_vennDiagram <- function(binary_table){
   v <- vennCounts(binary_table)
-  vennDiagram(v, circle.col = c("blue", "red", "green"))
+  vennDiagram(v, circle.col = c("blue", "red", "green", "yellow"))
 }
 
 # Main
@@ -262,8 +278,9 @@ filtered_gene_names <- rownames(filtered_gene_counts)
 results_bayseq = run_bayseq(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
+results_limma = run_limma(filtered_gene_counts, metadata$V2)
 
-results = export_results(results_bayseq, results_deseq2, results_edger, filtered_gene_names)
+results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
 results_consensus = smart_consensus(results_binary)
 visualization_vennDiagram(results_binary)
