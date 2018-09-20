@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 19.09.2018
-# Version: 0.1.9
+# Last Modified: Thur, 20.09.2018
+# Version: 0.2.0
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -10,12 +10,15 @@
 #biocLite("DESeq2")
 #biocLite("edgeR")
 #biocLite("limma")
+#biocLite("NOISeq")
 
 # Imports
+# TO-DO: Add NOISeq to Conda env
 library("baySeq")
 library("DESeq2")
 library("edgeR")
 library("limma")
+library("NOISeq")
 
 # Functions
 
@@ -222,14 +225,35 @@ run_edger <- function(read_counts, metadata_labels){
 }
 
 # Function to call voom and limma
+# TO-DO: Outputs bad predictive results
 run_limma <- function(counts, groups){
+  #groups <- metadata$V2
+  #counts <- filtered_gene_counts
   DE <- as.matrix(as.numeric(groups == unique(groups)[2]) + 1)
+  DE <- as.data.frame(DE)
+  vec <- as.data.frame(c(1))
+  DE <- cbind(vec, DE)
+  colnames(DE) <- c("Intercept", "Groups")
+  #design <- model.matrix(~ Groups, DE)
+  DE <- as.matrix(DE)
+  
   dge <- DGEList(counts = counts)
   v <- voom(counts, design = DE, plot = TRUE, normalize = "quantile")
   fit <- lmFit(v, DE)
   fit <- eBayes(fit)
-  limma_results <- topTable(fit, coef = ncol(DE), number = length(counts))
+  limma_results <- topTable(fit, coef = ncol(DE) - 1, number = length(counts))
   return(limma_results)
+}
+
+# Function to call NOIseq
+run_noiseq(counts_noiseq, groups_noiseq){
+  DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
+  colnames(DE_noiseq) <- c("Group")
+  mydata <- readData(data = counts_noiseq, factors = DE_noiseq)
+  # TO-DO: Requires transcript lengths
+  myRPKM = rpkm(assayData(mydata)$exprs, long = mylength, k = 0, lc = 1)
+  # ...
+  # Page 15 NOISeq dokumentation
 }
 
 # Export consensus list (uses a majority vote of methods)
@@ -279,6 +303,7 @@ results_bayseq = run_bayseq(filtered_gene_names, filtered_gene_counts, metadata$
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
 results_limma = run_limma(filtered_gene_counts, metadata$V2)
+#results_noiseq = run_noiseq(filtered_gene_counts, metadata$V2)
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))

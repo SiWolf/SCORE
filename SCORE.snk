@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 19.09.2018
-# Version: 0.2.8
+# Last Modified: Thur, 20.09.2018
+# Version: 0.2.9
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -100,8 +100,12 @@ rule DEG_analysis:
 	conda:
 		"libraries/score_deg_environment.yml"
 	shell:
+		"""
+		# Fetch transcript lengths using another python script
+		python libraries/fetch_transcript_length.py -a {REF_ANNOTATION} -i {REF_ANNOTATION_GENE_ID}
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		"Rscript libraries/SCORE.R {METADATA} {PARAM_DEG_BAYSEQ} {PARAM_DEG_GENERAL}"
+		Rscript libraries/SCORE.R {METADATA} {PARAM_DEG_BAYSEQ} {PARAM_DEG_GENERAL}
+		"""
 		
 # featureCounts Version 1.6.2
 # Counts mapped reads to genomic features
