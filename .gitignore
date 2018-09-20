@@ -1,3 +1,4 @@
 # Ignore the following files
 .snakemake/
 dag.svg
+deg_analysis_graphs.pdf
