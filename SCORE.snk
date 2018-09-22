@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 21.09.2018
-# Version: 0.3.0
+# Last Modified: Sa, 22.09.2018
+# Version: 0.3.1
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -92,6 +92,7 @@ rule postprocessing:
 # DESeq2 Version 1.18.1
 # edgeR Version 3.20.7
 # limma Version 3.34.9
+# TO-DO: Python script will not work -> integrate it back in and create new rule for it
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
@@ -128,6 +129,7 @@ rule counting:
 # Followed by quanitification of transcripts (counting of reads)
 # TO-DO: Verify that mapping went well?
 # TO-DO: Create Conda environment for Bowtie2
+# TO-DO: Allow two mismatches?
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
