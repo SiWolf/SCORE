@@ -125,7 +125,6 @@ rule counting:
 # Ungapped genome mapping
 # Followed by quanitification of transcripts (counting of reads)
 # TO-DO: Verify that mapping went well?
-# TO-DO: Allow two mismatches?
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
