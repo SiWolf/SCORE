@@ -13,8 +13,6 @@ ref_annotation_gene_type: ID
 ref_fasta_file: references/9409_1#5.fa
 ref_index_name: REF_Transduziert
 # PATHS
-bowtie2_path: ./libraries/bowtie2/bowtie2
-bowtie2_build_path: ./libraries/bowtie2/bowtie2-build
 flexbar_path: ./libraries/flexbar/flexbar
 # SAMPLES
 metadata_file: Metadata.tsv

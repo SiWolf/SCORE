@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
-# Title: fetch_transcript_length
+# Title: fetch_transcript_lengths
 # Author: Silver A. Wolf
-# Last Modified: Thur, 20.09.2018
-# Version: 0.0.1
+# Last Modified: Mo, 24.09.2018
+# Version: 0.0.2
 # ---------------------------------------------------------------------------
 
 # Imports

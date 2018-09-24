@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Sa, 22.09.2018
-# Version: 0.2.1
+# Last Modified: Mo, 24.09.2018
+# Version: 0.2.2
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -14,11 +14,12 @@
 
 # Imports
 # TO-DO: Add NOISeq to Conda env
+# TO-DO: Recreate new env file for DEG R script?
 library("baySeq")
 library("DESeq2")
 library("edgeR")
 library("limma")
-library("NOISeq")
+#library("NOISeq")
 
 # Functions
 
@@ -246,7 +247,7 @@ run_limma <- function(counts, groups){
 }
 
 # Function to call NOIseq
-run_noiseq(counts_noiseq, groups_noiseq){
+run_noiseq <- function(counts_noiseq, groups_noiseq){
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
   mydata <- readData(data = counts_noiseq, factors = DE_noiseq)
@@ -257,6 +258,7 @@ run_noiseq(counts_noiseq, groups_noiseq){
 }
 
 # Export consensus list (uses a majority vote of methods)
+# TO-DO: Add weights of methods as inputs from config file
 smart_consensus <- function(binary_file){
   consensus_degs <- subset(binary_file, rowSums(binary_file)/ncol(binary_file) >= 0.5)
   return(consensus_degs)
