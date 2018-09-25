@@ -238,10 +238,21 @@ run_limma <- function(counts, groups){
   #design <- model.matrix(~ Groups, DE)
   DE <- as.matrix(DE)
   
+  #DE <- model.matrix(~0+factor(c(1,1,1,2,2,2)))
+  
   dge <- DGEList(counts = counts)
+  
+  #dge <- calcNormFactors(dge)
+  
+  #logCPM <- cpm(dge, log=TRUE, prior.count=3)
+  #fit <- lmFit(logCPM, DE)
+  #fit <- eBayes(fit, trend=TRUE)
+  #s <- topTable(fit, coef=ncol(DE) -1, number=length(counts))
+  
   v <- voom(counts, design = DE, plot = TRUE, normalize = "quantile")
   fit <- lmFit(v, DE)
   fit <- eBayes(fit)
+  #limma_results <- topTable(fit, coef = ncol(DE), number = length(counts))
   limma_results <- topTable(fit, coef = ncol(DE) - 1, number = length(counts))
   return(limma_results)
 }

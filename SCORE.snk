@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Mo, 24.09.2018
-# Version: 0.3.2
+# Last Modified: Thue, 25.09.2018
+# Version: 0.3.3
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -125,6 +125,7 @@ rule counting:
 # Ungapped genome mapping
 # Followed by quanitification of transcripts (counting of reads)
 # TO-DO: Verify that mapping went well?
+# TO-DO: Verify parallelization
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
@@ -136,10 +137,7 @@ rule mapping:
 	threads:
 		4
 	shell:
-		"""
-		bowtie2-build {REF_FASTA} {REF_INDEX}
-		bowtie2 -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -1 {input[0]} -2 {input[1]} -S {output}
-		"""
+		"bowtie2-build {REF_FASTA} {REF_INDEX} && bowtie2 -q --phred33 -p {threads} --no-unal -x {REF_INDEX} -1 {input[0]} -2 {input[1]} -S {output}"
         
 # FastQC Version 0.11.7
 # Flexbar Version 3.3.0
