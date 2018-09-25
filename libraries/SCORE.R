@@ -259,11 +259,21 @@ run_limma <- function(counts, groups){
 
 # Function to call NOIseq
 run_noiseq <- function(counts_noiseq, groups_noiseq){
+  list_of_lengths <- read.table(file = "deg/transcript_lengths.csv", sep = ",", header = TRUE)
+  
+  lengths_DF <- as.data.frame(list_of_lengths$Length, levels(list_of_lengths$Transcript.ID))
+  colnames(lengths_DF) <- c("Lengths")
+  
+  lengths_DF_new <- lengths_DF[rownames(lengths_DF) %in% filtered_gene_names, ]
+  lengths_DF_new <- as.data.frame(lengths_DF_new, filtered_gene_names)
+  
+  lengths_DF_turned <- as.data.frame(lengths_DF_new$lengths_DF_new,c("ID", "Length"))
+  
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
-  mydata <- readData(data = counts_noiseq, factors = DE_noiseq)
+  mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
   # TO-DO: Requires transcript lengths
-  myRPKM = rpkm(assayData(mydata)$exprs, long = mylength, k = 0, lc = 1)
+  myRPKM = rpkm(assayData(mydata)$exprs, long = lengths_DF_new, k = 0, lc = 1)
   # ...
   # Page 15 NOISeq dokumentation
 }
