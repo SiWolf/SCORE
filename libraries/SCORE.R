@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 24.09.2018
-# Version: 0.2.2
+# Last Modified: Thue, 25.09.2018
+# Version: 0.2.3
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -289,10 +289,11 @@ smart_consensus <- function(binary_file){
 # TO-DO: Prioritize overlapping 49 genes with all tools
 # TO-DO: Then rank rest of genes according to overlaps
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
-# TO-DO: Visualize different pairs of three? At least original 3 (DESeq, baySeq, edgeR)?
 visualization_vennDiagram <- function(binary_table){
-  v <- vennCounts(binary_table)
-  vennDiagram(v, circle.col = c("blue", "red", "green", "yellow"))
+  v1 <- vennCounts(binary_table[1:3])
+  vennDiagram(v1, circle.col = c("blue", "red", "green"))
+  v2 <- vennCounts(binary_table)
+  vennDiagram(v2, circle.col = c("blue", "red", "green", "yellow"))
 }
 
 # Main
