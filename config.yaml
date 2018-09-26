@@ -2,6 +2,12 @@
 # DEG TOOLS
 bayseq_threshold: 0.03
 general_threshold: 0.05
+# TO-DO: Implement these weights into the Snakefile and R scripts
+weight_bayseq: 1.0
+weight_deseq2: 1.0
+weight_edger: 1.0
+weight_limma: 1.0
+weight_noiseq: 1.0
 # FLEXBAR
 flexbar_max_uncalled: 20
 flexbar_min_length: 20

@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 25.09.2018
-# Version: 0.3.3
+# Last Modified: Wed, 26.09.2018
+# Version: 0.3.4
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -22,6 +22,11 @@ configfile: "config.yaml"
 METADATA = config["metadata_file"]
 PARAM_DEG_BAYSEQ = config["bayseq_threshold"]
 PARAM_DEG_GENERAL = config["general_threshold"]
+PARAM_DEG_WEIGHT_BAYSEQ = config["weight_bayseq"]
+PARAM_DEG_WEIGHT_DESEQ2 = config["weight_deseq2"]
+PARAM_DEG_WEIGHT_EDGER = config["weight_edger"]
+PARAM_DEG_WEIGHT_LIMMA = config["weight_limma"]
+PARAM_DEG_WEIGHT_NOISEQ = config["weight_noiseq"]
 PARAM_FLEXBAR_LENGTH = config["flexbar_min_length"]
 PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
