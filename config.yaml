@@ -1,14 +1,8 @@
 # EDIT THIS FILE ACCORDING TO YOUR EXPERIMENTAL SETUP
-# DEG TOOLS
+# DEG PREDICTION CUTOFFS
 bayseq_threshold: 0.03
 general_threshold: 0.05
-# TO-DO: Implement these weights into the Snakefile and R scripts
-weight_bayseq: 1.0
-weight_deseq2: 1.0
-weight_edger: 1.0
-weight_limma: 1.0
-weight_noiseq: 1.0
-# FLEXBAR
+# FLEXBAR SETTINGS
 flexbar_max_uncalled: 20
 flexbar_min_length: 20
 flexbar_min_qual: 20
@@ -22,3 +16,9 @@ ref_index_name: REF_Transduziert
 flexbar_path: ./libraries/flexbar/flexbar
 # SAMPLES
 metadata_file: Metadata.tsv
+# WEIGHTS FOR CONSENSUS PREDICTION
+weight_bayseq: 1.0
+weight_deseq2: 1.0
+weight_edger: 1.0
+weight_limma: 1.0
+weight_noiseq: 1.0
