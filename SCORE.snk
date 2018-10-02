@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 26.09.2018
-# Version: 0.3.4
+# Last Modified: Fr, 28.09.2018
+# Version: 0.3.5
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -114,6 +114,7 @@ rule DEG_analysis:
 # Counts mapped reads to genomic features
 # Needed for the quantification of Bowtie2 results
 # Discards multi-mapping reads by default
+# TO-DO: Break iff 0 counts in total! (Warning else?)
 rule counting:
 	input:
 		"mapped/bowtie2/{sample}.sam"

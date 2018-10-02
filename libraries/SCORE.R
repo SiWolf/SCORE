@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 25.09.2018
-# Version: 0.2.3
+# Last Modified: Thue, 02.10.2018
+# Version: 0.2.5
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -122,7 +122,7 @@ probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_numbe
   # Results will be more specific then
   # Possibly will have to change back to this if filters become more strict
   bayseq_column <- binary_results$baySeq
-  degs_expected <- round(total_number_of_genes*cutoff_bayseq)
+  degs_expected <- round(total_number_of_genes*as.numeric(cutoff_bayseq))
   bayseq_column <- as.data.frame(bayseq_column)
   rownames(bayseq_column) <- raw_binary_results[,1]
   bayseq_column <- bayseq_column[order(-bayseq_column$bayseq_column), , drop = FALSE]
@@ -301,12 +301,22 @@ args <- commandArgs(TRUE)
 argument_1 = args[1]
 argument_2 = args[2]
 argument_3 = args[3]
+#argument_4 = args[4]
+#argument_5 = args[5]
+#argument_6 = args[6]
+#argument_7 = args[7]
+#argument_8 = args[8]
 
 # Special case if this script is run manually using RStudio
 if (is.na(argument_1)){
   argument_1 = "Metadata.tsv"
   argument_2 = 0.03
   argument_3 = 0.05
+  #argument_4 = 1.0
+  #argument_5 = 1.0
+  #argument_6 = 1.0
+  #argument_7 = 1.0
+  #argument_8 = 1.0
   setwd("../")
 }
 
@@ -314,6 +324,12 @@ if (is.na(argument_1)){
 # Might need to be adjusted per experiment
 threshold_bayseq = argument_2
 threshold_general = argument_3
+
+#weight_bayseq = argument_4
+#weight_deseq2 = argument_5
+#weight_edger = argument_6
+#weight_limma = argument_7
+#weight_noiseq = argument_8
 
 pdf("deg_analysis_graphs.pdf")
 
@@ -324,11 +340,20 @@ filtered_gene_names <- rownames(filtered_gene_counts)
 
 # TO-DO: Also possible to try baySeq in edgeR mode?
 # TO-DO: Normalization for sequencing depth?
+time_start <- Sys.time()
 results_bayseq = run_bayseq(filtered_gene_names, filtered_gene_counts, metadata$V2)
+time_bayseq <- Sys.time()
 results_deseq2 = run_deseq2(filtered_gene_names, filtered_gene_counts, metadata$V2)
+time_deseq2 <- Sys.time()
 results_edger = run_edger(filtered_gene_counts, metadata$V2)
+time_edger <- Sys.time()
 results_limma = run_limma(filtered_gene_counts, metadata$V2)
+time_limma <- Sys.time()
 #results_noiseq = run_noiseq(filtered_gene_counts, metadata$V2)
+time_noiseq <- Sys.time()
+
+time_frame <- data.frame(time_bayseq - time_start, time_deseq2 - time_bayseq, time_edger - time_deseq2, time_limma - time_edger, time_noiseq - time_limma)
+colnames(time_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOIseq")
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
@@ -336,6 +361,7 @@ results_consensus = smart_consensus(results_binary)
 visualization_vennDiagram(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
+write.csv(time_frame, file = "runtime_DEG_methods.csv")
 # TO-DO: Add raw counts to final output file
 # Possibly in Python file?
 
