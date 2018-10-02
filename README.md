@@ -5,27 +5,22 @@
 ### Setup
 
 Requirements:
-conda???
-snakemake
-sequanix?
+..* Anaconda or Miniconda
+..* Snakemake
+..* Sequanix
+
+We recommend using Anaconda since it contains many of the required libraries at installation, but Miniconda should work as well. Sequanix is an optional choice depending of whether the user would prefer to use a GUI or the command line.
 
 ## Usage
 
-1.) Configure parameters in config directly or using sequanix
-2.) Run bash script specifying core number
+1.) Set the parameters in the config according to your experimental setup. If you choose to use Sequanix you can instead load the Snakefile and edit the corresponding configuration file directly from within Sequanix.
+2.) Run SCORE. If you have choosen to use Sequanix you can launch the script using the GUI. If you are working on the command line execute the run-SCORE.sh script and specify the amount of cores the analysis may use. Example: ./run-SCORE.sh 8 to launch SCORE using 8 cores (default = 4).
+3.) Analyze the results. All results essential for the DEG predicition are saved within the deg/ folder.
 
-./SCORE.sh
+### FAQ
 
-to run with 4 cores (default)
+Q: How can I compute the runtime of my analysis?
+Using the executable script mentioned above will automatically output the runtime at successful termination. Sequanix will not provide runtime information.
 
-./SCORE.sh <#cores>
-
-to run with customized amount of cores
-
-## Additional tools
-
-### Sequanix
-
-Using sequanix or running the snakemake file directly (without the run script) will not provide runtime information
-
-In order to set parameters using the console, the snakefile must be run directly
+Q: I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?
+Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set {parameter} to {value}.
