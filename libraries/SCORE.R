@@ -278,8 +278,8 @@ run_noiseq <- function(counts_noiseq, groups_noiseq){
   # Page 15 NOISeq dokumentation
 }
 
-# Export consensus list (uses a majority vote of methods)
-# TO-DO: Add weights of methods as inputs from config file
+# Creates a consensus list of DEGs
+# DEGs predicted using a weighted average (majority vote) of individual predicitons
 smart_consensus <- function(binary_file, w){
   consensus_degs <- subset(binary_file, rowWeightedMeans(as.matrix(binary_file), w = w) >= 0.5)
   return(consensus_degs)
@@ -324,14 +324,10 @@ if (is.na(argument_1)){
 # Might need to be adjusted per experiment
 threshold_bayseq = argument_2
 threshold_general = argument_3
+# Weights of the predicition of individual tools
+# Are listed in alphabetical order (highly important)
 weights <- c(argument_4, argument_5, argument_6, argument_7)
 #weights <- c(argument_4, argument_5, argument_6, argument_7, argument_8)
-
-#weight_bayseq = argument_4
-#weight_deseq2 = argument_5
-#weight_edger = argument_6
-#weight_limma = argument_7
-#weight_noiseq = argument_8
 
 pdf("deg_analysis_graphs.pdf")
 
