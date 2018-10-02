@@ -280,8 +280,8 @@ run_noiseq <- function(counts_noiseq, groups_noiseq){
 
 # Export consensus list (uses a majority vote of methods)
 # TO-DO: Add weights of methods as inputs from config file
-smart_consensus <- function(binary_file){
-  consensus_degs <- subset(binary_file, rowSums(binary_file)/ncol(binary_file) >= 0.5)
+smart_consensus <- function(binary_file, w){
+  consensus_degs <- subset(binary_file, rowWeightedMeans(as.matrix(binary_file), w = w) >= 0.5)
   return(consensus_degs)
 }
 
@@ -301,22 +301,22 @@ args <- commandArgs(TRUE)
 argument_1 = args[1]
 argument_2 = args[2]
 argument_3 = args[3]
-#argument_4 = args[4]
-#argument_5 = args[5]
-#argument_6 = args[6]
-#argument_7 = args[7]
-#argument_8 = args[8]
+argument_4 = args[4]
+argument_5 = args[5]
+argument_6 = args[6]
+argument_7 = args[7]
+argument_8 = args[8]
 
 # Special case if this script is run manually using RStudio
 if (is.na(argument_1)){
   argument_1 = "Metadata.tsv"
   argument_2 = 0.03
   argument_3 = 0.05
-  #argument_4 = 1.0
-  #argument_5 = 1.0
-  #argument_6 = 1.0
-  #argument_7 = 1.0
-  #argument_8 = 1.0
+  argument_4 = 1.0
+  argument_5 = 1.0
+  argument_6 = 1.0
+  argument_7 = 1.0
+  argument_8 = 1.0
   setwd("../")
 }
 
@@ -324,6 +324,8 @@ if (is.na(argument_1)){
 # Might need to be adjusted per experiment
 threshold_bayseq = argument_2
 threshold_general = argument_3
+weights <- c(argument_4, argument_5, argument_6, argument_7)
+#weights <- c(argument_4, argument_5, argument_6, argument_7, argument_8)
 
 #weight_bayseq = argument_4
 #weight_deseq2 = argument_5
@@ -357,7 +359,7 @@ colnames(time_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOIseq")
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
-results_consensus = smart_consensus(results_binary)
+results_consensus = smart_consensus(results_binary, weights)
 visualization_vennDiagram(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
