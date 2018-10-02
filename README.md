@@ -25,7 +25,6 @@ Q: How can I compute the runtime of my analysis?
 
 Using the executable script mentioned above will automatically output the runtime at successful termination. Sequanix will not provide runtime information.
 
-
 Q: I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?
 
 Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set {parameter} to {value}.

@@ -326,8 +326,8 @@ threshold_bayseq = argument_2
 threshold_general = argument_3
 # Weights of the predicition of individual tools
 # Are listed in alphabetical order (highly important)
-weights <- c(argument_4, argument_5, argument_6, argument_7)
-#weights <- c(argument_4, argument_5, argument_6, argument_7, argument_8)
+weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7))
+#weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7, argument_8))
 
 pdf("deg_analysis_graphs.pdf")
 
