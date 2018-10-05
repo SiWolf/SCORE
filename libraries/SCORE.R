@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 02.10.2018
-# Version: 0.2.5
+# Last Modified: Fr, 05.10.2018
+# Version: 0.2.6
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -27,7 +27,7 @@ library("limma")
 create_gene_list <- function(sample){
   sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
   setwd(sample_path)
-  gene_list = read.csv("counts", sep = "", head = T, skip = 1)[,c("Geneid")]
+  gene_list = read.csv(paste("counts", sample, sep = "_"), sep = "", head = T, skip = 1)[,c("Geneid")]
   return(gene_list)
 }
 
@@ -40,7 +40,7 @@ create_count_matrix <- function(sample_list, gene_list){
     sample_nr = sample_nr + 1
     path <- paste("../", sample, sep = "")
     setwd(path)
-    counts = read.csv("counts", sep = "", head = T, skip = 1, row.names = 1)
+    counts = read.csv(paste("counts", sample, sep = "_"), sep = "", head = T, skip = 1, row.names = 1)
     # Remove first six columns (genesymbol, chr, start, end, strand, length)
     counts <- counts[ ,6:ncol(counts)]
     if (sample_nr == 1){
@@ -248,6 +248,8 @@ run_limma <- function(counts, groups){
   #fit <- lmFit(logCPM, DE)
   #fit <- eBayes(fit, trend=TRUE)
   #s <- topTable(fit, coef=ncol(DE) -1, number=length(counts))
+  
+  #s <- topTable(fit, adjust.method="fdr", number=length(counts))
   
   v <- voom(counts, design = DE, plot = TRUE, normalize = "quantile")
   fit <- lmFit(v, DE)
