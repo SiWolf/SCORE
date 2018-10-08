@@ -30,6 +30,8 @@ PARAM_DEG_WEIGHT_NOISEQ = config["weight_noiseq"]
 PARAM_FLEXBAR_LENGTH = config["flexbar_min_length"]
 PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
+PARAM_GENESCF_GO_DB = config["genescf_go_db"]
+PARAM_GENESCF_KEGG_DB = config["genescf_kegg_db"]
 PATH_FLEXBAR = config["flexbar_path"]
 PATH_GENESCF = config["geneSCF_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
@@ -89,6 +91,8 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
 # Runs a pathway and GO term overrepresentation analysis on the DEG list
 # TO-DO: Use update only for first time running?
+# TO-DO: Read out total genes and replace bg=5000?
+# TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
 	input:
 		"deg/deg_gene_symbols.csv"
@@ -99,8 +103,8 @@ rule pathway_analysis:
 		"""
 		mkdir -p {output[0]}
 		mkdir -p {output[1]}
-		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg=5000 -org=ecocyc
-		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg=5000 -org=ecg
+		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg=5000 -org={PARAM_GENESCF_GO_DB}
+		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg=5000 -org={PARAM_GENESCF_KEGG_DB}
 		"""
 
 rule DEG_postprocessing:

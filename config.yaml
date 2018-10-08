@@ -6,6 +6,9 @@ general_threshold: 0.05
 flexbar_max_uncalled: 20
 flexbar_min_length: 20
 flexbar_min_qual: 20
+# GENESCF SETTINGS
+genescf_go_db: ecocyc
+genescf_kegg_db: ecg
 # PARAMETERS
 ref_annotation_file: references/PROKKA_07132018_Edited.gff
 ref_annotation_feature_type: CDS
