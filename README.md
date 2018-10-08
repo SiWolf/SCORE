@@ -6,6 +6,8 @@
 
 Requirements:
 * Anaconda or Miniconda
+* Flexbar
+* GeneSCF
 * Snakemake
 * Sequanix
 
