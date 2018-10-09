@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Mon, 08.10.2018
-# Version: 0.3.9
+# Last Modified: Thue, 09.10.2018
+# Version: 0.4.0
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
 #		sequanix
 #       snakemake -s "SCORE.snk" -n
-#       snakemake -s "SCORE.snk" --dag | dot -Tsvg > dag.svg
 #       snakemake -s "SCORE.snk" --config {parameter}={value}
+#       snakemake -s "SCORE.snk" --forceall --dag | dot -Tsvg > dag.svg
 # ---------------------------------------------------------------------------
 
 # Imports
@@ -103,6 +103,7 @@ rule pathway_analysis:
 		"""
 		mkdir -p {output[0]}
 		mkdir -p {output[1]}
+		# wc -l < deg/all_diffexpr_results.csv
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg=5000 -org={PARAM_GENESCF_GO_DB}
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg=5000 -org={PARAM_GENESCF_KEGG_DB}
 		"""
