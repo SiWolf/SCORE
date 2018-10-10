@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 09.10.2018
-# Version: 0.4.0
+# Last Modified: Thue, 10.10.2018
+# Version: 0.4.1
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -32,6 +32,7 @@ PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
 PARAM_GENESCF_GO_DB = config["genescf_go_db"]
 PARAM_GENESCF_KEGG_DB = config["genescf_kegg_db"]
+PARAM_GENESCF_TOTAL_GENES_SPECIES = config["genescf_total_genes_species"]
 PATH_FLEXBAR = config["flexbar_path"]
 PATH_GENESCF = config["geneSCF_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
@@ -91,7 +92,6 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
 # Runs a pathway and GO term overrepresentation analysis on the DEG list
 # TO-DO: Use update only for first time running?
-# TO-DO: Read out total genes and replace bg=5000?
 # TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
 	input:
@@ -102,10 +102,9 @@ rule pathway_analysis:
 	shell:
 		"""
 		mkdir -p {output[0]}
-		mkdir -p {output[1]}
-		# wc -l < deg/all_diffexpr_results.csv
-		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg=5000 -org={PARAM_GENESCF_GO_DB}
-		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg=5000 -org={PARAM_GENESCF_KEGG_DB}
+		mkdir -p {output[1]}		
+		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_GO_DB}
+		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_KEGG_DB}
 		"""
 
 rule DEG_postprocessing:

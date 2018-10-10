@@ -9,6 +9,7 @@ flexbar_min_qual: 20
 # GENESCF SETTINGS
 genescf_go_db: ecocyc
 genescf_kegg_db: ecg
+genescf_total_genes_species: 5000
 # PARAMETERS
 ref_annotation_file: references/PROKKA_07132018_Edited.gff
 ref_annotation_feature_type: CDS
