@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 05.10.2018
-# Version: 0.2.6
+# Last Modified: Sa, 13.10.2018
+# Version: 0.2.7
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -13,17 +13,15 @@
 #biocLite("NOISeq")
 
 # Imports
-# TO-DO: Add NOISeq to Conda env
-# TO-DO: Recreate new env file for DEG R script?
 library("baySeq")
 library("DESeq2")
 library("edgeR")
 library("limma")
-#library("NOISeq")
+library("NOISeq")
 
 # Functions
 
-# Reads the first counts file to fetch a list of all gene symbols
+# Reads the first counts-file in order to fetch a list of all gene symbols
 create_gene_list <- function(sample){
   sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
   setwd(sample_path)
@@ -32,16 +30,16 @@ create_gene_list <- function(sample){
 }
 
 # Reads the individual count-files into a matrix
-# Applies cutoff to reduce computational time
+# Applies a low-expression cutoff to reduce computational time
 create_count_matrix <- function(sample_list, gene_list){
   sample_nr = 0
-  # Lets receive the rest of the counts...
+  # Let's receive the rest of the counts...
   for (sample in sample_list){
     sample_nr = sample_nr + 1
     path <- paste("../", sample, sep = "")
     setwd(path)
     counts = read.csv(paste("counts", sample, sep = "_"), sep = "", head = T, skip = 1, row.names = 1)
-    # Remove first six columns (genesymbol, chr, start, end, strand, length)
+    # Remove the first six columns (genesymbol, chr, start, end, strand, length)
     counts <- counts[ ,6:ncol(counts)]
     if (sample_nr == 1){
       count_matrix <- counts
@@ -49,17 +47,17 @@ create_count_matrix <- function(sample_list, gene_list){
       count_matrix <- cbind(count_matrix, counts)  
     }
   }
-  # Convert to matrix
+  # Convert to a matrix
   count_matrix <- as.matrix(count_matrix)
-  # Rename columns
+  # Rename the columns
   colnames(count_matrix) <- paste(sample_list)
   rownames(count_matrix) <- paste(gene_list)
   # unfiltered_count_matrix <- count_matrix
   
   # Cutoff for low-expressed genes
-  # Using CPM (edgeR) to calculate counts per gene per million
-  # More reliable than strict count cutoff (e.g. 3 counts)
-  # Might add additional filters later on
+  # Using CPM (edgeR) in order to calculate counts per gene per million
+  # More reliable than a strict count cutoff (e.g. 3 counts)
+  # Possible to add additional filters later on
   # TO-DO: Remove ubiquitous genes?
   cpm_log <- cpm(count_matrix, log = TRUE)
   median_log2_cpm <- apply(cpm_log, 1, median)
@@ -73,7 +71,7 @@ create_count_matrix <- function(sample_list, gene_list){
   abline(v = expr_cutoff, col = "red", lwd = 3)
   sum(median_log2_cpm > expr_cutoff)
   # Heatmap
-  # TO-DO: Heatmap is distorted
+  # TO-DO: Heatmap is distorted!
   cpm_log_filtered <- cpm(count_matrix, log = TRUE)
   heatmap(cor(cpm_log_filtered))
   # PCA
@@ -109,7 +107,7 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
 }
 
 # Transforms the individual predictions to a binary table
-# Uses several cutoff values
+# Uses several set cutoff values
 probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_number_of_genes){
   # Reads the results file and sets the first column as the rownames
   raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
@@ -134,7 +132,7 @@ probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_numbe
   
   # DESeq, edgeR and limma results are simply transformed
   # Compare p_values to cutoff
-  # This includes the bayseq column but this will be replaced later
+  # This includes the bayseq column which will be replaced later
   binary_results[is.na(binary_results)] <- 100
   binary_results[binary_results > cutoff_general] <- 100
   binary_results[binary_results <= cutoff_general] <- 0
@@ -165,7 +163,7 @@ run_bayseq <- function(gene_list, gene_counts, raw_replicates_list){
 
 # Function to call DESeq2
 run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
-  # How to manually assign conditions
+  # How to manually assign conditions:
   # condition <- factor(c(rep("normal", 2), rep("treated", 2)))
   
   # First create a coldata frame and instantiate the DESeqDataSet
@@ -227,6 +225,7 @@ run_edger <- function(read_counts, metadata_labels){
 
 # Function to call voom and limma
 # TO-DO: Outputs bad predictive results
+# TO-DO: Works better on server? Different version?
 run_limma <- function(counts, groups){
   #groups <- metadata$V2
   #counts <- filtered_gene_counts
@@ -277,7 +276,7 @@ run_noiseq <- function(counts_noiseq, groups_noiseq){
   # TO-DO: Requires transcript lengths
   myRPKM = rpkm(assayData(mydata)$exprs, long = lengths_DF_new, k = 0, lc = 1)
   # ...
-  # Page 15 NOISeq dokumentation
+  # Continue on page 15 of NOISeq documentation
 }
 
 # Creates a consensus list of DEGs
@@ -326,7 +325,7 @@ if (is.na(argument_1)){
 # Might need to be adjusted per experiment
 threshold_bayseq = argument_2
 threshold_general = argument_3
-# Weights of the predicition of individual tools
+# Weights of the prediction of individual tools
 # Are listed in alphabetical order (highly important)
 weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7))
 #weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7, argument_8))

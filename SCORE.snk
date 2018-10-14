@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 10.10.2018
-# Version: 0.4.1
+# Last Modified: Sa, 13.10.2018
+# Version: 0.4.2
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -91,7 +91,6 @@ SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
 # Runs a pathway and GO term overrepresentation analysis on the DEG list
-# TO-DO: Use update only for first time running?
 # TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
 	input:
@@ -165,7 +164,7 @@ rule counting:
 # Moves the alignment reference index file afterwards, since it's not used anymore
 # Followed by quanitification of transcripts (counting of reads)
 # TO-DO: Verify that mapping went well?
-# TO-DO: Verify parallelization
+# TO-DO: Allow up to 2 mismatches?
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
@@ -222,7 +221,7 @@ onstart:
 	print(" Please ensure all input files are located within the raw/ folder and your parameters have been set accordingly.")		
 		
 onerror:
-	print("\n Something went wrong. Please refer to the error messages listed above. \n")
+	print("\n It seems like something went wrong. Please refer to the error messages listed above for additional information. \n")
 
 onsuccess:
 	print("\n SCORE finished successfully. \n")
