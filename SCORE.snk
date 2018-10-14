@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Sa, 13.10.2018
-# Version: 0.4.2
+# Last Modified: Sun, 14.10.2018
+# Version: 0.4.3
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -161,10 +161,10 @@ rule counting:
 # Bowtie2 Version 2.3.4.3
 # Creates a reference index for each genome
 # Performs an ungapped genome mapping
+# Bowtie2 allows up to 2 mismatches (default)
 # Moves the alignment reference index file afterwards, since it's not used anymore
 # Followed by quanitification of transcripts (counting of reads)
 # TO-DO: Verify that mapping went well?
-# TO-DO: Allow up to 2 mismatches?
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
