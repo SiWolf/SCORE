@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Sa, 13.10.2018
-# Version: 0.2.7
+# Last Modified: Thue, 16.10.2018
+# Version: 0.2.8
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -199,6 +199,8 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
 }
 
 # Function to call edgeR
+# TO-DO: Test different sequencing depth normalization (total count normalization vs. TMM)
+# TO-DO: TMM recommended?
 run_edger <- function(read_counts, metadata_labels){
   dgList <- DGEList(counts = read_counts, group = metadata_labels)
   
