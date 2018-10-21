@@ -5,13 +5,13 @@
 ### Setup
 
 Requirements:
-* Anaconda or Miniconda
+* Anaconda
 * Flexbar
 * GeneSCF
 * Snakemake
 * Sequanix
 
-We recommend using Anaconda since it contains many of the required libraries at installation, but Miniconda should work as well. Sequanix is an optional choice depending of whether the user would prefer to use a GUI or the command line.
+We recommend using Anaconda since it contains many of the required libraries at installation. While it should be possible to use Miniconda, it does not contain all required packages and thus, these might need to be installed manually. Sequanix is an optional choice depending of whether the user would prefer to use a GUI or the command line.
 
 ## Usage
 

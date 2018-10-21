@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Sun, 14.10.2018
-# Version: 0.4.3
+# Last Modified: Sun, 21.10.2018
+# Version: 0.4.4
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -90,6 +90,7 @@ def read_tsv(tsv_filename):
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
+# GeneSCF 1.1-p2
 # Runs a pathway and GO term overrepresentation analysis on the DEG list
 # TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
@@ -119,10 +120,11 @@ rule DEG_postprocessing:
 		# Create a list of gene symbols for the DEGs
 		fetch_gene_symbols(output[0])
 
-# baySeq Version 2.12.0
-# DESeq2 Version 1.18.1
-# edgeR Version 3.20.7
-# limma Version 3.34.9
+# baySeq 2.12.0
+# DESeq2 1.18.1
+# edgeR 3.20.7
+# limma 3.34.9
+# NOISeq 2.22.0
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
@@ -138,7 +140,7 @@ rule DEG_analysis:
 		Rscript libraries/SCORE.R {METADATA} {PARAM_DEG_BAYSEQ} {PARAM_DEG_GENERAL} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ}
 		"""
 		
-# featureCounts Version 1.6.2
+# featureCounts 1.6.2
 # Counts mapped reads to genomic features
 # Needed for the quantification of Bowtie2 results
 # Discards multi-mapping reads by default
@@ -158,7 +160,7 @@ rule counting:
 		mv counts_{wildcards.sample}* {output}
 		"""
 
-# Bowtie2 Version 2.3.4.3
+# Bowtie2 2.3.4.3
 # Creates a reference index for each genome
 # Performs an ungapped genome mapping
 # Bowtie2 allows up to 2 mismatches (default)
@@ -182,8 +184,8 @@ rule mapping:
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
-# FastQC Version 0.11.7
-# Flexbar Version 3.3.0
+# FastQC 0.11.7
+# Flexbar 3.3.0
 # Quality control and basequality trimming
 # TO-DO: Should not forget adapter trimming when using new data!
 # TO-DO: Create Conda environment for Flexbar
