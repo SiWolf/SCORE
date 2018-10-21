@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 16.10.2018
-# Version: 0.2.8
+# Last Modified: Sun, 21.10.2018
+# Version: 0.2.9
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -84,14 +84,13 @@ create_count_matrix <- function(sample_list, gene_list){
 }
 
 # Merges the results of all individual tools into a CSV file
-export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, gene_names_list){
+export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, noiseq_result, gene_names_list){
   # Write results
-  results_folder = "../../../../deg/"
-  setwd(results_folder)
   write.csv(bayseq_result, file = "bayseq_diffexpr_results_extended.csv")
   write.csv(deseq2_result, file = "deseq2_diffexpr_results_extended.csv")
   write.csv(edgeR_result, file = "edger_diffexpr_results_extended.csv")
   write.csv(limma_result, file = "limma_diffexpr_results_extended.csv")
+  write.csv(noiseq_result, file = "noiseq_diffexpr_results_extended.csv")
   
   bayseq_reordered <- bayseq_result[order(match(bayseq_result$annotation, gene_names_list)), ]
   bayseq_likelihood <- bayseq_reordered$Likelihood
@@ -99,7 +98,8 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
   limma_pvalues <- limma_reordered$adj.P.Val
   edger_pvalues <- unlist(edgeR_result[, "PValue"])[1:length(gene_names_list)]
   deseq2_pvalues <- deseq2_result[, "padj"]
-  final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues, limma = limma_pvalues), row.names = gene_names_list, class = "data.frame")
+  noiseq_probabilities <- noiseq_result$prob 
+  final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues, limma = limma_pvalues, NOISeq = noiseq_probabilities), row.names = gene_names_list, class = "data.frame")
   #final_results <- merge(as.data.frame(edger_pvalues), as.data.frame(deseq2_pvalues))
   
   write.csv(final_results, file = "all_diffexpr_results.csv")
@@ -130,16 +130,22 @@ probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_numbe
   bayseq_column[bayseq_column != 1] <- 0
   bayseq_column <- bayseq_column[order(row.names(bayseq_column)), , drop = FALSE]
   
+  # Special case for NOISeq since it uses probabilities not p_values
+  noiseq_column <- binary_results$NOISeq
+  noiseq_column[noiseq_column >= 1 - cutoff_general] <- 1
+  noiseq_column[noiseq_column < 1 - cutoff_general] <- 0
+  
   # DESeq, edgeR and limma results are simply transformed
   # Compare p_values to cutoff
-  # This includes the bayseq column which will be replaced later
+  # This includes the bayseq and noiseq columns which will be replaced later
   binary_results[is.na(binary_results)] <- 100
   binary_results[binary_results > cutoff_general] <- 100
   binary_results[binary_results <= cutoff_general] <- 0
   binary_results[binary_results == 0] <- 1
   binary_results[binary_results == 100] <- 0
-  # Overwrite the current baySeq results with the precomputed ones
+  # Overwrite the current bayseq and noiseq results with the precomputed ones
   binary_results$baySeq <- bayseq_column$bayseq_column
+  binary_results$NOISeq <- noiseq_column
   return(binary_results)
 }
 
@@ -262,7 +268,7 @@ run_limma <- function(counts, groups){
 
 # Function to call NOIseq
 run_noiseq <- function(counts_noiseq, groups_noiseq){
-  list_of_lengths <- read.table(file = "deg/transcript_lengths.csv", sep = ",", header = TRUE)
+  list_of_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
   
   lengths_DF <- as.data.frame(list_of_lengths$Length, levels(list_of_lengths$Transcript.ID))
   colnames(lengths_DF) <- c("Lengths")
@@ -270,15 +276,17 @@ run_noiseq <- function(counts_noiseq, groups_noiseq){
   lengths_DF_new <- lengths_DF[rownames(lengths_DF) %in% filtered_gene_names, ]
   lengths_DF_new <- as.data.frame(lengths_DF_new, filtered_gene_names)
   
-  lengths_DF_turned <- as.data.frame(lengths_DF_new$lengths_DF_new,c("ID", "Length"))
+  #lengths_DF_turned <- as.data.frame(lengths_DF_new$lengths_DF_new,c("ID", "Length"))
   
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
   mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
-  # TO-DO: Requires transcript lengths
-  myRPKM = rpkm(assayData(mydata)$exprs, long = lengths_DF_new, k = 0, lc = 1)
-  # ...
-  # Continue on page 15 of NOISeq documentation
+
+  mynoiseqbio = noiseqbio(mydata, k = 0.5, norm = "rpkm", factor = "Group", lc = 0, r = 20, adj = 1.5, plot = TRUE, a0per = 0.9, random.seed = 12345, filter = 1)
+  
+  noiseq_results <- mynoiseqbio@results[[1]]
+  
+  return(noiseq_results)
 }
 
 # Creates a consensus list of DEGs
@@ -296,7 +304,7 @@ visualization_vennDiagram <- function(binary_table){
   v1 <- vennCounts(binary_table[1:3])
   vennDiagram(v1, circle.col = c("blue", "red", "green"))
   v2 <- vennCounts(binary_table)
-  vennDiagram(v2, circle.col = c("blue", "red", "green", "yellow"))
+  vennDiagram(v2, circle.col = c("blue", "red", "green", "yellow", "grey"))
 }
 
 # Main
@@ -329,8 +337,7 @@ threshold_bayseq = argument_2
 threshold_general = argument_3
 # Weights of the prediction of individual tools
 # Are listed in alphabetical order (highly important)
-weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7))
-#weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7, argument_8))
+weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7, argument_8))
 
 pdf("deg_analysis_graphs.pdf")
 
@@ -338,6 +345,9 @@ metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", he
 gene_names <- create_gene_list(metadata$V1[1])
 filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
 filtered_gene_names <- rownames(filtered_gene_counts)
+
+results_folder = "../../../../deg/"
+setwd(results_folder)
 
 # TO-DO: Also possible to try baySeq in edgeR mode?
 # TO-DO: Normalization for sequencing depth?
@@ -350,13 +360,13 @@ results_edger = run_edger(filtered_gene_counts, metadata$V2)
 time_edger <- Sys.time()
 results_limma = run_limma(filtered_gene_counts, metadata$V2)
 time_limma <- Sys.time()
-#results_noiseq = run_noiseq(filtered_gene_counts, metadata$V2)
+results_noiseq = run_noiseq(filtered_gene_counts, metadata$V2)
 time_noiseq <- Sys.time()
 
 time_frame <- data.frame(time_bayseq - time_start, time_deseq2 - time_bayseq, time_edger - time_deseq2, time_limma - time_edger, time_noiseq - time_limma)
-colnames(time_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOIseq")
+colnames(time_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
 
-results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, filtered_gene_names)
+results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
 results_consensus = smart_consensus(results_binary, weights)
 visualization_vennDiagram(results_binary)
