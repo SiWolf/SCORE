@@ -6,7 +6,7 @@
 
 if [ -z "$1" ]
 then
-	time snakemake -s "SCORE.snk" -j 4 --use-conda
+	{ time snakemake -s "SCORE.snk" -j 4 --use-conda ; } 2>&1 | tee log.txt
 else
-	time snakemake -s "SCORE.snk" -j $1 --use-conda
+	{ time snakemake -s "SCORE.snk" -j $1 --use-conda ; } 2>&1 | tee log.txt
 fi

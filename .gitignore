@@ -2,4 +2,5 @@
 .snakemake/
 dag.svg
 deg_analysis_graphs.pdf
+log.txt
 .Rhistory
