@@ -364,8 +364,7 @@ time_limma <- Sys.time()
 results_noiseq = run_noiseq(filtered_gene_counts, metadata$V2)
 time_noiseq <- Sys.time()
 
-time_frame <- data.frame(time_bayseq - time_start, time_deseq2 - time_bayseq, time_edger - time_deseq2, time_limma - time_edger, time_noiseq - time_limma)
-colnames(time_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
+times <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"))
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
@@ -378,6 +377,13 @@ write.csv(time_frame, file = "runtime_DEG_methods.csv")
 degs_frame <- data.frame(sum(binary_results$baySeq), sum(binary_results$DESeq2), sum(binary_results$edgeR), sum(binary_results$limma), sum(binary_results$NOISeq))
 colnames(degs_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
 write.csv(degs_frame, file = "DEGs_summary.csv")
+
+#TO-DO: Combine time and DEG counts into one summary file, combine data frames?
+
+degs_counts <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq))
+summary_frame <- data.frame(DEGS = degs_counts, Runtimes = times)
+rownames(summary_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
+write.csv(summary_frame, file = "DEGs_summary.csv")
 
 # TO-DO: Add raw counts to final output file
 # Possibly in Python file?
