@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 22.10.2018
-# Version: 0.3.0
+# Last Modified: Wed, 24.10.2018
+# Version: 0.3.1
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -134,6 +134,7 @@ probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_numbe
   noiseq_column <- binary_results$NOISeq
   noiseq_column[noiseq_column >= 1 - as.numeric(cutoff_general)] <- 1
   noiseq_column[noiseq_column < 1 - as.numeric(cutoff_general)] <- 0
+  noiseq_column[is.na(noiseq_column)] <- 0
   
   # DESeq, edgeR and limma results are simply transformed
   # Compare p_values to cutoff
