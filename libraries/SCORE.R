@@ -374,6 +374,11 @@ visualization_vennDiagram(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
 write.csv(time_frame, file = "runtime_DEG_methods.csv")
+
+degs_frame <- data.frame(sum(binary_results$baySeq), sum(binary_results$DESeq2), sum(binary_results$edgeR), sum(binary_results$limma), sum(binary_results$NOISeq))
+colnames(degs_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
+write.csv(degs_frame, file = "DEGs_summary.csv")
+
 # TO-DO: Add raw counts to final output file
 # Possibly in Python file?
 
