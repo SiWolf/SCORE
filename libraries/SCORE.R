@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 24.10.2018
-# Version: 0.3.1
+# Last Modified: Thur, 25.10.2018
+# Version: 0.3.2
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -18,6 +18,7 @@ library("DESeq2")
 library("edgeR")
 library("limma")
 library("NOISeq")
+library("UpSetR")
 
 # Functions
 
@@ -297,15 +298,18 @@ smart_consensus <- function(binary_file, w){
   return(consensus_degs)
 }
 
-# Visualization of the DEGs as a venn diagram
+# Visualization of the DEGs as a venn diagram and using upsetr
 # TO-DO: Prioritize overlapping 49 genes with all tools
 # TO-DO: Then rank rest of genes according to overlaps
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
-visualization_vennDiagram <- function(binary_table){
+visualization <- function(binary_table){
+  # Venn diagrams
   v1 <- vennCounts(binary_table[1:3])
   vennDiagram(v1, circle.col = c("blue", "red", "green"))
   v2 <- vennCounts(binary_table)
   vennDiagram(v2, circle.col = c("blue", "red", "green", "yellow", "grey"))
+  # UpsetR images
+  upset(binary_table, order.by = "freq")
 }
 
 # Main
@@ -369,7 +373,7 @@ times <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_dese
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
 results_consensus = smart_consensus(results_binary, weights)
-visualization_vennDiagram(results_binary)
+visualization(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
 write.csv(time_frame, file = "runtime_DEG_methods.csv")
@@ -378,8 +382,7 @@ degs_frame <- data.frame(sum(binary_results$baySeq), sum(binary_results$DESeq2),
 colnames(degs_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
 write.csv(degs_frame, file = "DEGs_summary.csv")
 
-#TO-DO: Combine time and DEG counts into one summary file, combine data frames?
-
+# Combine runtime and DEG counts into one summary file for the analysis
 degs_counts <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq))
 summary_frame <- data.frame(DEGS = degs_counts, Runtimes = times)
 rownames(summary_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
