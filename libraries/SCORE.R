@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 25.10.2018
-# Version: 0.3.2
+# Last Modified: Mo, 29.10.2018
+# Version: 0.3.3
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -368,7 +368,7 @@ time_limma <- Sys.time()
 results_noiseq = run_noiseq(filtered_gene_counts, metadata$V2)
 time_noiseq <- Sys.time()
 
-times <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"))
+time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"))
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
@@ -376,15 +376,10 @@ results_consensus = smart_consensus(results_binary, weights)
 visualization(results_binary)
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
-write.csv(time_frame, file = "runtime_DEG_methods.csv")
-
-degs_frame <- data.frame(sum(binary_results$baySeq), sum(binary_results$DESeq2), sum(binary_results$edgeR), sum(binary_results$limma), sum(binary_results$NOISeq))
-colnames(degs_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
-write.csv(degs_frame, file = "DEGs_summary.csv")
 
 # Combine runtime and DEG counts into one summary file for the analysis
-degs_counts <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq))
-summary_frame <- data.frame(DEGS = degs_counts, Runtimes = times)
+deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq))
+summary_frame <- data.frame(DEGS = deg_frame, Runtimes = time_frame)
 rownames(summary_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
 write.csv(summary_frame, file = "DEGs_summary.csv")
 
