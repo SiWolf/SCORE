@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Sun, 21.10.2018
-# Version: 0.4.4
+# Last Modified: Thue, 30.10.2018
+# Version: 0.4.5
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -120,11 +120,11 @@ rule DEG_postprocessing:
 		# Create a list of gene symbols for the DEGs
 		fetch_gene_symbols(output[0])
 
-# baySeq 2.12.0
-# DESeq2 1.18.1
-# edgeR 3.20.7
-# limma 3.34.9
-# NOISeq 2.22.0
+# baySeq 2.14.0
+# DESeq2 1.20.0
+# edgeR 3.22.5
+# limma 3.36.5
+# NOISeq 2.24.0
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
@@ -185,7 +185,7 @@ rule mapping:
 		"""
 
 # FastQC 0.11.7
-# Flexbar 3.3.0
+# Flexbar 3.4.0
 # Quality control and basequality trimming
 # TO-DO: Should not forget adapter trimming when using new data!
 # TO-DO: Create Conda environment for Flexbar
