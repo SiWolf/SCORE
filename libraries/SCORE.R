@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 29.10.2018
-# Version: 0.3.3
+# Last Modified: Thue, 30.10.2018
+# Version: 0.3.4
 # --------------------------------------------
 
 #source("https://bioconductor.org/biocLite.R")
@@ -309,7 +309,7 @@ visualization <- function(binary_table){
   v2 <- vennCounts(binary_table)
   vennDiagram(v2, circle.col = c("blue", "red", "green", "yellow", "grey"))
   # UpsetR images
-  upset(binary_table, order.by = "freq")
+  upset(binary_table, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
 }
 
 # Main
