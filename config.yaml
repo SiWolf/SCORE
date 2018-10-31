@@ -11,11 +11,11 @@ genescf_go_db: ecocyc
 genescf_kegg_db: ecg
 genescf_total_genes_species: 5000
 # PARAMETERS
-ref_annotation_file: references/PROKKA_07132018_Edited.gff
+ref_annotation_file: references/PROKKA_07132018.gff
 ref_annotation_feature_type: CDS
 ref_annotation_gene_type: ID
-ref_fasta_file: references/9409_1#5.fa
-ref_index_name: REF_Transduziert
+ref_fasta_file: references/7738_8#57.fa
+ref_index_name: REF_Untransduced
 # PATHS
 flexbar_path: ./libraries/flexbar/flexbar
 geneSCF_path: ./libraries/geneSCF/geneSCF

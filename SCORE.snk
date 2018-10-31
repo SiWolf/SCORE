@@ -161,6 +161,7 @@ rule counting:
 		"""
 
 # Bowtie2 2.3.4.3
+# Kallisto 0.44.0
 # Creates a reference index for each genome
 # Performs an ungapped genome mapping
 # Bowtie2 allows up to 2 mismatches (default)
@@ -181,6 +182,8 @@ rule mapping:
 		"""
 		bowtie2-build {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 		bowtie2 -q --phred33 -p {threads} --no-unal -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
+		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_FASTA}
+		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample} -b 100 {input[0]} {input[1]}
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
