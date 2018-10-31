@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 30.10.2018
-# Version: 0.4.5
+# Last Modified: Wed, 31.10.2018
+# Version: 0.4.6
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -51,7 +51,7 @@ def fetch_annotation(gff_file, annotation_feature):
 			product = ""
 			id = consensus_line[0]
 			if id == "":
-				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + ",ordering\n")
+				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + ",ordering\n")
 			else:
 				with open(gff_file) as gff_annotation:
 					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
@@ -67,7 +67,7 @@ def fetch_annotation(gff_file, annotation_feature):
 						if id == bayseq_line[0]:
 							direction = bayseq_line[9]
 							break
-				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + direction + "\n")
+				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + direction + "\n")
 	consensus_extended.close()
 
 def fetch_gene_symbols(new_file):
