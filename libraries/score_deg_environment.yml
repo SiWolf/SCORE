@@ -22,11 +22,14 @@ dependencies:
   - bioconductor-iranges=2.14.12=r341h470a237_0
   - bioconductor-limma=3.36.5=r341h470a237_0
   - bioconductor-noiseq=2.24.0=r341_0
+  - bioconductor-rhdf5=2.24.0=r341hfc679d8_0
+  - bioconductor-rhdf5lib=1.2.1=r341h470a237_0
   - bioconductor-s4vectors=0.18.3=r341h470a237_0
   - bioconductor-summarizedexperiment=1.10.1=r341_0
   - bioconductor-xvector=0.20.0=r341h470a237_0
   - bioconductor-zlibbioc=1.26.0=r341h470a237_0
   - r-data.table=1.11.6=r341hc070d10_0
+  - r-sleuth=0.29.0=r3.4.1_0
   - bzip2=1.0.6=h470a237_2
   - ca-certificates=2018.10.15=ha4d7672_0
   - cairo=1.14.12=he6fea26_5
@@ -125,10 +128,13 @@ dependencies:
   - r-backports=1.1.0=r3.4.1_0
   - r-base64enc=0.1_3=r3.4.1_0
   - r-bh=1.62.0_1=r3.4.1_0
+  - r-bindr=0.1=r3.4.1_0
+  - r-bindrcpp=0.2=r3.4.1_0
   - r-bitops=1.0_6=r3.4.1_2
   - r-checkmate=1.8.2=r3.4.1_0
   - r-cluster=2.0.6=r3.4.1_0
   - r-dbi=0.6_1=r3.4.1_0
+  - r-dplyr=0.7.0=r3.4.1_0
   - r-evaluate=0.10=r3.4.1_0
   - r-foreign=0.8_68=r3.4.1_0
   - r-formatr=1.5=r3.4.1_0
@@ -138,6 +144,7 @@ dependencies:
   - r-htmltable=1.9=r3.4.1_0
   - r-htmltools=0.3.6=r3.4.1_0
   - r-htmlwidgets=0.8=r3.4.1_1
+  - r-httpuv=1.3.3=r3.4.1_0
   - r-jsonlite=1.5=r3.4.1_0
   - r-knitr=1.16=r3.4.1_0
   - r-latticeextra=0.6_28=r3.4.1_0
@@ -145,14 +152,19 @@ dependencies:
   - r-memoise=1.1.0=r3.4.1_0
   - r-mime=0.5=r3.4.1_0
   - r-nnet=7.3_12=r3.4.1_0
+  - r-pkgconfig=2.0.1=r3.4.1_0
   - r-plogr=0.1_1=r3.4.1_0
   - r-rcpparmadillo=0.7.900.2.0=r3.4.1_0
   - r-rcurl=1.95_4.8=r3.4.1_0
   - r-rpart=4.1_11=r3.4.1_0
   - r-rsqlite=1.1_2=r3.4.1_0
+  - r-shiny=1.0.3=r3.4.1_0
+  - r-sourcetools=0.1.6=r3.4.1_0
   - r-survival=2.41_3=r3.4.1_0
+  - r-tidyr=0.6.3=r3.4.1_0
   - r-viridis=0.4.0=r3.4.1_0
   - r-xml=3.98_1.7=r3.4.1_0
   - r-xtable=1.8_2=r3.4.1_0
   - r-yaml=2.1.14=r3.4.1_0
+prefix: /home/silver/anaconda3/envs/score_deg_env
 

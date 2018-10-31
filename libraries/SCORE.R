@@ -1,16 +1,20 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 30.10.2018
-# Version: 0.3.4
+# Last Modified: Wed, 31.10.2018
+# Version: 0.3.5
 # --------------------------------------------
 
+# Installers
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("baySeq")
 #biocLite("DESeq2")
 #biocLite("edgeR")
 #biocLite("limma")
 #biocLite("NOISeq")
+#biocLite("rhdf5")
+#install.packages("devtools")
+#devtools::install_github("pachterlab/sleuth")
 
 # Imports
 library("baySeq")
@@ -18,6 +22,7 @@ library("DESeq2")
 library("edgeR")
 library("limma")
 library("NOISeq")
+library("sleuth")
 library("UpSetR")
 
 # Functions

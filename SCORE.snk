@@ -125,6 +125,7 @@ rule DEG_postprocessing:
 # edgeR 3.22.5
 # limma 3.36.5
 # NOISeq 2.24.0
+# Sleuth 0.29.0
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
@@ -183,7 +184,7 @@ rule mapping:
 		bowtie2-build {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 		bowtie2 -q --phred33 -p {threads} --no-unal -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
 		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_FASTA}
-		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample} -b 100 {input[0]} {input[1]}
+		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b 100 -t {threads} {input[0]} {input[1]}
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
