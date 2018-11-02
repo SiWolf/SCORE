@@ -22,6 +22,7 @@ library("DESeq2")
 library("edgeR")
 library("limma")
 library("NOISeq")
+library("rhdf5")
 library("sleuth")
 library("UpSetR")
 
@@ -306,7 +307,7 @@ run_sleuth <- function(metadata_sleuth){
   }
   path_list = path_list[2:(length(metadata$V1) + 1)]
   metadata_sleuth_updated <- dplyr::mutate(metadata_sleuth, path = path_list)
-  so <- sleuth_prep(metadata_sleuth_updated)
+  so <- sleuth_prep(metadata_sleuth_updated, num_cores = 1)
   so <- sleuth_fit(so, ~condition, "full")
   so <- sleuth_fit(so, ~1, "reduced")
   so <- sleuth_lrt(so, "reduced", "full")
@@ -329,8 +330,10 @@ visualization <- function(binary_table){
   # Venn diagrams
   v1 <- vennCounts(binary_table[1:3])
   vennDiagram(v1, circle.col = c("blue", "red", "green"))
-  v2 <- vennCounts(binary_table[1:5])
-  vennDiagram(v2, circle.col = c("blue", "red", "green", "yellow", "grey"))
+  v2 <- vennCounts(binary_table[4:6])
+  vennDiagram(v2, circle.col = c("yellow", "grey", "cyan"))
+  v3 <- vennCounts(binary_table[1:5])
+  vennDiagram(v3, circle.col = c("blue", "red", "green", "yellow", "grey"))
   # UpsetR images
   upset(binary_table, nsets = 6, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
 }
