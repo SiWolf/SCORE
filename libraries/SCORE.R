@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 31.10.2018
-# Version: 0.3.5
+# Last Modified: Fr, 02.11.2018
+# Version: 0.3.7
 # --------------------------------------------
 
 # Installers
@@ -37,7 +37,7 @@ create_gene_list <- function(sample){
 
 # Reads the individual count-files into a matrix
 # Applies a low-expression cutoff to reduce computational time
-create_count_matrix <- function(sample_list, gene_list){
+create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
   sample_nr = 0
   # Let's receive the rest of the counts...
   for (sample in sample_list){
@@ -61,21 +61,18 @@ create_count_matrix <- function(sample_list, gene_list){
   # unfiltered_count_matrix <- count_matrix
   
   # Cutoff for low-expressed genes
-  # Using CPM (edgeR) in order to calculate counts per gene per million
-  # More reliable than a strict count cutoff (e.g. 3 counts)
-  # Possible to add additional filters later on
+  # Removed genes with low counts
+  # Filter out all genes which do not have rowsum >= cutoff
   # TO-DO: Remove ubiquitous genes?
-  cpm_log <- cpm(count_matrix, log = TRUE)
-  median_log2_cpm <- apply(cpm_log, 1, median)
-  expr_cutoff <- -1
-  # Filter out all genes which do not have median(gene_across_samples) > cutoff
-  count_matrix <- count_matrix[median_log2_cpm > expr_cutoff, ]
+  count_matrix <- count_matrix[rowSums(count_matrix) >= as.numeric(low_expression_cutoff), ]
   
   # Initial visualization
   # Histogram
+  cpm_log <- cpm(count_matrix, log = TRUE)
+  median_log2_cpm <- apply(cpm_log, 1, median)
   hist(median_log2_cpm)
-  abline(v = expr_cutoff, col = "red", lwd = 3)
-  sum(median_log2_cpm > expr_cutoff)
+  abline(v = low_expression_cutoff, col = "red", lwd = 3)
+  sum(median_log2_cpm > low_expression_cutoff)
   # Heatmap
   # TO-DO: Heatmap is distorted!
   cpm_log_filtered <- cpm(count_matrix, log = TRUE)
@@ -90,13 +87,15 @@ create_count_matrix <- function(sample_list, gene_list){
 }
 
 # Merges the results of all individual tools into a CSV file
-export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, noiseq_result, gene_names_list){
+export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, noiseq_result, sleuth_result, gene_names_list){
   # Write results
   write.csv(bayseq_result, file = "bayseq_diffexpr_results_extended.csv")
   write.csv(deseq2_result, file = "deseq2_diffexpr_results_extended.csv")
   write.csv(edgeR_result, file = "edger_diffexpr_results_extended.csv")
   write.csv(limma_result, file = "limma_diffexpr_results_extended.csv")
   write.csv(noiseq_result, file = "noiseq_diffexpr_results_extended.csv")
+  sleuth_result <- subset(sleuth_result, target_id %in% gene_names_list)
+  write.csv(sleuth_result, file = "sleuth_diffexpr_results_extended.csv")
   
   bayseq_reordered <- bayseq_result[order(match(bayseq_result$annotation, gene_names_list)), ]
   bayseq_likelihood <- bayseq_reordered$Likelihood
@@ -104,8 +103,11 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
   limma_pvalues <- limma_reordered$adj.P.Val
   edger_pvalues <- unlist(edgeR_result[, "PValue"])[1:length(gene_names_list)]
   deseq2_pvalues <- deseq2_result[, "padj"]
-  noiseq_probabilities <- noiseq_result$prob 
-  final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues, limma = limma_pvalues, NOISeq = noiseq_probabilities), row.names = gene_names_list, class = "data.frame")
+  noiseq_probabilities <- noiseq_result$prob
+  # TO-DO: Replace pval with qval
+  sleuth_reordered <- sleuth_result[order(match(sleuth_result$target_id, gene_names_list)), ]
+  sleuth_pvalues <- sleuth_reordered$pval
+  final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues, limma = limma_pvalues, NOISeq = noiseq_probabilities, sleuth = sleuth_pvalues), row.names = gene_names_list, class = "data.frame")
   #final_results <- merge(as.data.frame(edger_pvalues), as.data.frame(deseq2_pvalues))
   
   write.csv(final_results, file = "all_diffexpr_results.csv")
@@ -142,7 +144,7 @@ probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_numbe
   noiseq_column[noiseq_column < 1 - as.numeric(cutoff_general)] <- 0
   noiseq_column[is.na(noiseq_column)] <- 0
   
-  # DESeq, edgeR and limma results are simply transformed
+  # DESeq, edgeR, limma and sleuth results are simply transformed
   # Compare p_values to cutoff
   # This includes the bayseq and noiseq columns which will be replaced later
   binary_results[is.na(binary_results)] <- 100
@@ -239,8 +241,6 @@ run_edger <- function(read_counts, metadata_labels){
 }
 
 # Function to call voom and limma
-# TO-DO: Outputs bad predictive results
-# TO-DO: Works better on server? Different version?
 run_limma <- function(counts, groups){
   #groups <- metadata$V2
   #counts <- filtered_gene_counts
@@ -296,6 +296,24 @@ run_noiseq <- function(counts_noiseq, groups_noiseq){
   return(noiseq_results)
 }
 
+# Function to call sleuth
+run_sleuth <- function(metadata_sleuth){
+  colnames(metadata_sleuth) <- c("sample", "condition")
+  path_list = ""
+  for (sample in metadata_sleuth$sample){
+    path_raw <- paste("../mapped/kallisto/", sample, sep = "")
+    path_list <- cbind(path_list, path_raw)
+  }
+  path_list = path_list[2:(length(metadata$V1) + 1)]
+  metadata_sleuth_updated <- dplyr::mutate(metadata_sleuth, path = path_list)
+  so <- sleuth_prep(metadata_sleuth_updated)
+  so <- sleuth_fit(so, ~condition, "full")
+  so <- sleuth_fit(so, ~1, "reduced")
+  so <- sleuth_lrt(so, "reduced", "full")
+  sleuth_table <- sleuth_results(so, "reduced:full", "lrt", show_all = TRUE)
+  return(sleuth_table)
+}
+
 # Creates a consensus list of DEGs
 # DEGs predicted using a weighted average (majority vote) of individual predicitons
 smart_consensus <- function(binary_file, w){
@@ -311,10 +329,10 @@ visualization <- function(binary_table){
   # Venn diagrams
   v1 <- vennCounts(binary_table[1:3])
   vennDiagram(v1, circle.col = c("blue", "red", "green"))
-  v2 <- vennCounts(binary_table)
+  v2 <- vennCounts(binary_table[1:5])
   vennDiagram(v2, circle.col = c("blue", "red", "green", "yellow", "grey"))
   # UpsetR images
-  upset(binary_table, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
+  upset(binary_table, nsets = 6, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
 }
 
 # Main
@@ -327,17 +345,21 @@ argument_5 = args[5]
 argument_6 = args[6]
 argument_7 = args[7]
 argument_8 = args[8]
+argument_9 = args[9]
+argument_10 = args[10]
 
 # Special case if this script is run manually using RStudio
 if (is.na(argument_1)){
-  argument_1 = "Metadata.tsv"
+  argument_1 = "Metadata_C1.tsv"
   argument_2 = 0.03
   argument_3 = 0.05
-  argument_4 = 1.0
+  argument_4 = 5
   argument_5 = 1.0
   argument_6 = 1.0
   argument_7 = 1.0
   argument_8 = 1.0
+  argument_9 = 1.0
+  argument_10 = 1.0
   setwd("../")
 }
 
@@ -345,15 +367,16 @@ if (is.na(argument_1)){
 # Might need to be adjusted per experiment
 threshold_bayseq = argument_2
 threshold_general = argument_3
+threshold_expression_count = argument_4
 # Weights of the prediction of individual tools
 # Are listed in alphabetical order (highly important)
-weights <- as.numeric(c(argument_4, argument_5, argument_6, argument_7, argument_8))
+weights <- as.numeric(c(argument_5, argument_6, argument_7, argument_8, argument_9, argument_10))
 
 pdf("deg_analysis_graphs.pdf")
 
 metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE, comment.char = "@")
 gene_names <- create_gene_list(metadata$V1[1])
-filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names)
+filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names, threshold_expression_count)
 filtered_gene_names <- rownames(filtered_gene_counts)
 
 results_folder = "../../../../deg/"
@@ -372,10 +395,12 @@ results_limma = run_limma(filtered_gene_counts, metadata$V2)
 time_limma <- Sys.time()
 results_noiseq = run_noiseq(filtered_gene_counts, metadata$V2)
 time_noiseq <- Sys.time()
+results_sleuth = run_sleuth(metadata)
+time_sleuth <- Sys.time()
 
-time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"))
+time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"))
 
-results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, filtered_gene_names)
+results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, results_sleuth, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_bayseq, threshold_general, length(gene_names))
 results_consensus = smart_consensus(results_binary, weights)
 visualization(results_binary)
@@ -383,9 +408,9 @@ write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
 
 # Combine runtime and DEG counts into one summary file for the analysis
-deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq))
+deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth))
 summary_frame <- data.frame(DEGS = deg_frame, Runtimes = time_frame)
-rownames(summary_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
+rownames(summary_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth")
 write.csv(summary_frame, file = "DEGs_summary.csv")
 
 # TO-DO: Add raw counts to final output file

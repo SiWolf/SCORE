@@ -2,6 +2,7 @@
 # DEG PREDICTION CUTOFFS
 bayseq_threshold: 0.03
 general_threshold: 0.05
+low_expression_count: 5
 # FLEXBAR SETTINGS
 flexbar_max_uncalled: 20
 flexbar_min_length: 20
@@ -15,6 +16,7 @@ ref_annotation_file: references/PROKKA_07132018.gff
 ref_annotation_feature_type: CDS
 ref_annotation_gene_type: ID
 ref_fasta_file: references/7738_8#57.fa
+ref_fasta_transcriptome: references/PROKKA_07132018.ffn
 ref_index_name: REF_Untransduced
 # PATHS
 flexbar_path: ./libraries/flexbar/flexbar
@@ -27,3 +29,4 @@ weight_deseq2: 1.0
 weight_edger: 1.0
 weight_limma: 1.0
 weight_noiseq: 1.0
+weight_sleuth: 1.0

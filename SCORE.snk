@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 31.10.2018
-# Version: 0.4.6
+# Last Modified: Fr, 02.11.2018
+# Version: 0.4.8
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -22,11 +22,13 @@ configfile: "config.yaml"
 METADATA = config["metadata_file"]
 PARAM_DEG_BAYSEQ = config["bayseq_threshold"]
 PARAM_DEG_GENERAL = config["general_threshold"]
+PARAM_DEG_LOW_EXPRESSED = config["low_expression_count"]
 PARAM_DEG_WEIGHT_BAYSEQ = config["weight_bayseq"]
 PARAM_DEG_WEIGHT_DESEQ2 = config["weight_deseq2"]
 PARAM_DEG_WEIGHT_EDGER = config["weight_edger"]
 PARAM_DEG_WEIGHT_LIMMA = config["weight_limma"]
 PARAM_DEG_WEIGHT_NOISEQ = config["weight_noiseq"]
+PARAM_DEG_WEIGHT_SLEUTH = config["weight_sleuth"]
 PARAM_FLEXBAR_LENGTH = config["flexbar_min_length"]
 PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
@@ -40,6 +42,7 @@ REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature_type"]
 REF_ANNOTATION_GENE_ID = config["ref_annotation_gene_type"]
 REF_FASTA = config["ref_fasta_file"]
 REF_INDEX = config["ref_index_name"]
+REF_TRANSCRIPTOME = config["ref_fasta_transcriptome"]
 
 # Functions
 def fetch_annotation(gff_file, annotation_feature):
@@ -51,7 +54,7 @@ def fetch_annotation(gff_file, annotation_feature):
 			product = ""
 			id = consensus_line[0]
 			if id == "":
-				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + ",ordering\n")
+				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + ",ordering\n")
 			else:
 				with open(gff_file) as gff_annotation:
 					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
@@ -67,7 +70,7 @@ def fetch_annotation(gff_file, annotation_feature):
 						if id == bayseq_line[0]:
 							direction = bayseq_line[9]
 							break
-				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + direction + "\n")
+				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + "," + direction + "\n")
 	consensus_extended.close()
 
 def fetch_gene_symbols(new_file):
@@ -125,7 +128,7 @@ rule DEG_postprocessing:
 # edgeR 3.22.5
 # limma 3.36.5
 # NOISeq 2.24.0
-# Sleuth 0.29.0
+# sleuth 0.29.0
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
@@ -138,7 +141,7 @@ rule DEG_analysis:
 		# Fetch transcript lengths using another python script
 		python libraries/fetch_transcript_lengths.py -f {REF_ANNOTATION} -i {REF_ANNOTATION_GENE_ID}
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		Rscript libraries/SCORE.R {METADATA} {PARAM_DEG_BAYSEQ} {PARAM_DEG_GENERAL} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ}
+		Rscript libraries/SCORE.R {METADATA} {PARAM_DEG_BAYSEQ} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH}
 		"""
 		
 # featureCounts 1.6.2
@@ -183,7 +186,7 @@ rule mapping:
 		"""
 		bowtie2-build {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 		bowtie2 -q --phred33 -p {threads} --no-unal -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
-		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_FASTA}
+		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
 		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b 100 -t {threads} {input[0]} {input[1]}
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
