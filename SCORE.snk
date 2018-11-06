@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 02.11.2018
-# Version: 0.4.8
+# Last Modified: Thue, 06.11.2018
+# Version: 0.4.9
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -128,7 +128,9 @@ rule DEG_postprocessing:
 # edgeR 3.22.5
 # limma 3.36.5
 # NOISeq 2.24.0
+# rhdf5 2.22.0
 # sleuth 0.29.0
+# UpsetR 1.3.3
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
