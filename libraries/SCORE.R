@@ -326,6 +326,7 @@ smart_consensus <- function(binary_file, w){
 # TO-DO: Prioritize overlapping 49 genes with all tools
 # TO-DO: Then rank rest of genes according to overlaps
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
+# TO-DO: Save important diagrams as .png files
 visualization <- function(binary_table){
   # Venn diagrams
   v1 <- vennCounts(binary_table[1:3])

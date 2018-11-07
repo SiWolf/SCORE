@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thue, 06.11.2018
-# Version: 0.4.9
+# Last Modified: Wed, 07.11.2018
+# Version: 0.5.0
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -65,7 +65,7 @@ def fetch_annotation(gff_file, annotation_feature):
 								if gff_line[8].split("ID=")[1].count("gene=") > 0:
 									gene = gff_line[8].split("gene=")[1].split(";")[0]
 								break
-				with open("deg/bayseq_diffexpr_results_extended.csv") as bayseq_results:
+				with open("deg/diffexpr_results_bayseq.csv") as bayseq_results:
 					for bayseq_line in csv.reader(bayseq_results, delimiter = ","):
 						if id == bayseq_line[0]:
 							direction = bayseq_line[9]
