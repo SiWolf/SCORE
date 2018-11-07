@@ -333,7 +333,6 @@ visualization <- function(binary_table){
   v2 <- vennCounts(binary_table[4:6])
   vennDiagram(v2, circle.col = c("grey", "orange", "cyan"))
   v3 <- vennCounts(binary_table[1:4])
-  vennDiagram(v3, circle.col = c("blue", "red", "green", "grey"))
   # UpsetR images
   upset(binary_table, nsets = 6, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
 }
