@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 02.11.2018
-# Version: 0.3.7
+# Last Modified: Wed, 07.11.2018
+# Version: 0.3.8
 # --------------------------------------------
 
 # Installers
@@ -375,7 +375,7 @@ threshold_expression_count = argument_4
 # Are listed in alphabetical order (highly important)
 weights <- as.numeric(c(argument_5, argument_6, argument_7, argument_8, argument_9, argument_10))
 
-pdf("deg_analysis_graphs.pdf")
+pdf("deg_analysis_graphs.pdf", paper = "a4")
 
 metadata = read.table(file = paste("raw/", argument_1, sep = ""), sep = "\t", header = FALSE, comment.char = "@")
 gene_names <- create_gene_list(metadata$V1[1])

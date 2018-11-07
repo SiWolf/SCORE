@@ -94,7 +94,7 @@ SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
 # GeneSCF 1.1-p2
-# Runs a pathway and GO term overrepresentation analysis on the DEG list
+# Performs a GO and KEGG overrepresentation analysis on the DEG list
 # TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
 	input:
