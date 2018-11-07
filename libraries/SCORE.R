@@ -90,13 +90,13 @@ create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
 # Merges the results of all individual tools into a CSV file
 export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, noiseq_result, sleuth_result, gene_names_list){
   # Write results
-  write.csv(bayseq_result, file = "bayseq_diffexpr_results_extended.csv")
-  write.csv(deseq2_result, file = "deseq2_diffexpr_results_extended.csv")
-  write.csv(edgeR_result, file = "edger_diffexpr_results_extended.csv")
-  write.csv(limma_result, file = "limma_diffexpr_results_extended.csv")
-  write.csv(noiseq_result, file = "noiseq_diffexpr_results_extended.csv")
+  write.csv(bayseq_result, file = "diffexpr_results_bayseq.csv")
+  write.csv(deseq2_result, file = "diffexpr_results_deseq2.csv")
+  write.csv(edgeR_result, file = "diffexpr_results_edger.csv")
+  write.csv(limma_result, file = "diffexpr_results_limma.csv")
+  write.csv(noiseq_result, file = "diffexpr_results_noiseq.csv")
   sleuth_result <- subset(sleuth_result, target_id %in% gene_names_list)
-  write.csv(sleuth_result, file = "sleuth_diffexpr_results_extended.csv")
+  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv")
   
   bayseq_reordered <- bayseq_result[order(match(bayseq_result$annotation, gene_names_list)), ]
   bayseq_likelihood <- bayseq_reordered$Likelihood
@@ -111,7 +111,7 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
   final_results <- structure(list(baySeq = bayseq_likelihood, DESeq2 = deseq2_pvalues, edgeR = edger_pvalues, limma = limma_pvalues, NOISeq = noiseq_probabilities, sleuth = sleuth_pvalues), row.names = gene_names_list, class = "data.frame")
   #final_results <- merge(as.data.frame(edger_pvalues), as.data.frame(deseq2_pvalues))
   
-  write.csv(final_results, file = "all_diffexpr_results.csv")
+  write.csv(final_results, file = "diffexpr_results_all.csv")
   return(final_results)
 }
 
@@ -119,7 +119,7 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
 # Uses several set cutoff values
 probabilities_to_binaries <- function(cutoff_bayseq, cutoff_general, total_number_of_genes){
   # Reads the results file and sets the first column as the rownames
-  raw_binary_results <- read.csv(file = "all_diffexpr_results.csv", header = TRUE, sep = ",")
+  raw_binary_results <- read.csv(file = "diffexpr_results_all.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
   rownames(binary_results) <- raw_binary_results[,1]
   
@@ -414,7 +414,7 @@ write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
 deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth))
 summary_frame <- data.frame(DEGS = deg_frame, Runtimes = time_frame)
 rownames(summary_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth")
-write.csv(summary_frame, file = "DEGs_summary.csv")
+write.csv(summary_frame, file = "deg_summary.csv")
 
 # TO-DO: Add raw counts to final output file
 # Possibly in Python file?
