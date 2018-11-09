@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 08.11.2018
-# Version: 0.5.1
+# Last Modified: Fr, 09.11.2018
+# Version: 0.5.2
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -20,6 +20,7 @@ configfile: "config.yaml"
 
 # Global parameters
 METADATA = config["metadata_file"]
+MERGE_PLOTS_AND_PDF = config["merge_plots_into_pdf"]
 PARAM_DEG_GENERAL = config["general_threshold"]
 PARAM_DEG_LOW_EXPRESSED = config["low_expression_count"]
 PARAM_DEG_WEIGHT_BAYSEQ = config["weight_bayseq"]
@@ -142,7 +143,7 @@ rule DEG_analysis:
 		# Fetch transcript lengths using another python script
 		python libraries/fetch_transcript_lengths.py -f {REF_ANNOTATION} -i {REF_ANNOTATION_GENE_ID}
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
-		Rscript libraries/SCORE.R {METADATA} {PARAM_GENESCF_TOTAL_GENES_SPECIES} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH}
+		Rscript libraries/SCORE.R {METADATA} {PARAM_GENESCF_TOTAL_GENES_SPECIES} {MERGE_PLOTS_AND_PDF} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH}
 		"""
 		
 # featureCounts 1.6.2
