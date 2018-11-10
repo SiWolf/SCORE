@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 09.11.2018
-# Version: 0.4.0
+# Last Modified: Sa, 10.11.2018
+# Version: 0.4.1
 # --------------------------------------------
 
 # Installers
@@ -290,29 +290,29 @@ smart_consensus <- function(binary_file, w){
 }
 
 # Visualization of the DEGs as a Venn diagram and using UpSetR
+# Option to save important diagrams as .png files instead of .pdf
 # TO-DO: Prioritize overlapping 49 genes with all tools
 # TO-DO: Then rank rest of genes according to overlaps
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
-# TO-DO: Save important diagrams as .png files?
 visualization <- function(binary_table, separate_images_switch){
   if (as.logical(separate_images_switch) == FALSE){
     # Venn diagrams
-    png(filename = "deg_analysis_venn_diagram_01", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+    png(filename = "deg_analysis_venn_diagram_01.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
     v1 <- vennCounts(binary_table[1:3])
     vennDiagram(v1, circle.col = c("blue", "red", "green"))
     dev.off()
     
-    png(filename = "deg_analysis_venn_diagram_02", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+    png(filename = "deg_analysis_venn_diagram_02.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
     v2 <- vennCounts(binary_table[4:6])
     vennDiagram(v2, circle.col = c("grey", "orange", "cyan"))
     dev.off()
     
-    png(filename = "deg_analysis_venn_diagram_03", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+    png(filename = "deg_analysis_venn_diagram_03.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
     v3 <- vennCounts(binary_table[1:4])
     vennDiagram(v3, circle.col = c("blue", "red", "green", "grey"))
     dev.off()
     
-    png(filename = "deg_analysis_upsetR_diagram", width = 20, height = 20, units = "cm", res = 600)
+    png(filename = "deg_analysis_upsetR_diagram.png", width = 20, height = 20, units = "cm", res = 600)
     # UpSetR images
     upset(binary_table, nsets = 6, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
     dev.off()
