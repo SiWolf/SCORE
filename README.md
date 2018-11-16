@@ -16,7 +16,7 @@ Optional:
 
 Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it contains many of the required libraries at installation. While it should be possible to use Miniconda, it does not contain all required packages and thus, these might need to be installed manually. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the above mentioned dependencies are installed accordingly.
 
-## Usage
+### Usage
 
 1.) Set parameters. Edit the parameters in the configuration file (config.yaml) according to your experimental setup. If you choose to use a GUI, you can instead load the Snakefile using Sequanix and edit the corresponding configuration file directly from within Sequanix.
 
@@ -24,7 +24,7 @@ Please ensure that the latest versions of the dependencies mentioned above are i
 
 3.) Analyze the results. All results essential for the DEG predicition are saved within the deg/ folder.
 
-### FAQ
+## FAQ
 
 Q: How can I compute the total runtime of my analysis?
 
