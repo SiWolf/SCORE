@@ -1,4 +1,4 @@
-# SCORE
+# SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria
 
 ## Getting started
 
@@ -33,3 +33,9 @@ Using the executable script mentioned above will automatically output the runtim
 Q: I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?
 
 Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set a specified {parameter} to a {value}.
+
+Q: How do I cite SCORE?
+
+Please cite the following:
+
+Wolf, S. (2018). SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin, 2018.
