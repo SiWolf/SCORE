@@ -1,3 +1,4 @@
+<div style="text-align: justify">
 # SCORE: Smart Consensus Of RNA Expression pipelines
 
 ## Getting started
@@ -39,3 +40,4 @@ Q: How do I cite SCORE?
 Please cite the following:
 
 Wolf, S. (2018). SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin, 2018.
+</div>
