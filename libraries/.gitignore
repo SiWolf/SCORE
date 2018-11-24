@@ -1,4 +1,5 @@
 # Ignore the following files
+boxplots/
 flexbar/
 geneSCF/
 .Rhistory
