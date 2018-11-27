@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Sa, 10.11.2018
-# Version: 0.4.1
+# Last Modified: Thue, 27.11.2018
+# Version: 0.4.2
 # --------------------------------------------
 
 # Installers
@@ -414,5 +414,3 @@ rownames(summary_frame) <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sl
 write.csv(summary_frame, file = "deg_summary.csv")
 
 dev.off()
-
-# TO-DO: Which (open) licence will be used? GPL?
