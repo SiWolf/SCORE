@@ -1,4 +1,4 @@
 # Ignore the following files
-flexbar/
-geneSCF/
+boxplot_data/
+generate_rna_seq_data.R
 .Rhistory
