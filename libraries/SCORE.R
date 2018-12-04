@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 27.11.2018
-# Version: 0.4.2
+# Last Modified: Thue, 04.12.2018
+# Version: 0.4.3
 # --------------------------------------------
 
 # Installers
@@ -14,6 +14,7 @@
 #biocLite("NOISeq")
 #biocLite("rhdf5")
 #install.packages("devtools")
+#install.packages("UpSetR")
 #devtools::install_github("pachterlab/sleuth")
 
 # Imports
