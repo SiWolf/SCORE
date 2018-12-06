@@ -1,5 +1,4 @@
 # Ignore the following files
 boxplot_data/
-generate_rna_seq_data.R
 simulation_data/
 .Rhistory
