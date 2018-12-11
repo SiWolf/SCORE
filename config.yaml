@@ -31,3 +31,5 @@ weight_edger: 1.0
 weight_limma: 1.0
 weight_noiseq: 1.0
 weight_sleuth: 1.0
+# BENCHMARKING
+benchmarking: FALSE

@@ -17,6 +17,7 @@ readspertx = round (20 * width(fasta) / 100)
 
 # Matrix of fold changes to be simulated
 # Default: First 50 genes overexpressed in Group 1, Second 50 genes overexpressed in Group 2
+# TO-DO: Randomize transcript selection
 gene_set = 50
 gene_position_first_group = length(fasta) - gene_set
 gene_position_second_group = length(fasta) - gene_set - gene_set
