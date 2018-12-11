@@ -1,5 +1,5 @@
-# Script to simulate RNA-Seq data using polyester
-# Will be used for Benchmarking SCORE
+# Script to simulate RNA-Seq data using Polyester
+# Useful for benchmarking SCORE
 
 #if (!requireNamespace("BiocManager", quietly = TRUE))
 #  install.packages("BiocManager")
@@ -15,13 +15,36 @@ fasta = readDNAStringSet(reference_path)
 # Value for coverage
 readspertx = round (20 * width(fasta) / 100)
 
+overrepresented_genes = 50
+random_overrepresented_genes = FALSE
+
 # Matrix of fold changes to be simulated
-# Default: First 50 genes overexpressed in Group 1, Second 50 genes overexpressed in Group 2
-# TO-DO: Randomize transcript selection
-gene_set = 50
-gene_position_first_group = length(fasta) - gene_set
-gene_position_second_group = length(fasta) - gene_set - gene_set
-fold_changes = matrix(c(rep(4, gene_set), rep(1, gene_position_first_group), rep(1, gene_set), rep(4, gene_set), rep(1, gene_position_second_group)), nrow = length(fasta))
+if (random_overrepresented_genes == FALSE){
+  # Default: First 50 genes overexpressed in Group 1, Second 50 genes overexpressed in Group 2
+  gene_position_first_group = length(fasta) - overrepresented_genes
+  gene_position_second_group = length(fasta) - overrepresented_genes - overrepresented_genes
+  fold_changes = matrix(c(rep(4, overrepresented_genes), rep(1, gene_position_first_group), rep(1, overrepresented_genes), rep(4, overrepresented_genes), rep(1, gene_position_second_group)), nrow = length(fasta))
+} else {
+  # Randomize transcript selection, fixed amount of 50 per group
+  random_lists <- sample(1:length(fasta), 2*overrepresented_genes, replace = F)
+  random_group_1 <- random_lists[0:50]
+  random_group_2 <- random_lists[51:100]
+  group_1 = ""
+  group_2 = ""
+  for (i in 0:length(fasta)){
+    if (i %in% random_group_1){
+      group_1[i] = 4
+    } else {
+      group_1[i] = 1
+    }
+    if (i %in% random_group_2){
+      group_2[i] = 4
+    } else {
+      group_2[i] = 1
+    }
+  }
+  fold_changes = matrix(c(group_1, group_2), nrow = length(fasta))
+}
 
 # Run simulation
 replicates = c(3, 3)
