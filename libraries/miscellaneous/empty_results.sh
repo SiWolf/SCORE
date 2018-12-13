@@ -12,5 +12,9 @@ cd ../../kallisto/
 rm -r *
 cd ../../trimmed/
 #rm -r *
-cd ../
+cd ../libraries/miscellaneous/simulation_data/
+rm -r *.gz
+rm -r *.rda
+rm -r *.txt
+cd ../../../
 rm log.txt

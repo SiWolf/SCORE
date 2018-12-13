@@ -16,7 +16,7 @@ fasta = readDNAStringSet(reference_path)
 readspertx = round (20 * width(fasta) / 100)
 
 overrepresented_genes = 50
-random_overrepresented_genes = FALSE
+random_overrepresented_genes = TRUE
 
 # Matrix of fold changes to be simulated
 if (random_overrepresented_genes == FALSE){
@@ -27,8 +27,8 @@ if (random_overrepresented_genes == FALSE){
 } else {
   # Randomize transcript selection, fixed amount of 50 per group
   random_lists <- sample(1:length(fasta), 2*overrepresented_genes, replace = F)
-  random_group_1 <- random_lists[0:50]
-  random_group_2 <- random_lists[51:100]
+  random_group_1 <- random_lists[0:overrepresented_genes]
+  random_group_2 <- random_lists[(overrepresented_genes+1):(2*overrepresented_genes)]
   group_1 = ""
   group_2 = ""
   for (i in 0:length(fasta)){
@@ -43,10 +43,11 @@ if (random_overrepresented_genes == FALSE){
       group_2[i] = 1
     }
   }
-  fold_changes = matrix(c(group_1, group_2), nrow = length(fasta))
+  fold_changes = matrix(c(as.numeric(group_1), as.numeric(group_2)), nrow = length(fasta))
 }
 
 # Run simulation
 replicates = c(3, 3)
 results_folder = "simulation_data/"
 simulate_experiment(reference_path, reads_per_transcript = readspertx, num_reps = replicates, fold_changes = fold_changes, outdir = results_folder, readlen = 100, paired = TRUE)
+system("gzip simulation_data/*.fasta")
