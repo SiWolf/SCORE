@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 11.12.2018
-# Version: 0.4.5
+# Last Modified: Thur, 13.12.2018
+# Version: 0.4.6
 # --------------------------------------------
 
 # Installers
@@ -106,7 +106,7 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
   }
   
   # Fetch probabilities/p-values of differential expression
-  bayseq_reordered <- bayseq_result[order(match(bayseq_result$annotation, gene_names_list)), ]
+  bayseq_reordered <- bayseq_result[order(match(bayseq_result[[1]], gene_names_list)), ]
   bayseq_FDR <- bayseq_reordered$FDR.DE
   limma_reordered <- limma_result[order(match(rownames(limma_result), gene_names_list)), ]
   limma_pvalues <- limma_reordered$adj.P.Val
@@ -260,7 +260,7 @@ run_limma <- function(counts, groups){
   v <- voom(counts, design = DE, plot = TRUE, normalize = "quantile")
   fit <- lmFit(v, DE)
   fit <- eBayes(fit)
-  limma_results <- topTable(fit, coef = ncol(DE) - 1, number = length(counts))
+  limma_results <- topTable(fit, coef = ncol(DE) - 0, number = length(counts))
   return(limma_results)
 }
 
@@ -309,6 +309,7 @@ smart_consensus <- function(binary_file, w){
 
 # Visualization of the DEGs as a Venn diagram and using UpSetR
 # Option to save important diagrams as .png files instead of .pdf
+# If 2 tools (e.g. limma and sleuth) both consist of vectors of 0, they will be merged in the upsetR diagram
 # TO-DO: Prioritize overlapping 49 genes with all tools
 # TO-DO: Then rank rest of genes according to overlaps
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
@@ -381,7 +382,8 @@ argument_10 = args[10]
 argument_11 = args[11]
 argument_12 = args[12]
 
-# Special case if this script is run manually using RStudio
+# Special case if this script is executed manually without any given parameters
+# Example: RStudio
 if (is.na(argument_1)){
   argument_1 = "Metadata_C1.tsv"
   argument_2 = 5000
