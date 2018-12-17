@@ -4,7 +4,7 @@
 
 ### 1.1) Setup
 
-Download the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
+Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 Dependencies:
 * [Anaconda](https://anaconda.org/)
