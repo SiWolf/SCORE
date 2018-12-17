@@ -2,8 +2,16 @@
 # This is for testing various experimental combinations and parameters
 # FastQC and Flexbar files should not need to be deleted
 
-cd ../../deg/
-rm -r *
+cd simulation_data/
+rm -r *.gz
+rm -r *.rda
+rm -r *.txt
+cd ../../../deg/
+rm -r consensus*
+rm -r deg*
+rm -r diffexpr*
+rm -r filtered*
+rm -r pathway*
 #cd ../fastqc/
 #rm -r *
 cd ../mapped/bowtie2/featureCounts/
@@ -12,9 +20,5 @@ cd ../../kallisto/
 rm -r *
 cd ../../trimmed/
 #rm -r *
-cd ../libraries/miscellaneous/simulation_data/
-rm -r *.gz
-rm -r *.rda
-rm -r *.txt
-cd ../../../
+cd ../
 rm log.txt

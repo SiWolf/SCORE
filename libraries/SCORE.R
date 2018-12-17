@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 13.12.2018
-# Version: 0.4.6
+# Last Modified: Mon, 17.12.2018
+# Version: 0.4.7
 # --------------------------------------------
 
 # Installers
@@ -396,7 +396,7 @@ if (is.na(argument_1)){
   argument_9 = 1.0
   argument_10 = 1.0
   argument_11 = 1.0
-  argument_12 = FALSE
+  argument_12 = TRUE
   setwd("../")
 }
 
@@ -502,3 +502,7 @@ write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(summary_frame, file = "deg_summary.csv")
 
 dev.off()
+
+# Move result graphs file to other output files
+setwd("../")
+system("mv deg_analysis_graphs.pdf deg/")

@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 07.12.2018
-# Version: 0.5.3
+# Last Modified: Mon, 17.12.2018
+# Version: 0.5.4
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -117,8 +117,6 @@ rule DEG_postprocessing:
 	output:
 		"deg/deg_gene_symbols.csv"
 	run:
-		# Move result graphs file to other output files
-		shell("mv {input} deg/")
 		# Fetching initial annotations
 		fetch_annotation(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID)
 		# Create a list of gene symbols for the DEGs
