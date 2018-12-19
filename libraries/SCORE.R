@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mon, 17.12.2018
-# Version: 0.4.7
+# Last Modified: Wed, 19.12.2018
+# Version: 0.4.8
 # --------------------------------------------
 
 # Installers
@@ -99,11 +99,9 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
   write.csv(edgeR_result, file = "diffexpr_results_edger.csv")
   write.csv(limma_result, file = "diffexpr_results_limma.csv")
   write.csv(noiseq_result, file = "diffexpr_results_noiseq.csv")
-  if (sleuth_result != "NA"){
-    # Filtering sleuth -> gene subset
-    sleuth_result <- subset(sleuth_result, target_id %in% gene_names_list)
-    write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv") 
-  }
+  # Filtering sleuth -> gene subset
+  sleuth_result <- subset(sleuth_result, target_id %in% gene_names_list)
+  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv") 
   
   # Fetch probabilities/p-values of differential expression
   bayseq_reordered <- bayseq_result[order(match(bayseq_result[[1]], gene_names_list)), ]
@@ -118,14 +116,9 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
       new_row_noiseq <- matrix(c(NA, NA, NA, NA, NA, NA), nrow = 1, dimnames = list(gene))
       noiseq_result[nrow(noiseq_result) + 1, ] = as.data.frame(new_row_noiseq)
     }
-  }
-  
-  if (sleuth_result != "NA"){
-    for (gene in gene_names_list){
-      if ((gene %in% sleuth_result$target_id) == FALSE){
-        new_row_sleuth <- matrix(c(gene, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), nrow = 1)
-        sleuth_result[nrow(sleuth_result) + 1, ] = as.data.frame(new_row_sleuth)
-      }
+    if ((gene %in% sleuth_result$target_id) == FALSE){
+      new_row_sleuth <- matrix(c(gene, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), nrow = 1)
+      sleuth_result[nrow(sleuth_result) + 1, ] = as.data.frame(new_row_sleuth)
     }
   }
 
@@ -133,14 +126,10 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
   noiseq_reordered <- noiseq_result[order(match(rownames(noiseq_result), gene_names_list)), ]
   noiseq_probabilities <- noiseq_reordered$prob
   
-  if (sleuth_result != "NA"){
-    sleuth_reordered <- sleuth_result[order(match(sleuth_result$target_id, gene_names_list)), ]
-    sleuth_qvalues <- sleuth_reordered$qval
+  sleuth_reordered <- sleuth_result[order(match(sleuth_result$target_id, gene_names_list)), ]
+  sleuth_qvalues <- sleuth_reordered$qval
     
-    final_results <- structure(list(baySeq = bayseq_FDR, DESeq2 = deseq2_pvalues, edgeR = edger_FDR, limma = limma_pvalues, NOISeq = noiseq_probabilities, sleuth = sleuth_qvalues), row.names = gene_names_list, class = "data.frame")
-  } else {
-    final_results <- structure(list(baySeq = bayseq_FDR, DESeq2 = deseq2_pvalues, edgeR = edger_FDR, limma = limma_pvalues, NOISeq = noiseq_probabilities), row.names = gene_names_list, class = "data.frame")
-  }
+  final_results <- structure(list(baySeq = bayseq_FDR, DESeq2 = deseq2_pvalues, edgeR = edger_FDR, limma = limma_pvalues, NOISeq = noiseq_probabilities, sleuth = sleuth_qvalues), row.names = gene_names_list, class = "data.frame")
   
   # Write summary of all results
   write.csv(final_results, file = "diffexpr_results_all.csv")
@@ -283,14 +272,19 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold){
 }
 
 # Function to call sleuth
-run_sleuth <- function(metadata_sleuth){
+run_sleuth <- function(metadata_sleuth, benchmarking){
   colnames(metadata_sleuth) <- c("sample", "condition")
   path_list = ""
+  if(benchmarking == FALSE){
+    kallisto_path = "../mapped/kallisto/"
+  } else {
+    kallisto_path = "../libraries/miscellaneous/simulation_data/kallisto/"
+  }
   for (sample in metadata_sleuth$sample){
-    path_raw <- paste("../mapped/kallisto/", sample, sep = "")
+    path_raw <- paste(kallisto_path, sample, sep = "")
     path_list <- cbind(path_list, path_raw)
   }
-  path_list = path_list[2:(length(metadata$V1) + 1)]
+  path_list = path_list[2:(length(metadata_sleuth$sample) + 1)]
   metadata_sleuth_updated <- dplyr::mutate(metadata_sleuth, path = path_list)
   so <- sleuth_prep(metadata_sleuth_updated, num_cores = 1)
   so <- sleuth_fit(so, ~condition, "full")
@@ -302,8 +296,13 @@ run_sleuth <- function(metadata_sleuth){
 
 # Creates a consensus list of DEGs
 # DEGs predicted using a weighted average (majority vote) of individual predictions
-smart_consensus <- function(binary_file, w){
-  consensus_degs <- subset(binary_file, rowWeightedMeans(as.matrix(binary_file), w = w) >= 0.5)
+# Strict mode requires more than half of the tools to predict a DEG
+smart_consensus <- function(b, w, s){
+  if(s == TRUE){
+    consensus_degs <- subset(b, rowWeightedMeans(as.matrix(b), w = w) > 0.5) 
+  } else{
+    consensus_degs <- subset(b, rowWeightedMeans(as.matrix(b), w = w) >= 0.5)
+  }
   return(consensus_degs)
 }
 
@@ -313,8 +312,8 @@ smart_consensus <- function(binary_file, w){
 # TO-DO: Prioritize overlapping 49 genes with all tools
 # TO-DO: Then rank rest of genes according to overlaps
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
-visualization <- function(binary_table, merge_separate_images, no_sleuth){
-  number_of_sets = 5
+visualization <- function(binary_table, merge_separate_images){
+  number_of_sets = 6
   if (merge_separate_images == FALSE){
     # Venn diagrams
     png(filename = "deg_analysis_venn_diagram_01.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
@@ -322,18 +321,10 @@ visualization <- function(binary_table, merge_separate_images, no_sleuth){
     vennDiagram(v1, circle.col = c("blue", "red", "green"))
     dev.off()
     
-    if (no_sleuth == FALSE){
-      number_of_sets = 6
-      png(filename = "deg_analysis_venn_diagram_02.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
-      v2 <- vennCounts(binary_table[4:6])
-      vennDiagram(v2, circle.col = c("grey", "orange", "cyan"))
-      dev.off()
-    } else {
-      png(filename = "deg_analysis_venn_diagram_02.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
-      v2 <- vennCounts(binary_table[4:5])
-      vennDiagram(v2, circle.col = c("grey", "orange"))
-      dev.off()
-    }
+    png(filename = "deg_analysis_venn_diagram_02.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+    v2 <- vennCounts(binary_table[4:6])
+    vennDiagram(v2, circle.col = c("grey", "orange", "cyan"))
+    dev.off()
     
     png(filename = "deg_analysis_venn_diagram_03.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
     v3 <- vennCounts(binary_table[1:4])
@@ -350,14 +341,8 @@ visualization <- function(binary_table, merge_separate_images, no_sleuth){
     v1 <- vennCounts(binary_table[1:3])
     vennDiagram(v1, circle.col = c("blue", "red", "green"))
     
-    if (no_sleuth == FALSE){
-      number_of_sets = 6
-      v2 <- vennCounts(binary_table[4:6])
-      vennDiagram(v2, circle.col = c("grey", "orange", "cyan")) 
-    } else {
-      v2 <- vennCounts(binary_table[4:5])
-      vennDiagram(v2, circle.col = c("grey", "orange")) 
-    }
+    v2 <- vennCounts(binary_table[4:6])
+    vennDiagram(v2, circle.col = c("grey", "orange", "cyan")) 
     
     v3 <- vennCounts(binary_table[1:4])
     vennDiagram(v3, circle.col = c("blue", "red", "green", "grey"))
@@ -381,6 +366,7 @@ argument_9 = args[9]
 argument_10 = args[10]
 argument_11 = args[11]
 argument_12 = args[12]
+argument_13 = args[13]
 
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
@@ -396,7 +382,8 @@ if (is.na(argument_1)){
   argument_9 = 1.0
   argument_10 = 1.0
   argument_11 = 1.0
-  argument_12 = TRUE
+  argument_12 = FALSE
+  argument_13 = TRUE
   setwd("../")
 }
 
@@ -405,24 +392,25 @@ if (is.na(argument_1)){
 benchmark_mode = as.logical(argument_12)
 genes_background = argument_2
 merge_images = as.logical(argument_3)
+strict_mode = argument_13
 threshold_general = argument_4
 threshold_expression_count = argument_5
 
 pdf("deg_analysis_graphs.pdf", paper = "a4")
 
+tool_selection <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth")
+
+# Weights of the prediction of individual tools
+# Are listed in alphabetical order (important)
+weights <- as.numeric(c(argument_6, argument_7, argument_8, argument_9, argument_10, argument_11))
+
 # This is where the script either performs a normal run or a benchmarking run
 # Benchmarking is useful for using simulated data from tools like polyester
-# But does not perform low-expression-filtering
-# And excludes the tool sleuth
+# It does not perform low-expression-filtering
 if (benchmark_mode == FALSE){
   metadata_file = argument_1
   metadata = read.table(file = paste("raw/", metadata_file, sep = ""), sep = "\t", header = FALSE, comment.char = "@")
   metadata_experiments <- metadata$V2
-  tool_selection <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth")
-  
-  # Weights of the prediction of individual tools
-  # Are listed in alphabetical order (important)
-  weights <- as.numeric(c(argument_6, argument_7, argument_8, argument_9, argument_10, argument_11))
   
   gene_names <- create_gene_list(metadata$V1[1])
   filtered_gene_counts <- create_count_matrix(metadata$V1, gene_names, threshold_expression_count)
@@ -433,9 +421,6 @@ if (benchmark_mode == FALSE){
   metadata_file = "libraries/miscellaneous/simulation_data/sim_rep_info.txt"
   metadata = read.table(file = metadata_file, sep = "\t", header = TRUE)
   metadata_experiments <- factor(metadata$group)
-  tool_selection <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq")
-  
-  weights <- as.numeric(c(argument_6, argument_7, argument_8, argument_9, argument_10))
   
   load("libraries/miscellaneous/simulation_data/sim_counts_matrix.rda")
   filtered_gene_counts <- counts_matrix
@@ -470,28 +455,16 @@ results_limma = run_limma(filtered_gene_counts, metadata_experiments)
 time_limma <- Sys.time()
 results_noiseq = run_noiseq(filtered_gene_names, filtered_gene_counts, metadata_experiments, threshold_general)
 time_noiseq <- Sys.time()
-
-if (benchmark_mode == FALSE){
-  results_sleuth = run_sleuth(metadata)
-  time_sleuth <- Sys.time()
-  
-} else {
-  results_sleuth = "NA"
-}
+results_sleuth = run_sleuth(metadata[1:2], benchmark_mode)
+time_sleuth <- Sys.time()
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, results_sleuth, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_general, length(gene_names))
-results_consensus = smart_consensus(results_binary, weights)
-visualization(results_binary, merge_images, benchmark_mode)
+results_consensus = smart_consensus(results_binary, weights, strict_mode)
+visualization(results_binary, merge_images)
 
-if (benchmark_mode == FALSE){
-  deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth))
-  time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"))
-  
-} else {
-  deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq))
-  time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"))
-}
+deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth))
+time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"))
 
 # Combine runtime and DEG counts into one summary file for the analysis
 summary_frame <- data.frame(DEGS = deg_frame, Runtimes = time_frame)

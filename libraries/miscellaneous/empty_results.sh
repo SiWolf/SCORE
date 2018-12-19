@@ -4,6 +4,8 @@
 
 cd simulation_data/
 rm -r *.gz
+rm -r *.idx
+rm -r kallisto/sample*
 rm -r *.rda
 rm -r *.txt
 cd ../../../deg/
