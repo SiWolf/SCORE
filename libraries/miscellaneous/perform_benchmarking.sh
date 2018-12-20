@@ -22,3 +22,9 @@ cd ../../
 source activate score_deg_env
 Rscript SCORE.R
 source deactivate
+cd ../deg/
+mkdir benchmark1
+mv consensus* benchmark1
+mv deg* benchmark1
+mv diffexpr* benchmark1
+mv filtered* benchmark1
