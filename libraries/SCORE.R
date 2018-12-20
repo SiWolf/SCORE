@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 19.12.2018
-# Version: 0.4.8
+# Last Modified: Thur, 20.12.2018
+# Version: 0.4.9
 # --------------------------------------------
 
 # Installers
@@ -28,6 +28,70 @@ library("sleuth")
 library("UpSetR")
 
 # Functions
+
+# Calculates FN, FP, TN, TP ratios
+calculate_statistics <- function(binaries, consensus){
+  total_binaries = as.numeric(length(rownames(binaries)))
+  total_tools = as.numeric(length(colnames(binaries)))
+  to = 1
+  fn_vector = c()
+  fp_vector = c()
+  tn_vector = c()
+  tp_vector = c()
+  for (tool in colnames(binaries)){
+    fn_entry = 0
+    fp_entry = 0
+    tn_entry = 0
+    tp_entry = 0
+    tr = 1
+    if (to == 7){
+      for (transcript in rownames(binaries)){
+        current_truth <- binaries[tr, total_tools]
+        if (current_truth == TRUE){
+          if (transcript %in% rownames(consensus)){
+            tp_entry = tp_entry + 1
+          } else {
+            fn_entry = fn_entry + 1
+          }
+        } else {
+          if (transcript %in% rownames(consensus)){
+            fp_entry = fp_entry + 1
+          } else {
+            tn_entry = tn_entry + 1
+          }
+        }
+        tr = tr + 1
+      }
+    } else {
+      for (transcript in rownames(binaries)){
+        current_frame <- binaries[tr, to]
+        current_truth <- binaries[tr, total_tools]
+        if (as.logical(current_frame) == current_truth){
+          if (as.logical(current_frame) == FALSE){
+            tn_entry = tn_entry + 1
+          } else {
+            tp_entry = tp_entry + 1
+          }
+        }
+        if (as.logical(current_frame) != current_truth){
+          if (current_truth == FALSE){
+            fp_entry = fp_entry + 1
+          } else {
+            fn_entry = fn_entry + 1
+          }
+        }
+        tr = tr + 1
+      }
+    }
+    fn_vector[to] <- fn_entry
+    fp_vector[to] <- fp_entry
+    tn_vector[to] <- tn_entry
+    tp_vector[to] <- tp_entry
+    to = to + 1
+  }
+  statistics <- data.frame(FN = fn_vector, FP = fp_vector, TN = tn_vector, TP = tp_vector)
+  return(statistics)
+}
 
 # Reads the first counts-file in order to fetch a list of all gene symbols
 create_gene_list <- function(sample){
@@ -422,6 +486,8 @@ if (benchmark_mode == FALSE){
   metadata = read.table(file = metadata_file, sep = "\t", header = TRUE)
   metadata_experiments <- factor(metadata$group)
   
+  simulation_table = read.table(file = "libraries/miscellaneous/simulation_data/sim_tx_info.txt", quote = "", sep = "\t", header = TRUE)
+  
   load("libraries/miscellaneous/simulation_data/sim_counts_matrix.rda")
   filtered_gene_counts <- counts_matrix
   
@@ -434,6 +500,28 @@ if (benchmark_mode == FALSE){
     c <- c + 1
   }
 
+  # Reading the list of true positives (TPs) from the polyester simulation
+  simulation_table$transcriptid <- filtered_gene_names
+  
+  d <- 1
+  DE_list = ""
+  
+  for (gene in simulation_table$transcriptid){
+    DE_list[d] <- FALSE
+    if (simulation_table[d, 4] == TRUE){
+      DE_list[d] <- TRUE
+    }
+    if (simulation_table[d, 5] == TRUE){
+      DE_list[d] <- TRUE
+    }
+    d <- d + 1
+  }
+  
+  simulation_table_updated <- simulation_table
+  simulation_table_updated$foldchange.1 <- DE_list
+  simulation_table_updated <- simulation_table_updated[1:2]
+  colnames(simulation_table_updated) <- c("IDs", "DE")
+  
   gene_names <- filtered_gene_names
   rownames(filtered_gene_counts) <- filtered_gene_names
   results_folder = "deg/"
@@ -463,12 +551,21 @@ results_binary = probabilities_to_binaries(threshold_general, length(gene_names)
 results_consensus = smart_consensus(results_binary, weights, strict_mode)
 visualization(results_binary, merge_images)
 
-deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth))
-time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"))
+deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth), nrow(results_consensus))
+time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"), "NA")
 
 # Combine runtime and DEG counts into one summary file for the analysis
-summary_frame <- data.frame(DEGS = deg_frame, Runtimes = time_frame)
-rownames(summary_frame) <- tool_selection
+summary_frame <- data.frame(Runtimes = time_frame, DEGS = deg_frame)
+rownames(summary_frame) <- c(tool_selection, "SCORE")
+
+if (benchmark_mode == TRUE){
+  results_binary$DE <- simulation_table_updated$DE
+  statistics_frame <- calculate_statistics(results_binary, results_consensus)
+  summary_frame$FN <- statistics_frame$FN
+  summary_frame$FP <- statistics_frame$FP
+  summary_frame$TN <- statistics_frame$TN
+  summary_frame$TP <- statistics_frame$TP
+}
 
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
@@ -476,6 +573,6 @@ write.csv(summary_frame, file = "deg_summary.csv")
 
 dev.off()
 
-# Move result graphs file to other output files
+# Move result graphs file to the other output files
 setwd("../")
 system("mv deg_analysis_graphs.pdf deg/")
