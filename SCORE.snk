@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 19.12.2018
-# Version: 0.5.5
+# Last Modified: Thur, 20.12.2018
+# Version: 0.5.6
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -20,6 +20,7 @@ configfile: "config.yaml"
 
 # Global parameters
 ENABLE_BENCHMARKING = config["benchmarking"]
+EXPERIMENT_NAME = config["analysis_name"]
 METADATA = config["metadata_file"]
 MERGE_PLOTS_AND_PDF = config["merge_plots_into_pdf"]
 PARAM_DEG_GENERAL = config["general_threshold"]
@@ -95,6 +96,21 @@ def read_tsv(tsv_filename):
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
+rule DEG_postprocessing:
+	input:
+		"deg/pathway_analysis_GO",
+		"deg/pathway_analysis_KEGG"
+	shell:
+		"""
+		mkdir -p deg/{EXPERIMENT_NAME}
+		mv deg/consensus* deg/{EXPERIMENT_NAME}
+		mv deg/deg* deg/{EXPERIMENT_NAME}
+		mv deg/diffexpr* deg/{EXPERIMENT_NAME}
+		mv deg/filtered* deg/{EXPERIMENT_NAME}
+		mv deg/pathway* deg/{EXPERIMENT_NAME}
+		mv deg/transcript*  deg/{EXPERIMENT_NAME}
+		"""
+
 # GeneSCF 1.1-p2
 # Performs a GO and KEGG overrepresentation analysis on the DEG list
 # TO-DO: Test different GO and KEGG dbs
@@ -112,9 +128,9 @@ rule pathway_analysis:
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_KEGG_DB}
 		"""
 
-rule DEG_postprocessing:
+rule pathway_analysis_preprocessing:
 	input:
-		"deg_analysis_graphs.pdf"
+		"deg/deg_analysis_graphs.pdf"
 	output:
 		"deg/deg_gene_symbols.csv"
 	run:
@@ -135,7 +151,7 @@ rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
 	output:
-		"deg_analysis_graphs.pdf"
+		"deg/deg_analysis_graphs.pdf"
 	conda:
 		"libraries/score_deg_environment.yml"
 	shell:

@@ -12,6 +12,7 @@ genescf_go_db: ecocyc
 genescf_kegg_db: ecg
 genescf_total_genes_species: 5000
 # MISCELLANEOUS
+analysis_name: T1
 merge_plots_into_pdf: FALSE
 # PARAMETERS
 ref_annotation_file: references/human_untransduced/PROKKA_07132018.gff
