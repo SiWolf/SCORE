@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 20.12.2018
-# Version: 0.4.9
+# Last Modified: Fr, 21.12.2018
+# Version: 0.5.0
 # --------------------------------------------
 
 # Installers
@@ -29,7 +29,8 @@ library("UpSetR")
 
 # Functions
 
-# Calculates FN, FP, TN, TP ratios
+# Calculates FN, FP, TN and TP ratios
+# Uses these to compute ACC, TNR and TPR values
 calculate_statistics <- function(binaries, consensus){
   total_binaries = as.numeric(length(rownames(binaries)))
   total_tools = as.numeric(length(colnames(binaries)))
@@ -38,6 +39,9 @@ calculate_statistics <- function(binaries, consensus){
   fp_vector = c()
   tn_vector = c()
   tp_vector = c()
+  acc_vector = c()
+  tnr_vector = c()
+  tpr_vector = c()
   for (tool in colnames(binaries)){
     fn_entry = 0
     fp_entry = 0
@@ -87,9 +91,12 @@ calculate_statistics <- function(binaries, consensus){
     fp_vector[to] <- fp_entry
     tn_vector[to] <- tn_entry
     tp_vector[to] <- tp_entry
+    acc_vector[to] <- (tp_entry + tn_entry)/(tp_entry + tn_entry + fp_entry + fn_entry)
+    tnr_vector[to] <- tn_entry/(tn_entry + fp_entry)
+    tpr_vector[to] <- tp_entry/(tp_entry + fn_entry)
     to = to + 1
   }
-  statistics <- data.frame(FN = fn_vector, FP = fp_vector, TN = tn_vector, TP = tp_vector)
+  statistics <- data.frame(FN = fn_vector, FP = fp_vector, TN = tn_vector, TP = tp_vector, TPR = tpr_vector, TNR = tnr_vector, ACC = acc_vector)
   return(statistics)
 }
 
@@ -565,6 +572,9 @@ if (benchmark_mode == TRUE){
   summary_frame$FP <- statistics_frame$FP
   summary_frame$TN <- statistics_frame$TN
   summary_frame$TP <- statistics_frame$TP
+  summary_frame$TPR <- statistics_frame$TPR
+  summary_frame$TNR <- statistics_frame$TNR
+  summary_frame$ACC <- statistics_frame$ACC
 }
 
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
