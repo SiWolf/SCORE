@@ -108,7 +108,7 @@ rule DEG_postprocessing:
 		mv deg/diffexpr* deg/{EXPERIMENT_NAME}
 		mv deg/filtered* deg/{EXPERIMENT_NAME}
 		mv deg/pathway* deg/{EXPERIMENT_NAME}
-		mv deg/transcript*  deg/{EXPERIMENT_NAME}
+		mv deg/transcript* deg/{EXPERIMENT_NAME}
 		"""
 
 # GeneSCF 1.1-p2

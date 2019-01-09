@@ -3,6 +3,9 @@
 # The first given argument is the number of cores Snakemake will be able to use
 # Default number of cores used is 4
 # How to run: ./SCORE.sh <#cores>
+# Will automatically empty previous result-files in order to ensure no collisions
+
+./libraries/miscellaneous/empty_results.sh full
 
 if [ -z "$1" ]
 then

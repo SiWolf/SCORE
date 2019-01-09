@@ -2,7 +2,7 @@
 # This is for testing various experimental combinations and parameters
 # FastQC and Flexbar files should not need to be deleted
 # To empty all results folders: ./empty_results.sh full
-# To empty all results folders and save previous results: ./empty_results.sh full Test_Folder
+# To empty all results folders but save previous results: ./empty_results.sh full Test_Folder
 
 MODE=$1
 
@@ -17,12 +17,6 @@ cd ../../../deg/
 
 if [ -z "$2" ]
 then
-	rm -r consensus*
-	rm -r deg*
-	rm -r diffexpr*
-	rm -r filtered*
-	rm -r pathway*
-else
 	ANALYSIS=$2
 	mkdir $ANALYSIS
 	mv consensus* $ANALYSIS
@@ -30,6 +24,12 @@ else
 	mv diffexpr* $ANALYSIS
 	mv filtered* $ANALYSIS
 	mv pathway* $ANALYSIS
+else	
+	rm -r consensus*
+	rm -r deg*
+	rm -r diffexpr*
+	rm -r filtered*
+	rm -r pathway*
 fi
 
 if [ "$MODE" = "full" ]
