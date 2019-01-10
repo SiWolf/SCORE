@@ -4,6 +4,9 @@
 # To empty all results folders: ./empty_results.sh full
 # To empty all results folders but save previous results: ./empty_results.sh full Test_Folder
 
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$parent_path"
+
 MODE=$1
 
 cd simulation_data/
@@ -17,6 +20,12 @@ cd ../../../deg/
 
 if [ -z "$2" ]
 then
+	rm -r consensus*
+	rm -r deg*
+	rm -r diffexpr*
+	rm -r filtered*
+	rm -r pathway*
+else	
 	ANALYSIS=$2
 	mkdir $ANALYSIS
 	mv consensus* $ANALYSIS
@@ -24,12 +33,6 @@ then
 	mv diffexpr* $ANALYSIS
 	mv filtered* $ANALYSIS
 	mv pathway* $ANALYSIS
-else	
-	rm -r consensus*
-	rm -r deg*
-	rm -r diffexpr*
-	rm -r filtered*
-	rm -r pathway*
 fi
 
 if [ "$MODE" = "full" ]
