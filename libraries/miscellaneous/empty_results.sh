@@ -4,8 +4,8 @@
 # To empty all results folders: ./empty_results.sh full
 # To empty all results folders but save previous results: ./empty_results.sh full Test_Folder
 
-parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-cd "$parent_path"
+path_parent_folder=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$path_parent_folder"
 
 MODE=$1
 
