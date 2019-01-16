@@ -25,6 +25,7 @@ then
 	rm -r diffexpr*
 	rm -r filtered*
 	rm -r pathway*
+	rm -r transcript*
 else	
 	ANALYSIS=$2
 	mkdir $ANALYSIS
@@ -33,6 +34,7 @@ else
 	mv diffexpr* $ANALYSIS
 	mv filtered* $ANALYSIS
 	mv pathway* $ANALYSIS
+	mv transcript* $ANALYSIS
 fi
 
 if [ "$MODE" = "full" ]

@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: fetch_transcript_lengths
 # Author: Silver A. Wolf
-# Last Modified: Thue, 25.09.2018
-# Version: 0.0.3
+# Last Modified: Thue, 15.01.2019
+# Version: 0.0.4
 # -------------------------------
 
 # Imports
@@ -23,7 +23,7 @@ def fetch_lengths(gff, id):
 	
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "")
-    parser.add_argument("-f", "--annotation_file", type = str, default = "references/PROKKA_07132018_Edited.gff", required = False, help = "Annotation GFF file")
+    parser.add_argument("-f", "--annotation_file", type = str, default = "references/human_transduced/PROKKA_07132018.gff", required = False, help = "Annotation GFF file")
     parser.add_argument("-i", "--annotation_identifier", type = str, default = "ID", required = False, help = "Identifier used in the GFF file")
     args = parser.parse_args()
 

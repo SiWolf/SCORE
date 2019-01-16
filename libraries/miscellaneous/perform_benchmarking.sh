@@ -1,8 +1,11 @@
 # Script for benchmarking SCORE
 
-for benchmark in {1..10}
+for benchmark in {1..5}
 do
 	./empty_results.sh full
+	cd ../../
+	python libraries/fetch_transcript_lengths.py -f references/human_transduced/PROKKA_07132018.gff -i ID
+	cd libraries/miscellaneous/
 	Rscript generate_rna_seq_data.R
 	cd simulation_data/
 	source activate score_map_env

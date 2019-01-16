@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 21.12.2018
-# Version: 0.5.0
+# Last Modified: Wed, 16.01.2019
+# Version: 0.5.2
 # --------------------------------------------
 
 # Installers
@@ -327,6 +327,7 @@ run_limma <- function(counts, groups){
 # Function to call NOIseq
 run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold){
   list_of_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
+  internal_threshold = 1 - as.numeric(threshold)
   lengths_DF <- as.data.frame(list_of_lengths$Length, levels(list_of_lengths$Transcript.ID))
   colnames(lengths_DF) <- c("Lengths")
   lengths_DF_new <- lengths_DF[rownames(lengths_DF) %in% names_noiseq, ]
@@ -335,9 +336,10 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold){
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
   mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
-  mynoiseqbio = noiseqbio(mydata, k = 0.5, norm = "rpkm", factor = "Group", lc = 0, r = 20, adj = 1.5, plot = TRUE, a0per = 0.9, random.seed = 12345, filter = 1)
+  #mynoiseqbio = noiseqbio(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, r = 50, adj = 1.5, plot = TRUE, a0per = internal_threshold, filter = 1)
+  mynoiseqbio = noiseq(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, replicates = "biological")
   # TO-DO: Implement degenes instead of filtering genes by myself
-  noiseq_results = degenes(mynoiseqbio, q = 1 - as.numeric(threshold), M = NULL)
+  noiseq_results = degenes(mynoiseqbio, q = internal_threshold, M = NULL)
   #noiseq_results <- mynoiseqbio@results[[1]]
   return(noiseq_results)
 }
