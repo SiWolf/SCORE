@@ -8,15 +8,33 @@
 library("Biostrings")
 library("polyester")
 
+# Main
+args <- commandArgs(TRUE)
+argument_1 = args[1]
+argument_2 = args[2]
+argument_3 = args[3]
+argument_4 = args[4]
+
+# Special case if this script is executed manually without any given parameters
+# Example: RStudio
+if (is.na(argument_1)){
+  argument_1 = 50
+  argument_2 = TRUE
+  argument_3 = 100
+  argument_4 = 20
+}
+
+overrepresented_genes = as.numeric(argument_1)
+random_overrepresented_genes = as.logical(argument_2)
+read_length = as.numeric(argument_3)
+coverage_val = as.numeric(argument_4)
+
 # Read fasta file
 reference_path = "simulation_data/PROKKA_07132018.ffn"
 fasta = readDNAStringSet(reference_path)
 
 # Value for coverage
-readspertx = round (20 * width(fasta) / 100)
-
-overrepresented_genes = 50
-random_overrepresented_genes = TRUE
+readspertx = round(coverage_val * width(fasta) / read_length)
 
 # Matrix of fold changes to be simulated
 if (random_overrepresented_genes == FALSE){
@@ -49,5 +67,5 @@ if (random_overrepresented_genes == FALSE){
 # Run simulation
 replicates = c(3, 3)
 results_folder = "simulation_data/"
-simulate_experiment(reference_path, reads_per_transcript = readspertx, num_reps = replicates, fold_changes = fold_changes, outdir = results_folder, readlen = 100, paired = TRUE)
+simulate_experiment(reference_path, reads_per_transcript = readspertx, num_reps = replicates, fold_changes = fold_changes, outdir = results_folder, readlen = read_length, paired = TRUE)
 system("gzip simulation_data/*.fasta")

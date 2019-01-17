@@ -1,12 +1,42 @@
 # Script for benchmarking SCORE
 
-for benchmark in {1..5}
+for benchmark in {1..6}
 do
 	./empty_results.sh full
 	cd ../../
 	python libraries/fetch_transcript_lengths.py -f references/human_transduced/PROKKA_07132018.gff -i ID
 	cd libraries/miscellaneous/
-	Rscript generate_rna_seq_data.R
+	
+	if [ $benchmark -eq 1 ]
+	then
+		Rscript generate_rna_seq_data.R 50 TRUE 100 20
+	fi
+	
+	if [ $benchmark -eq 2 ]
+	then
+		Rscript generate_rna_seq_data.R 250 TRUE 100 20
+	fi
+	
+	if [ $benchmark -eq 3 ]
+	then
+		Rscript generate_rna_seq_data.R 50 FALSE 100 20
+	fi
+	
+	if [ $benchmark -eq 4 ]
+	then
+		Rscript generate_rna_seq_data.R 50 TRUE 150 20
+	fi
+	
+	if [ $benchmark -eq 5 ]
+	then
+		Rscript generate_rna_seq_data.R 50 TRUE 100 50
+	fi
+	
+	if [ $benchmark -eq 6 ]
+	then
+		Rscript generate_rna_seq_data.R 100 FALSE 125 25
+	fi
+
 	cd simulation_data/
 	source activate score_map_env
 	kallisto index -i index.idx PROKKA_07132018.ffn
