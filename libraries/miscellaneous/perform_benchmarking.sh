@@ -60,3 +60,4 @@ do
 	cd miscellaneous/
 	./empty_results.sh full $benchmark
 done
+Rscript generate_benchmarking_plots.R

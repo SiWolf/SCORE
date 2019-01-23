@@ -37,6 +37,8 @@ else
 	mv transcript* $ANALYSIS
 fi
 
+rm -r benchmarking*
+
 if [ "$MODE" = "full" ]
 then
 	cd ../fastqc/
