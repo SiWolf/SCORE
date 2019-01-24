@@ -1,6 +1,6 @@
 # Visualize DEG prediction accuracy
 
-setwd("../../degs/")
+setwd("../../deg/")
 
 # Data preprocessing
 data_1 <- read.csv(file = "1/deg_summary.csv", header = TRUE, sep = ",")
