@@ -1,6 +1,6 @@
 # Script for benchmarking SCORE
 
-for benchmark in {1..6}
+for benchmark in {1..8}
 do
 	./empty_results.sh full
 	cd ../../
@@ -9,32 +9,42 @@ do
 	
 	if [ $benchmark -eq 1 ]
 	then
-		Rscript generate_rna_seq_data.R 50 TRUE 100 20
+		Rscript generate_rna_seq_data.R 50 TRUE 100 20 4
 	fi
 	
 	if [ $benchmark -eq 2 ]
 	then
-		Rscript generate_rna_seq_data.R 250 TRUE 100 20
+		Rscript generate_rna_seq_data.R 250 TRUE 100 20 4
 	fi
 	
 	if [ $benchmark -eq 3 ]
 	then
-		Rscript generate_rna_seq_data.R 50 FALSE 100 20
+		Rscript generate_rna_seq_data.R 50 FALSE 100 20 4
 	fi
 	
 	if [ $benchmark -eq 4 ]
 	then
-		Rscript generate_rna_seq_data.R 50 TRUE 150 20
+		Rscript generate_rna_seq_data.R 50 TRUE 150 20 4
 	fi
 	
 	if [ $benchmark -eq 5 ]
 	then
-		Rscript generate_rna_seq_data.R 50 TRUE 100 50
+		Rscript generate_rna_seq_data.R 50 TRUE 100 50 4
 	fi
 	
 	if [ $benchmark -eq 6 ]
 	then
-		Rscript generate_rna_seq_data.R 100 FALSE 125 25
+		Rscript generate_rna_seq_data.R 100 FALSE 125 25 4
+	fi
+
+	if [ $benchmark -eq 7 ]
+	then
+		Rscript generate_rna_seq_data.R 50 TRUE 100 20 3
+	fi
+	
+	if [ $benchmark -eq 8 ]
+	then
+		Rscript generate_rna_seq_data.R 50 TRUE 100 20 5
 	fi
 
 	cd simulation_data/
