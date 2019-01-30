@@ -38,7 +38,7 @@ lines(data_6$ACC, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$ACC, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$ACC, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1, 0.985, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1, 0.985, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
 
 # DEGs
@@ -54,7 +54,7 @@ lines(data_6$DEGS, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$DEGS, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$DEGS, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1, 520, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1, 520, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
 
 # FN
@@ -70,7 +70,7 @@ lines(data_6$FN, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$FN, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$FN, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1, 25, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1, 25, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
 
 # FP
@@ -86,7 +86,7 @@ lines(data_6$FP, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$FP, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$FP, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1.2, 120, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1.2, 120, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
 
 # TN
@@ -102,7 +102,7 @@ lines(data_6$TN, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$TN, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$TN, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1, 4500, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1, 4500, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
 
 # TP
@@ -118,7 +118,7 @@ lines(data_6$TP, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$TP, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$TP, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1, 480, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1, 480, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
 
 # TNR
@@ -134,7 +134,7 @@ lines(data_6$TNR, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$TNR, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$TNR, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1.2, 0.985, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1.2, 0.985, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
 
 # TPR
@@ -150,5 +150,5 @@ lines(data_6$TPR, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$TPR, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$TPR, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1, 0.99, c("1", "2", "3", "4", "5", "6"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
+legend(1, 0.99, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 1.1, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1)
 dev.off()
