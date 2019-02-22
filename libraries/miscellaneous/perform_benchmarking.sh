@@ -1,4 +1,7 @@
 # Script for benchmarking SCORE
+# TO-DO: Split script into data generation and evaluation?
+# Goal: Simulate 1x, analyse 20x
+# Before: Simulate: 8x, analyse, 1x
 
 for benchmark in {1..8}
 do
