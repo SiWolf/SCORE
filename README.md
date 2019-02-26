@@ -22,9 +22,9 @@ Please ensure that the latest versions of the dependencies mentioned above are i
 
 1.) Set parameters. Edit the parameters in the configuration file (config.yaml) according to your experimental setup. If you choose to use a GUI, you can instead load the Snakefile using Sequanix and edit the corresponding configuration file directly from within Sequanix.
 
-2.) Run SCORE. If you have choosen to use Sequanix you can launch SCORE using the GUI. If you are working on the command line execute the run-SCORE.sh shell script (make sure the script is executeable) and specify the amount of threads the analysis may use. Example: ./run-SCORE.sh 8 to launch SCORE using 8 threads (default = 4). SCORE will automatically parallelize the internal rules accordingly.
+2.) Run SCORE. If you have chosen to use Sequanix you can launch SCORE using the GUI. If you are working on the command line execute the run-SCORE.sh shell script (make sure the script is executable) and specify the amount of threads the analysis may use. Example: ./run-SCORE.sh 8 to launch SCORE using 8 threads (default = 4). SCORE will automatically parallelize the internal rules accordingly.
 
-3.) Analyze the results. All results essential for the DEG predicition are saved within the deg/ folder.
+3.) Analyze the results. All results essential for the DEG prediction are saved within the deg/ folder.
 
 ## 2.) FAQ
 
