@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 16.01.2019
-# Version: 0.5.2
+# Last Modified: Thue, 26.02.2019
+# Version: 0.5.3
 # --------------------------------------------
 
 # Installers
@@ -30,7 +30,7 @@ library("UpSetR")
 # Functions
 
 # Calculates FN, FP, TN and TP ratios
-# Uses these to compute ACC, TNR and TPR values
+# Uses these to compute ACC, TNR, TPR, FDR, FPR, FNR and PRE values
 calculate_statistics <- function(binaries, consensus){
   total_binaries = as.numeric(length(rownames(binaries)))
   total_tools = as.numeric(length(colnames(binaries)))
@@ -42,6 +42,10 @@ calculate_statistics <- function(binaries, consensus){
   acc_vector = c()
   tnr_vector = c()
   tpr_vector = c()
+  fdr_vector = c()
+  fpr_vector = c()
+  fnr_vector = c()
+  pre_vector = c()
   for (tool in colnames(binaries)){
     fn_entry = 0
     fp_entry = 0
@@ -92,11 +96,15 @@ calculate_statistics <- function(binaries, consensus){
     tn_vector[to] <- tn_entry
     tp_vector[to] <- tp_entry
     acc_vector[to] <- (tp_entry + tn_entry)/(tp_entry + tn_entry + fp_entry + fn_entry)
-    tnr_vector[to] <- tn_entry/(tn_entry + fp_entry)
+    tnr_vector[to] <- tn_entry/(fp_entry + tn_entry)
     tpr_vector[to] <- tp_entry/(tp_entry + fn_entry)
+    fdr_vector[to] <- fp_entry/(fp_entry + tp_entry)
+    fpr_vector[to] <- fp_entry/(fp_entry + tn_entry)
+    fnr_vector[to] <- fn_entry/(fn_entry + tp_entry)
+    pre_vector[to] <- tp_entry/(tp_entry + fp_entry)
     to = to + 1
   }
-  statistics <- data.frame(FN = fn_vector, FP = fp_vector, TN = tn_vector, TP = tp_vector, TPR = tpr_vector, TNR = tnr_vector, ACC = acc_vector)
+  statistics <- data.frame(FN = fn_vector, FP = fp_vector, TN = tn_vector, TP = tp_vector, TPR = tpr_vector, TNR = tnr_vector, ACC = acc_vector, FDR = fdr_vector, FPR = fpr_vector, FNR = fnr_vector, PRE = pre_vector)
   return(statistics)
 }
 
