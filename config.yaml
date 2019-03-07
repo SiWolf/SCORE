@@ -27,11 +27,11 @@ geneSCF_path: ./libraries/geneSCF/geneSCF
 # SAMPLES
 metadata_file: Metadata_C1.tsv
 # WEIGHTS FOR CONSENSUS PREDICTION
-weight_bayseq: 1.0
-weight_deseq2: 1.0
+weight_bayseq: 0.5
+weight_deseq2: 1.5
 weight_edger: 1.0
 weight_limma: 1.0
-weight_noiseq: 1.0
-weight_sleuth: 1.0
+weight_noiseq: 1.5
+weight_sleuth: 0.5
 # BENCHMARKING
 benchmarking: FALSE

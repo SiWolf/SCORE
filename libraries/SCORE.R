@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 26.02.2019
-# Version: 0.5.3
+# Last Modified: Thur, 07.03.2019
+# Version: 0.5.4
 # --------------------------------------------
 
 # Installers
@@ -457,12 +457,12 @@ if (is.na(argument_1)){
   argument_3 = FALSE
   argument_4 = 0.05
   argument_5 = 5
-  argument_6 = 1.0
-  argument_7 = 1.0
+  argument_6 = 0.5
+  argument_7 = 1.5
   argument_8 = 1.0
   argument_9 = 1.0
-  argument_10 = 1.0
-  argument_11 = 1.0
+  argument_10 = 1.5
+  argument_11 = 0.5
   argument_12 = FALSE
   argument_13 = TRUE
   setwd("../")
