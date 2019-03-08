@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 07.03.2019
-# Version: 0.5.4
+# Last Modified: Fr, 08.03.2019
+# Version: 0.5.5
 # --------------------------------------------
 
 # Installers
@@ -585,6 +585,10 @@ if (benchmark_mode == TRUE){
   summary_frame$TPR <- statistics_frame$TPR
   summary_frame$TNR <- statistics_frame$TNR
   summary_frame$ACC <- statistics_frame$ACC
+  summary_frame$FDR <- statistics_frame$FDR
+  summary_frame$FPR <- statistics_frame$FPR
+  summary_frame$FNR <- statistics_frame$FNR
+  summary_frame$PRE <- statistics_frame$PRE
 }
 
 write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
