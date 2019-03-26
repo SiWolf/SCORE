@@ -20,9 +20,9 @@ Please ensure that the latest versions of the dependencies mentioned above are i
 
 ### 1.2) Usage
 
-1.) Feed the machine. Copy your adapter-trimmed NGS paired-end RNA-Seq reads as well as a Metadata table indicating sample groups (TSV format) into the raw/ folder. Please ensure that each read-pair shares a common prefix name (which should be consistent with the corresponding name listed in the Metadata table), followed by a suffix indicating the individual pair number (e.g. superpair_1.fastq.gz and superpair_2.fastq.gz). Please refer to raw/Metadata_old.tsv for an example of the required TSV format.
+1.) Feed the machine. Copy your adapter-trimmed gzipped NGS paired-end RNA-Seq reads as well as a Metadata table indicating sample groups (TSV format) into the raw/ folder. Please ensure that each read-pair shares a common prefix name (which should be consistent with the corresponding name listed in the Metadata table), followed by a suffix indicating the individual pair number (e.g. superpair_1.fastq.gz and superpair_2.fastq.gz). Please refer to [raw/Metadata_old.tsv](https://github.com/SiWolf/SCORE/blob/master/raw/Metadata_old.tsv) for an example of the required TSV format.
 
-2.) Set parameters. Edit the parameters in the configuration file (config.yaml) according to your experimental setup. If you choose to use a GUI, you can instead load the Snakefile using Sequanix and edit the corresponding configuration file directly from within Sequanix.
+2.) Set parameters. Edit the parameters in the configuration file ([config.yaml]((https://github.com/SiWolf/SCORE/blob/master/config.yaml))) according to your experimental setup. If you choose to use a GUI, you can instead load the Snakefile using Sequanix and edit the corresponding configuration file directly from within Sequanix.
 
 3.) Run SCORE. If you have chosen to use Sequanix you can launch SCORE using the GUI. If you are working on the command line execute the run-SCORE.sh shell script (make sure the script is executable) and specify the amount of threads the analysis may use. Example: ./run-SCORE.sh 8 to launch SCORE using 8 threads (default = 4). SCORE will automatically parallelize the internal rules accordingly.
 
