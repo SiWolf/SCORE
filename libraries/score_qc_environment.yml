@@ -1,10 +1,22 @@
 name: score_qc_environment
 channels:
+  - r
+  - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - fastqc=0.11.7=5
+  - fastqc=0.11.8=1
+  - font-ttf-dejavu-sans-mono=2.37=h6964260_0
+  - fontconfig=2.13.1=he4413a7_1000
+  - freetype=2.10.0=he983fc9_0
+  - icu=58.2=hf484d3e_1000
   - libgcc-ng=8.2.0=hdf63c60_1
-  - openjdk=8.0.152=h46b5887_1
-  - perl=5.26.2=h14c3975_0
-
+  - libiconv=1.15=h516909a_1005
+  - libpng=1.6.36=h84994c4_1000
+  - libstdcxx-ng=8.2.0=hdf63c60_1
+  - libuuid=2.32.1=h14c3975_1000
+  - libxml2=2.9.8=h143f9aa_1005
+  - openjdk=11.0.1=h516909a_1015
+  - perl=5.26.2=h14c3975_1002
+  - xz=5.2.4=h14c3975_1001
+  - zlib=1.2.11=h14c3975_1004

@@ -1,9 +1,10 @@
 name: score_count_env
 channels:
-- bioconda
-- defaults
+  - r
+  - conda-forge
+  - bioconda
+  - defaults
 dependencies:
-- subread=1.6.2=ha92aebf_0
-- libgcc-ng=7.2.0=hdf63c60_3
-- zlib=1.2.11=ha838bed_2
-
+  - libgcc-ng=8.2.0=hdf63c60_1
+  - subread=1.6.4=h84994c4_1
+  - zlib=1.2.11=h14c3975_1004

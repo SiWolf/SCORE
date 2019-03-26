@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 20.12.2018
-# Version: 0.5.6
+# Last Modified: Thue, 26.03.2019
+# Version: 0.5.7
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -139,13 +139,12 @@ rule pathway_analysis_preprocessing:
 		# Create a list of gene symbols for the DEGs
 		fetch_gene_symbols(output[0])
 
-# baySeq 2.14.0
-# DESeq2 1.20.0
-# edgeR 3.22.5
-# limma 3.36.5
-# NOISeq 2.24.0
-# rhdf5 2.22.0
-# sleuth 0.29.0
+# baySeq 2.16.0
+# DESeq2 1.22.1
+# edgeR 3.24.1
+# limma 3.38.3
+# NOISeq 2.26.0
+# sleuth 0.30.0
 # UpsetR 1.3.3
 rule DEG_analysis:
 	input:
@@ -162,7 +161,7 @@ rule DEG_analysis:
 		Rscript libraries/SCORE.R {METADATA} {PARAM_GENESCF_TOTAL_GENES_SPECIES} {MERGE_PLOTS_AND_PDF} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH} {ENABLE_BENCHMARKING} {PARAM_DEG_STRICT_MODE}
 		"""
 		
-# featureCounts 1.6.2
+# featureCounts 1.6.4
 # Counts mapped reads to genomic features
 # Needed for the quantification of Bowtie2 results
 # Discards multi-mapping reads by default
@@ -183,7 +182,7 @@ rule counting:
 		"""
 
 # Bowtie2 2.3.4.3
-# Kallisto 0.44.0
+# Kallisto 0.45.0
 # Creates a reference index for each genome
 # Performs an ungapped genome mapping
 # Bowtie2 allows up to 2 mismatches (default)
@@ -209,7 +208,7 @@ rule mapping:
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
-# FastQC 0.11.7
+# FastQC 0.11.8
 # Flexbar 3.4.0
 # Quality control and basequality trimming
 # TO-DO: Should not forget adapter trimming when using new data!
