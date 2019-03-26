@@ -1,8 +1,11 @@
 # Script for deleting existing SCORE results
-# This is for testing various experimental combinations and parameters
-# FastQC and Flexbar files should not need to be deleted
-# To empty all results folders: ./empty_results.sh full
-# To empty all results folders but save previous results: ./empty_results.sh full Test_Folder
+# This is used for testing various experimental combinations and parameters
+# DEG results are either moved or deleted
+# FastQC and Flexbar files are deleted on default (default)
+# Bowtie2, featureCounts and kallisto files are deleted on full reset (full)
+# To empty all primary results: ./empty_results.sh default
+# To empty all results: ./empty_results.sh full
+# To empty all primary results but save previous results: ./empty_results.sh default Test_Folder
 
 path_parent_folder=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$path_parent_folder"
@@ -39,22 +42,29 @@ fi
 
 rm -r benchmarking*
 
-if [ "$MODE" = "full" ]
-then
-	cd ../fastqc/
-	rm -r *
-fi
-
-cd ../mapped/bowtie2/featureCounts/
-rm -r *
-cd ../../kallisto/
-rm -r *
-cd ../../trimmed/
-
-if [ "$MODE" = "full" ]
-then
-	rm -r *
-fi
-
 cd ../
 rm log.txt
+
+if [ "$MODE" = "default" ]
+then
+	cd fastqc/
+	rm -r *
+	cd ../trimmed/
+	rm -r *
+	cd ../
+fi
+
+if [ "$MODE" = "full" ]
+then
+	cd fastqc/
+	rm -r *
+	cd ../trimmed/
+	rm -r *
+	cd ../mapped/bowtie2/
+	rm -r *.sam
+	cd featureCounts/
+	rm -r *
+	cd ../../kallisto/
+	rm -r *
+	cd ../../
+fi
