@@ -66,11 +66,11 @@ do
 		kallisto quant -i index.idx -o $sample_folder -b 100 -t 8 $sample_name_1 $sample_name_2
 	done
 	source deactivate
-	cd ../../
+	cd ../../../
 	source activate score_deg_env
-	Rscript SCORE.R Metadata_C1.tsv 5000 FALSE 0.05 5 0.5 1.5 1.0 1.0 1.5 0.5 TRUE TRUE
+	Rscript libraries/SCORE.R Metadata_C1.tsv 5000 FALSE 0.05 5 0.5 1.5 1.0 1.0 1.5 0.5 TRUE TRUE
 	source deactivate
-	cd miscellaneous/
+	cd libraries/miscellaneous/
 	./empty_results.sh full $benchmark
 done
 Rscript generate_benchmarking_plots.R
