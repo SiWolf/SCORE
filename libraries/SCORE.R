@@ -1,15 +1,15 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 08.03.2019
-# Version: 0.5.5
+# Last Modified: So, 05.05.2019
+# Version: 0.5.6
 # --------------------------------------------
 
 # Installers
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("baySeq")
 #biocLite("DESeq2")
-#biocLite("edgeR")
+#biocLite("edgeR")  
 #biocLite("limma")
 #biocLite("NOISeq")
 #biocLite("rhdf5")
@@ -180,7 +180,7 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
   write.csv(noiseq_result, file = "diffexpr_results_noiseq.csv")
   # Filtering sleuth -> gene subset
   sleuth_result <- subset(sleuth_result, target_id %in% gene_names_list)
-  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv") 
+  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv")
   
   # Fetch probabilities/p-values of differential expression
   bayseq_reordered <- bayseq_result[order(match(bayseq_result[[1]], gene_names_list)), ]
@@ -217,7 +217,7 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
 
 # Transforms the individual predictions into a binary table
 # Based on p_value cutoff
-probabilities_to_binaries <- function(cutoff_general, total_number_of_genes){
+probabilities_to_binaries <- function(cutoff_general){
   # Reads the results file and sets the first column as the rownames
   raw_binary_results <- read.csv(file = "diffexpr_results_all.csv", header = TRUE, sep = ",")
   binary_results <- raw_binary_results[,-1]
@@ -241,6 +241,8 @@ probabilities_to_binaries <- function(cutoff_general, total_number_of_genes){
   
   # Overwrite the noiseq results with the precomputed ones
   binary_results$NOISeq <- noiseq_column
+  
+  write.csv(binary_results, file = "diffexpr_results_all_binary.csv") 
   
   return(binary_results)
 }
@@ -468,6 +470,11 @@ if (is.na(argument_1)){
   setwd("../")
 }
 
+# Formatting options
+# Deactivates e-values
+# This is better for the in-script comparisons but makes output less readable
+options(scipen = 999)
+
 # Percentage of expected DEGs
 # Might need to be adjusted per experiment
 benchmark_mode = as.logical(argument_12)
@@ -564,7 +571,7 @@ results_sleuth = run_sleuth(metadata[1:2], benchmark_mode)
 time_sleuth <- Sys.time()
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, results_sleuth, filtered_gene_names)
-results_binary = probabilities_to_binaries(threshold_general, length(gene_names))
+results_binary = probabilities_to_binaries(threshold_general)
 results_consensus = smart_consensus(results_binary, weights, strict_mode)
 visualization(results_binary, merge_images)
 
