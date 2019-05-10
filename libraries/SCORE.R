@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: So, 05.05.2019
-# Version: 0.5.6
+# Last Modified: Tue, 07.05.2019
+# Version: 0.5.7
 # --------------------------------------------
 
 # Installers
@@ -346,8 +346,10 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold){
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
   mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
-  #mynoiseqbio = noiseqbio(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, r = 50, adj = 1.5, plot = TRUE, a0per = internal_threshold, filter = 1)
-  mynoiseqbio = noiseq(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, replicates = "biological")
+  # NOISeq biological data mode
+  mynoiseqbio = noiseqbio(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, r = 50, adj = 1.5, plot = TRUE, a0per = internal_threshold, filter = 1)
+  # NOISeq non-biological data mode
+  #mynoiseqbio = noiseq(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, replicates = "biological")
   # TO-DO: Implement degenes instead of filtering genes by myself
   noiseq_results = degenes(mynoiseqbio, q = internal_threshold, M = NULL)
   #noiseq_results <- mynoiseqbio@results[[1]]
@@ -460,10 +462,10 @@ if (is.na(argument_1)){
   argument_4 = 0.05
   argument_5 = 5
   argument_6 = 0.5
-  argument_7 = 1.5
-  argument_8 = 1.0
-  argument_9 = 1.0
-  argument_10 = 1.5
+  argument_7 = 1.0
+  argument_8 = 0.75
+  argument_9 = 0.75
+  argument_10 = 2.5
   argument_11 = 0.5
   argument_12 = FALSE
   argument_13 = TRUE
