@@ -14,6 +14,7 @@ genescf_total_genes_species: 5000
 # MISCELLANEOUS
 analysis_name: T1
 merge_plots_into_pdf: FALSE
+noiseq_assume_biological_replicates: TRUE
 # PARAMETERS
 ref_annotation_file: references/human_untransduced/PROKKA_07132018.gff
 ref_annotation_feature_type: CDS

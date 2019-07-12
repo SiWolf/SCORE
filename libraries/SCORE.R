@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Tue, 07.05.2019
-# Version: 0.5.7
+# Last Modified: Fr, 12.07.2019
+# Version: 0.5.8
 # --------------------------------------------
 
 # Installers
@@ -335,7 +335,7 @@ run_limma <- function(counts, groups){
 }
 
 # Function to call NOIseq
-run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold){
+run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold, use_biological_samples){
   list_of_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
   internal_threshold = 1 - as.numeric(threshold)
   lengths_DF <- as.data.frame(list_of_lengths$Length, levels(list_of_lengths$Transcript.ID))
@@ -346,10 +346,15 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold){
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
   mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
-  # NOISeq biological data mode
-  mynoiseqbio = noiseqbio(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, r = 50, adj = 1.5, plot = TRUE, a0per = internal_threshold, filter = 1)
-  # NOISeq non-biological data mode
-  #mynoiseqbio = noiseq(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, replicates = "biological")
+  
+  if(use_biological_samples == TRUE){
+    # NOISeq biological data mode
+    mynoiseqbio = noiseqbio(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, r = 50, adj = 1.5, plot = TRUE, a0per = internal_threshold, filter = 1)
+  } else {
+    # NOISeq non-biological data mode
+    mynoiseqbio = noiseq(mydata, k = 0.5, norm = "tmm", factor = "Group", lc = 0, replicates = "biological")
+  }
+
   # TO-DO: Implement degenes instead of filtering genes by myself
   noiseq_results = degenes(mynoiseqbio, q = internal_threshold, M = NULL)
   #noiseq_results <- mynoiseqbio@results[[1]]
@@ -419,8 +424,8 @@ visualization <- function(binary_table, merge_separate_images){
     # UpSetR images
     png(filename = "deg_analysis_upsetR_diagram.png", width = 20, height = 20, units = "cm", res = 600)
     upset(binary_table, nsets = number_of_sets, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
-    
     dev.off()
+
   } else {
     # Venn diagrams
     v1 <- vennCounts(binary_table[1:3])
@@ -452,6 +457,7 @@ argument_10 = args[10]
 argument_11 = args[11]
 argument_12 = args[12]
 argument_13 = args[13]
+argument_14 = args[14]
 
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
@@ -469,6 +475,7 @@ if (is.na(argument_1)){
   argument_11 = 0.5
   argument_12 = FALSE
   argument_13 = TRUE
+  argument_14 = TRUE
   setwd("../")
 }
 
@@ -482,6 +489,7 @@ options(scipen = 999)
 benchmark_mode = as.logical(argument_12)
 genes_background = argument_2
 merge_images = as.logical(argument_3)
+noiseq_biological_mode = as.logical(argument_14)
 strict_mode = argument_13
 threshold_general = argument_4
 threshold_expression_count = argument_5
@@ -567,7 +575,7 @@ results_edger = run_edger(filtered_gene_counts, metadata_experiments)
 time_edger <- Sys.time()
 results_limma = run_limma(filtered_gene_counts, metadata_experiments)
 time_limma <- Sys.time()
-results_noiseq = run_noiseq(filtered_gene_names, filtered_gene_counts, metadata_experiments, threshold_general)
+results_noiseq = run_noiseq(filtered_gene_names, filtered_gene_counts, metadata_experiments, threshold_general, noiseq_biological_mode)
 time_noiseq <- Sys.time()
 results_sleuth = run_sleuth(metadata[1:2], benchmark_mode)
 time_sleuth <- Sys.time()
