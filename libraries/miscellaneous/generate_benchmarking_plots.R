@@ -43,7 +43,7 @@ lines(data_6$ACC, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
 lines(data_7$ACC, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
 lines(data_8$ACC, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
-legend(1, 0.98, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 0.8, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1, ncol = 2)
+legend(1, 0.98, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 0.9, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1, ncol = 2)
 dev.off()
 
 # DEGs
