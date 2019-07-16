@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 12.07.2019
-# Version: 0.5.8
+# Last Modified: Fr, 17.07.2019
+# Version: 0.5.9
 # --------------------------------------------
 
 # Installers
@@ -387,11 +387,11 @@ run_sleuth <- function(metadata_sleuth, benchmarking){
 # Creates a consensus list of DEGs
 # DEGs predicted using a weighted average (majority vote) of individual predictions
 # Strict mode requires more than half of the tools to predict a DEG
-smart_consensus <- function(b, w, s){
+smart_consensus <- function(b, w, s, t){
   if(s == TRUE){
-    consensus_degs <- subset(b, rowWeightedMeans(as.matrix(b), w = w) > 0.5) 
+    consensus_degs <- subset(b, rowWeightedMeans(as.matrix(b), w = w) > t) 
   } else{
-    consensus_degs <- subset(b, rowWeightedMeans(as.matrix(b), w = w) >= 0.5)
+    consensus_degs <- subset(b, rowWeightedMeans(as.matrix(b), w = w) >= t)
   }
   return(consensus_degs)
 }
@@ -458,6 +458,7 @@ argument_11 = args[11]
 argument_12 = args[12]
 argument_13 = args[13]
 argument_14 = args[14]
+argument_14 = args[15]
 
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
@@ -476,6 +477,7 @@ if (is.na(argument_1)){
   argument_12 = FALSE
   argument_13 = TRUE
   argument_14 = TRUE
+  argument_14 = 0.5
   setwd("../")
 }
 
@@ -493,6 +495,7 @@ noiseq_biological_mode = as.logical(argument_14)
 strict_mode = argument_13
 threshold_general = argument_4
 threshold_expression_count = argument_5
+threshold_majority_vote = as.numeric(argument_14)
 
 pdf("deg_analysis_graphs.pdf", paper = "a4")
 
@@ -582,7 +585,7 @@ time_sleuth <- Sys.time()
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, results_sleuth, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_general)
-results_consensus = smart_consensus(results_binary, weights, strict_mode)
+results_consensus = smart_consensus(results_binary, weights, strict_mode, threshold_majority_vote)
 visualization(results_binary, merge_images)
 
 deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth), nrow(results_consensus))

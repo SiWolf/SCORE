@@ -3,6 +3,7 @@
 general_threshold: 0.05
 enable_strict_mode: TRUE
 low_expression_count: 5
+score_threshold: 0.5
 # FLEXBAR SETTINGS
 flexbar_max_uncalled: 20
 flexbar_min_length: 20
