@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 17.07.2019
-# Version: 0.5.9
+# Last Modified: Sa, 20.07.2019
+# Version: 0.6.0
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -66,13 +66,16 @@ def fetch_annotation(gff_file, annotation_feature):
 						if len(gff_line) > 8 and gff_line[2] == annotation_feature:
 							current_id = gff_line[8].split("ID=")[1].split(";")[0]
 							if id == current_id:
-								product = gff_line[8].split("product=")[1]
+								if "product=" in gff_line[8]:
+									product = gff_line[8].split("product=")[1]
+								else:
+									product = ""
 								if gff_line[8].split("ID=")[1].count("gene=") > 0:
 									gene = gff_line[8].split("gene=")[1].split(";")[0]
 								break
 				with open("deg/diffexpr_results_bayseq.csv") as bayseq_results:
 					for bayseq_line in csv.reader(bayseq_results, delimiter = ","):
-						if id == bayseq_line[0]:
+						if id == bayseq_line[0] or id == bayseq_line[1]:
 							direction = bayseq_line[9]
 							break
 				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + "," + direction + "\n")
