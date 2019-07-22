@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 17.07.2019
-# Version: 0.5.9
+# Last Modified: Mo, 22.07.2019
+# Version: 0.6.0
 # --------------------------------------------
 
 # Installers
@@ -106,6 +106,25 @@ calculate_statistics <- function(binaries, consensus){
   }
   statistics <- data.frame(FN = fn_vector, FP = fp_vector, TN = tn_vector, TP = tp_vector, TPR = tpr_vector, TNR = tnr_vector, ACC = acc_vector, FDR = fdr_vector, FPR = fpr_vector, FNR = fnr_vector, PRE = pre_vector)
   return(statistics)
+}
+
+# Estimates TPM values from raw counts
+calculate_tpm <- function(transcript_counts){
+  transcript_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
+  c = 0
+  for (transcript in row.names(transcript_counts)){
+    l = transcript_lengths[transcript_lengths$Transcript.ID == transcript, 2] / 1000
+    transcript_counts[c,] <- transcript_counts[c,] / l
+    c = c + 1
+  }
+  d = 1
+  for (sample in colnames(transcript_counts)){
+    sum_column = sum(transcript_counts[,d])
+    tpm_scaling_factor = sum_column / 1000000
+    transcript_counts[,d] <- transcript_counts[,d] / tpm_scaling_factor
+    d = d + 1
+  }
+  return(transcript_counts)
 }
 
 # Reads the first counts-file in order to fetch a list of all gene symbols
@@ -611,8 +630,11 @@ if (benchmark_mode == TRUE){
   summary_frame$PRE <- statistics_frame$PRE
 }
 
-write.csv(filtered_gene_counts, file = "filtered_gene_counts.csv")
+tpm_gene_counts = calculate_tpm(filtered_gene_counts)
+
+write.csv(filtered_gene_counts, file = "filtered_gene_counts_raw.csv")
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
+write.csv(tpm_gene_counts, file = "filtered_gene_counts_tpm.csv")
 write.csv(summary_frame, file = "deg_summary.csv")
 
 dev.off()
