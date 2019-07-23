@@ -30,12 +30,12 @@ geneSCF_path: ./libraries/geneSCF/geneSCF
 metadata_file: Metadata_C1.tsv
 # WEIGHTS FOR CONSENSUS PREDICTION
 # DEFAULT - MAJORITY VOTE
-# weight_bayseq: 1.0
-# weight_deseq2: 1.0
-# weight_edger: 1.0
-# weight_limma: 1.0
-# weight_noiseq: 1.0
-# weight_sleuth: 1.0
+weight_bayseq: 1.0
+weight_deseq2: 1.0
+weight_edger: 1.0
+weight_limma: 1.0
+weight_noiseq: 1.0
+weight_sleuth: 1.0
 # DEFAULT - STABLE
 # weight_bayseq: 0.5
 # weight_deseq2: 1.5
@@ -44,11 +44,11 @@ metadata_file: Metadata_C1.tsv
 # weight_noiseq: 1.5
 # weight_sleuth: 0.5
 # DEFAULT - EXPERIMENTAL
-weight_bayseq: 0.5
-weight_deseq2: 1.0
-weight_edger: 0.75
-weight_limma: 0.75
-weight_noiseq: 2.5
-weight_sleuth: 0.5
+# weight_bayseq: 0.5
+# weight_deseq2: 1.0
+# weight_edger: 0.75
+# weight_limma: 0.75
+# weight_noiseq: 2.5
+# weight_sleuth: 0.5
 # BENCHMARKING
 benchmarking: FALSE

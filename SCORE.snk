@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Sa, 20.07.2019
-# Version: 0.6.0
+# Last Modified: Thue, 23.07.2019
+# Version: 0.6.1
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -50,7 +50,7 @@ REF_INDEX = config["ref_index_name"]
 REF_TRANSCRIPTOME = config["ref_fasta_transcriptome"]
 
 # Functions
-def fetch_annotation(gff_file, annotation_feature):
+def fetch_annotation(gff_file, annotation_feature, id_tag):
 	consensus_extended = open("deg/consensus_diffexpr_results_extended.csv", "w") 
 	with open("deg/consensus_diffexpr_results.csv") as consensus_results:
 		for consensus_line in csv.reader(consensus_results, delimiter = ","):
@@ -63,16 +63,17 @@ def fetch_annotation(gff_file, annotation_feature):
 			else:
 				with open(gff_file) as gff_annotation:
 					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
-						if len(gff_line) > 8 and gff_line[2] == annotation_feature:
-							current_id = gff_line[8].split("ID=")[1].split(";")[0]
-							if id == current_id:
-								if "product=" in gff_line[8]:
-									product = gff_line[8].split("product=")[1]
-								else:
-									product = ""
-								if gff_line[8].split("ID=")[1].count("gene=") > 0:
-									gene = gff_line[8].split("gene=")[1].split(";")[0]
-								break
+						if gff_line[0][0] != "#":
+							if len(gff_line) > 8 and gff_line[2] == annotation_feature:
+								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
+								if id == current_id:
+									if "product=" in gff_line[8]:
+										product = gff_line[8].split("product=")[1]
+									else:
+										product = ""
+									if gff_line[8].split("ID=")[1].count("gene=") > 0:
+										gene = gff_line[8].split("gene=")[1].split(";")[0]
+									break
 				with open("deg/diffexpr_results_bayseq.csv") as bayseq_results:
 					for bayseq_line in csv.reader(bayseq_results, delimiter = ","):
 						if id == bayseq_line[0] or id == bayseq_line[1]:
@@ -140,7 +141,7 @@ rule pathway_analysis_preprocessing:
 		"deg/deg_gene_symbols.csv"
 	run:
 		# Fetching initial annotations
-		fetch_annotation(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID)
+		fetch_annotation(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
 		# Create a list of gene symbols for the DEGs
 		fetch_gene_symbols(output[0])
 
