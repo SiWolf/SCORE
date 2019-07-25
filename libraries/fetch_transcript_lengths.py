@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: fetch_transcript_lengths
 # Author: Silver A. Wolf
-# Last Modified: Thue, 23.07.2019
-# Version: 0.0.6
+# Last Modified: Thur, 25.07.2019
+# Version: 0.0.7
 # -------------------------------
 
 # Imports
@@ -16,7 +16,7 @@ def fetch_lengths(gff, id):
 	with open(gff) as full_gff_file:
 		for line in csv.reader(full_gff_file, delimiter = "\t"):
 			if len(line) > 0:
-				if line[0][1] != "#" and id in line[8]:
+				if line[0][0] != "#" and id in line[8]:
 					transcript_length = abs(int(line[3]) - int(line[4]))
 					transcript_id = line[8].split(id)[1].split(";")[0]
 					output_lengths.write(transcript_id + "," + str(transcript_length) + "\n")
