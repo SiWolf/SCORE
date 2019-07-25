@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 22.07.2019
-# Version: 0.6.0
+# Last Modified: Thur, 25.07.2019
+# Version: 0.6.1
 # --------------------------------------------
 
 # Installers
@@ -477,7 +477,7 @@ argument_11 = args[11]
 argument_12 = args[12]
 argument_13 = args[13]
 argument_14 = args[14]
-argument_14 = args[15]
+argument_15 = args[15]
 
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
@@ -496,7 +496,7 @@ if (is.na(argument_1)){
   argument_12 = FALSE
   argument_13 = TRUE
   argument_14 = TRUE
-  argument_14 = 0.5
+  argument_15 = 0.5
   setwd("../")
 }
 
@@ -514,7 +514,7 @@ noiseq_biological_mode = as.logical(argument_14)
 strict_mode = argument_13
 threshold_general = argument_4
 threshold_expression_count = argument_5
-threshold_majority_vote = as.numeric(argument_14)
+threshold_majority_vote = as.numeric(argument_15)
 
 pdf("deg_analysis_graphs.pdf", paper = "a4")
 
