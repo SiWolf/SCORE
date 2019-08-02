@@ -63,13 +63,13 @@ def perform_analysis(e1, e2, path, genes, org_go, org_kegg, analysis_type):
 	gene_scf_folder_go = new_experiment + "/geneSCF_GO/"
 	if not os.path.exists(gene_scf_folder_go):
 		os.makedirs(gene_scf_folder_go)
-	command_go = path + " -m=normal -i=" + gene_list_filtered + " -t=sym -o=" + gene_scf_folder_go + " -db=GO_all -p=yes -bg=" + genes + " -org=" + org_go
+	command_go = path + " -m=update -i=" + gene_list_filtered + " -t=sym -o=" + gene_scf_folder_go + " -db=GO_all -p=yes -bg=" + genes + " -org=" + org_go
 	os.system(command_go)
 	
 	gene_scf_folder_kegg = new_experiment + "/geneSCF_KEGG/"
 	if not os.path.exists(gene_scf_folder_kegg):
 		os.makedirs(gene_scf_folder_kegg)
-	command_go = path + " -m=normal -i=" + gene_list_filtered + " -t=sym -o=" + gene_scf_folder_kegg + " -db=KEGG -p=yes -bg=" + genes + " -org=" + org_kegg
+	command_go = path + " -m=update -i=" + gene_list_filtered + " -t=sym -o=" + gene_scf_folder_kegg + " -db=KEGG -p=yes -bg=" + genes + " -org=" + org_kegg
 	os.system(command_go)
 	
 if __name__ == "__main__":
