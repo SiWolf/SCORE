@@ -1,8 +1,8 @@
 # ------------------------------
 # Title: compare_experiments.py
 # Author: Silver A. Wolf
-# Last Modified: Wed, 31.07.2019
-# Version: 0.0.2
+# Last Modified: Fr, 02.08.2019
+# Version: 0.0.3
 # ------------------------------
 
 # Imports
@@ -10,7 +10,7 @@ import argparse
 import csv
 import os
 
-def perform_analysis(e1, e2, path, genes, org_go, org_kegg):
+def perform_analysis(e1, e2, path, genes, org_go, org_kegg, analysis_type):
 	new_experiment = e1 + "_" + e2
 	if not os.path.exists(new_experiment):
 		os.makedirs(new_experiment)
@@ -20,22 +20,44 @@ def perform_analysis(e1, e2, path, genes, org_go, org_kegg):
 	first_line = True
 	output_list = open(gene_list_filtered, "w")
 	output_list.write("gene name\n")
-	with open(gene_list_e2) as e2_file:
-		for line in csv.reader(e2_file, delimiter = ","):
-			if first_line == True:
-				first_line = False
-			else:
-				current_gene_e2 = line[0]
-				background_gene = False
-				with open(gene_list_e1) as e1_file:
-					for line in csv.reader(e1_file, delimiter = ","):
-						current_gene_e1 = line[0]
-						if current_gene_e1 == current_gene_e2:
-							background_gene = True
-							break
-				if background_gene == False:
-					output_list.write(current_gene_e2 + "\n")
-	
+	if analysis_type == "sub":
+		with open(gene_list_e2) as e2_file:
+			for line in csv.reader(e2_file, delimiter = ","):
+				if first_line == True:
+					first_line = False
+				else:
+					current_gene_e2 = line[0]
+					background_gene = False
+					with open(gene_list_e1) as e1_file:
+						for line in csv.reader(e1_file, delimiter = ","):
+							current_gene_e1 = line[0]
+							if current_gene_e1 == current_gene_e2:
+								background_gene = True
+								break
+					if background_gene == False:
+						output_list.write(current_gene_e2 + "\n")
+	else:
+		gene_list_temp = []
+		with open(gene_list_e1) as e1_file:
+			for line in csv.reader(e1_file, delimiter = ","):
+				if first_line == True:
+					first_line = False
+				else:
+					current_gene_e1 = line[0]
+					if current_gene_e1 not in gene_list_temp:
+						gene_list_temp.append(current_gene_e1)
+		first_line = True
+		with open(gene_list_e2) as e2_file:
+			for line in csv.reader(e2_file, delimiter = ","):
+				if first_line == True:
+					first_line = False
+				else:
+					current_gene_e2 = line[0]
+					if current_gene_e2 not in gene_list_temp:
+						gene_list_temp.append(current_gene_e2)
+		for gene in gene_list_temp:
+			output_list.write(gene + "\n")
+
 	gene_scf_folder_go = new_experiment + "/geneSCF_GO/"
 	if not os.path.exists(gene_scf_folder_go):
 		os.makedirs(gene_scf_folder_go)
@@ -53,12 +75,13 @@ def perform_analysis(e1, e2, path, genes, org_go, org_kegg):
 	
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description = "")
-	parser.add_argument("-a", "--experiment_1", type = str, default = "V3", required = False, help = "Name of experiment 1")
-	parser.add_argument("-b", "--experiment_2", type = str, default = "V4", required = False, help = "Name of experiment 2")
+	parser.add_argument("-a", "--experiment_1", type = str, default = "V1", required = False, help = "Name of experiment 1")
+	parser.add_argument("-b", "--experiment_2", type = str, default = "V2", required = False, help = "Name of experiment 2")
+	parser.add_argument("-c", "--analysis_type", type = str, default = "add", required = False, help = "Analysis Type (add or sub)")
 	parser.add_argument("-g", "--gene_scf", type = str, default = "./libraries/geneSCF/geneSCF", required = False, help = "Path to GeneSCF")
 	parser.add_argument("-t", "--total_genes", type = str, default = "5000", required = False, help = "Total amount of genes")
 	parser.add_argument("-dbg", "--organism_db_go", type = str, default = "ecocyc", required = False, help = "Organism DB (GO)")
 	parser.add_argument("-dbk", "--organism_db_kegg", type = str, default = "ecg", required = False, help = "Organism DB (KEGG)")
 	args = parser.parse_args()
 	
-	perform_analysis(args.experiment_1, args.experiment_2, args.gene_scf, args.total_genes, args.organism_db_go, args.organism_db_kegg)
+	perform_analysis(args.experiment_1, args.experiment_2, args.gene_scf, args.total_genes, args.organism_db_go, args.organism_db_kegg, args.analysis_type)
