@@ -61,7 +61,7 @@ dependencies:
   - libpng=1.6.36=h84994c4_1000
   - libssh2=1.8.1=h22169c7_0
   - libstdcxx-ng=7.3.0=hdf63c60_0
-  - libtiff=4.0.10=h648cc4a_1001
+  - libtiff=4.0.10
   - libunistring=0.9.10=h14c3975_0
   - libuuid=2.32.1=h14c3975_1000
   - libxcb=1.13=h14c3975_1002
