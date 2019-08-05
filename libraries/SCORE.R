@@ -331,9 +331,14 @@ run_edger <- function(read_counts, metadata_labels){
   # Plots
   # How many genes are differentially expressed at an FDR of 5%?
   sum(edgeR_results$table$FDR < .05)
-  plotSmear(et, de.tags = rownames(edgeR_results)[edgeR_results$table$FDR < .05])
+  plotSmear(et, de.tags = rownames(edgeR_results)[edgeR_results$table$FDR < .05], main = "Significant DEGs: logFC vs. logCPM")
   abline(h = c(-2, 2), col = "blue")
-  
+  extreme_values = edgeR_results[abs(edgeR_results$table$logFC)>2,]
+  n = nrow(extreme_values)
+  for (i in 1:n){
+    text(extreme_values$table$logCPM[i], extreme_values$table$logFC[i], labels = rownames(extreme_values)[i], cex = 0.7, pos = 4)
+  }
+
   return(edgeR_results)
 }
 
