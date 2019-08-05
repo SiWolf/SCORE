@@ -40,7 +40,7 @@ Yes, it is possible to either edit the Snakefile itself (not recommended) or usi
 
 Q: Snakemake is unable to activate the included environments - what can I do?
 
-This is a know issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here]https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 to ensure compability with Snakemake.
+This is a known issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 to ensure compability with Snakemake.
 
 Q: How do I cite SCORE?
 
