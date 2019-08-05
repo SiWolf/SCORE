@@ -7,7 +7,7 @@
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 Dependencies:
-* [Anaconda](https://anaconda.org/)
+* [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html)
 * [Flexbar](https://github.com/seqan/flexbar)
 * [GeneSCF](http://genescf.kandurilab.org/)
 * [Python3](https://www.python.org/)
@@ -16,7 +16,7 @@ Dependencies:
 Optional:
 * [Sequanix](https://github.com/sequana/sequana/) (Part of Sequana)
 
-Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it contains many of the required libraries at installation. While it should be possible to use Miniconda, it does not contain all required packages and thus, these might need to be installed manually. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the dependencies mentioned above are installed accordingly.
+Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it includes some of the required libraries during initial installation. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the dependencies mentioned above are installed accordingly.
 
 ### 1.2) Usage
 
@@ -37,6 +37,10 @@ Using the executable script mentioned above will automatically output the runtim
 Q: I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?
 
 Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set a specified {parameter} to a {value}.
+
+Q: Snakemake is unable to activate the included environments - what can I do?
+
+This is a know issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here]https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 to ensure compability with Snakemake.
 
 Q: How do I cite SCORE?
 
