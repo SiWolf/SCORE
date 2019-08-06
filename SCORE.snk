@@ -46,6 +46,7 @@ REF_ANNOTATION = config["ref_annotation_file"]
 REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature_type"]
 REF_ANNOTATION_GENE_ID = config["ref_annotation_gene_type"]
 REF_FASTA = config["ref_fasta_file"]
+REF_GO_FILE = config["ref_go_obo_file"]
 REF_INDEX = config["ref_index_name"]
 REF_TRANSCRIPTOME = config["ref_fasta_transcriptome"]
 
@@ -154,7 +155,7 @@ rule DEG_postprocessing:
 # TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
 	input:
-		"deg/deg_gene_symbols.csv"
+		"deg/deg_gene_symbols"
 	output:
 		"deg/pathway_analysis_GO",
 		"deg/pathway_analysis_KEGG"
@@ -164,13 +165,15 @@ rule pathway_analysis:
 		mkdir -p {output[1]}		
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_GO_DB}
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_KEGG_DB}
+		# Update GeneSCF results using the GO DB Reference File
+		python libraries/genescf_update.py -d {PARAM_GENESCF_GO_DB} -o {REF_GO_FILE}
 		"""
 
 rule pathway_analysis_preprocessing:
 	input:
 		"deg/deg_analysis_graphs.pdf"
 	output:
-		"deg/deg_gene_symbols.csv"
+		"deg/deg_gene_symbols"
 	run:
 		# Fetching initial annotations
 		fetch_annotation_diffexpr(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)

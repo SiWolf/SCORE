@@ -22,6 +22,7 @@ ref_annotation_feature_type: CDS
 ref_annotation_gene_type: locus_tag
 ref_fasta_file: references/human_untransduced/7738_8#57.fa
 ref_fasta_transcriptome: references/human_untransduced/PROKKA_07132018.ffn
+ref_go_obo_file: references/go.obo
 ref_index_name: REF_untransduced
 # PATHS
 flexbar_path: ./libraries/flexbar/flexbar
