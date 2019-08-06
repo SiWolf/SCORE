@@ -2,7 +2,7 @@
 # Title: genescf_update.py
 # Author: Silver A. Wolf
 # Last Modified: Thue, 05.08.2019
-# Version: 0.0.3
+# Version: 0.0.4
 # ------------------------------
 
 # Imports
@@ -12,7 +12,7 @@ import csv
 def rewrite_genescf_results(database, obo_file):
 	file = "deg/pathway_analysis_GO/deg_gene_symbols_GO_all_" + database + "_functional_classification.tsv"
 	first_line = True
-	output = open("deg/pathway_analysis_GO/" + file.split(".tsv")[0] + "_updated.tsv", "w")
+	output = open(file.split(".tsv")[0] + "_updated.tsv", "w")
 	with open(file) as original_file:
 		for line in csv.reader(original_file, delimiter = "\t"):
 			if first_line == True:
