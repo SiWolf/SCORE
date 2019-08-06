@@ -2,7 +2,7 @@
 # Title: genescf_update.py
 # Author: Silver A. Wolf
 # Last Modified: Thue, 05.08.2019
-# Version: 0.0.2
+# Version: 0.0.3
 # ------------------------------
 
 # Imports
@@ -44,4 +44,4 @@ if __name__ == "__main__":
 	parser.add_argument("-o", "--go_reference_file", type = str, default = "references/go.obo", required = False, help = "GO Reference File")
 	args = parser.parse_args()
 	
-	rewrite_results(args.genescf_go_database, args.go_reference_file)
+	rewrite_genescf_results(args.genescf_go_database, args.go_reference_file)
