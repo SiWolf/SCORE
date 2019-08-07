@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Mo, 05.08.2019
-# Version: 0.6.2
+# Last Modified: Wed, 07.08.2019
+# Version: 0.6.3
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -61,7 +61,7 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 			product = ""
 			id = consensus_line[0]
 			if id == "":
-				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + ",ordering,logFC\n")
+				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + ",ordering,log2FC\n")
 			else:
 				with open(gff_file) as gff_annotation:
 					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
@@ -141,6 +141,8 @@ rule DEG_postprocessing:
 		"deg/pathway_analysis_KEGG"
 	shell:
 		"""
+		rm deg/filtered_gene_counts_tpm.csv
+		mv deg/filtered_gene_counts_tpm_extended.csv deg/filtered_gene_counts_tpm.csv
 		mkdir -p deg/{EXPERIMENT_NAME}
 		mv deg/consensus* deg/{EXPERIMENT_NAME}
 		mv deg/deg* deg/{EXPERIMENT_NAME}
