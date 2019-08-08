@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 07.08.2019
-# Version: 0.6.3
+# Last Modified: Thur, 08.08.2019
+# Version: 0.6.4
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -51,6 +51,33 @@ REF_INDEX = config["ref_index_name"]
 REF_TRANSCRIPTOME = config["ref_fasta_transcriptome"]
 
 # Functions
+def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
+	count_file = "deg/" + count_file
+	counts_extended = open(count_file.split(".csv")[0] + "_extended.csv", "w") 
+	with open(count_file) as count_values:
+		for count_line in csv.reader(count_values, delimiter = ","):
+			gene = ""
+			product = ""
+			id = count_line[0]
+			if id == "":
+				counts_extended.write("ID,gene name,product," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
+			else:
+				with open(gff_file) as gff_annotation:
+					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
+						if gff_line[0][0] != "#":
+							if len(gff_line) > 8 and gff_line[2] == annotation_feature:
+								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
+								if id == current_id:
+									if "product=" in gff_line[8]:
+										product = gff_line[8].split("product=")[1]
+									else:
+										product = ""
+									if gff_line[8].split("ID=")[1].count("gene=") > 0:
+										gene = gff_line[8].split("gene=")[1].split(";")[0]
+									break
+				counts_extended.write(count_line[0] + "," + gene + "," + product + "," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
+	counts_extended.close()
+
 def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 	consensus_extended = open("deg/consensus_diffexpr_results_extended.csv", "w") 
 	with open("deg/consensus_diffexpr_results.csv") as consensus_results:
@@ -88,32 +115,6 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 							break
 				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + "," + direction + "," + fold_change + "\n")
 	consensus_extended.close()
-	
-def fetch_annotation_tpm(gff_file, annotation_feature, id_tag):
-	tpm_extended = open("deg/filtered_gene_counts_tpm_extended.csv", "w") 
-	with open("deg/filtered_gene_counts_tpm.csv") as tpm_values:
-		for tpm_line in csv.reader(tpm_values, delimiter = ","):
-			gene = ""
-			product = ""
-			id = tpm_line[0]
-			if id == "":
-				tpm_extended.write("ID,gene name,product," + tpm_line[1] + "," + tpm_line[2] + "," + tpm_line[3] + "," + tpm_line[4] + "," + tpm_line[5] + "," + tpm_line[6] + "\n")
-			else:
-				with open(gff_file) as gff_annotation:
-					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
-						if gff_line[0][0] != "#":
-							if len(gff_line) > 8 and gff_line[2] == annotation_feature:
-								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
-								if id == current_id:
-									if "product=" in gff_line[8]:
-										product = gff_line[8].split("product=")[1]
-									else:
-										product = ""
-									if gff_line[8].split("ID=")[1].count("gene=") > 0:
-										gene = gff_line[8].split("gene=")[1].split(";")[0]
-									break
-				tpm_extended.write(tpm_line[0] + "," + gene + "," + product + "," + tpm_line[1] + "," + tpm_line[2] + "," + tpm_line[3] + "," + tpm_line[4] + "," + tpm_line[5] + "," + tpm_line[6] + "\n")
-	tpm_extended.close()
 
 def fetch_gene_symbols(new_file):
 	list_of_gene_symbols = open(new_file, "w")
@@ -141,6 +142,10 @@ rule DEG_postprocessing:
 		"deg/pathway_analysis_KEGG"
 	shell:
 		"""
+		rm deg/consensus_diffexpr_results.csv
+		mv deg/consensus_diffexpr_results_extended.csv deg/consensus_diffexpr_results.csv
+		rm deg/filtered_gene_counts_raw.csv
+		mv deg/filtered_gene_counts_raw_extended.csv deg/filtered_gene_counts_raw.csv
 		rm deg/filtered_gene_counts_tpm.csv
 		mv deg/filtered_gene_counts_tpm_extended.csv deg/filtered_gene_counts_tpm.csv
 		mkdir -p deg/{EXPERIMENT_NAME}
@@ -178,8 +183,9 @@ rule pathway_analysis_preprocessing:
 		"deg/deg_gene_symbols"
 	run:
 		# Fetching initial annotations
+		fetch_annotation_counts("filtered_gene_counts_raw.csv", REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
+		fetch_annotation_counts("filtered_gene_counts_tpm.csv", REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
 		fetch_annotation_diffexpr(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
-		fetch_annotation_tpm(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
 		# Create a list of gene symbols for the DEGs
 		fetch_gene_symbols(output[0])
 
