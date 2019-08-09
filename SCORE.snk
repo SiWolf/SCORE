@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 08.08.2019
-# Version: 0.6.4
+# Last Modified: Fr, 09.08.2019
+# Version: 0.6.5
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -51,6 +51,37 @@ REF_INDEX = config["ref_index_name"]
 REF_TRANSCRIPTOME = config["ref_fasta_transcriptome"]
 
 # Functions
+def create_presence_absence_matrix():
+	presence_absence_matrix = open("deg/filtered_gene_counts_presence_absence_matrix.csv", "w") 
+	with open("deg/filtered_gene_counts_raw_extended.csv") as raw_counts_table:
+		for raw_counts_line in csv.reader(raw_counts_table, delimiter = ","):
+			id = raw_counts_line[0]
+			gene = raw_counts_line[1]
+			product = raw_counts_line[2]
+			counts_sample_1 = raw_counts_line[3]
+			counts_sample_2 = raw_counts_line[4]
+			counts_sample_3 = raw_counts_line[5]
+			counts_sample_4 = raw_counts_line[6]
+			counts_sample_5 = raw_counts_line[7]
+			counts_sample_6 = raw_counts_line[8]
+			if id == "ID":
+				presence_absence_matrix.write("ID,gene name,product," + counts_sample_1 + "," + counts_sample_2 + "," + counts_sample_3 + "," + counts_sample_4 + "," + counts_sample_5 + "," + counts_sample_6 + "\n")
+			else:
+				if float(counts_sample_1) > 0:
+					counts_sample_1 = "1"
+				if float(counts_sample_2) > 0:
+					counts_sample_2 = "1"
+				if float(counts_sample_3) > 0:
+					counts_sample_3 = "1"
+				if float(counts_sample_4) > 0:
+					counts_sample_4 = "1"
+				if float(counts_sample_5) > 0:
+					counts_sample_5 = "1"
+				if float(counts_sample_6) > 0:
+					counts_sample_6 = "1"
+				presence_absence_matrix.write(id + "," + gene + "," + product + "," + counts_sample_1 + "," + counts_sample_2 + "," + counts_sample_3 + "," + counts_sample_4 + "," + counts_sample_5 + "," + counts_sample_6 + "\n")
+	presence_absence_matrix.close()
+
 def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 	count_file = "deg/" + count_file
 	counts_extended = open(count_file.split(".csv")[0] + "_extended.csv", "w") 
@@ -188,6 +219,8 @@ rule pathway_analysis_preprocessing:
 		fetch_annotation_diffexpr(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
 		# Create a list of gene symbols for the DEGs
 		fetch_gene_symbols(output[0])
+		# Generate the presence-absence matrix
+		create_presence_absence_matrix()
 
 # baySeq 2.16.0
 # DESeq2 1.22.1
