@@ -1,4 +1,6 @@
 # EDIT THIS FILE ACCORDING TO YOUR EXPERIMENTAL SETUP
+# BENCHMARKING
+benchmarking: FALSE
 # DEG PREDICTION CUTOFFS
 general_threshold: 0.05
 enable_strict_mode: TRUE
@@ -13,17 +15,17 @@ genescf_go_db: ecocyc
 genescf_kegg_db: ecg
 genescf_total_genes_species: 5000
 # MISCELLANEOUS
-analysis_name: T1
+analysis_name: A1
 merge_plots_into_pdf: FALSE
 noiseq_assume_biological_replicates: TRUE
 # PARAMETERS
-ref_annotation_file: references/human_untransduced/PROKKA_07132018.gff
+ref_annotation_file: references/REF.gff
 ref_annotation_feature_type: CDS
 ref_annotation_gene_type: locus_tag
-ref_fasta_file: references/human_untransduced/7738_8#57.fa
-ref_fasta_transcriptome: references/human_untransduced/PROKKA_07132018.ffn
+ref_fasta_genome: references/REF.fasta
+ref_fasta_transcriptome: references/REF.ffn
 ref_go_obo_file: references/go.obo
-ref_index_name: REF_untransduced
+ref_index_name: REF_INDEX
 # PATHS
 flexbar_path: ./libraries/flexbar/flexbar
 geneSCF_path: ./libraries/geneSCF/geneSCF
@@ -51,5 +53,3 @@ weight_sleuth: 1.0
 # weight_limma: 0.75
 # weight_noiseq: 2.5
 # weight_sleuth: 0.5
-# BENCHMARKING
-benchmarking: FALSE
