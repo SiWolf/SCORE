@@ -11,7 +11,7 @@ Dependencies:
 * [Flexbar](https://github.com/seqan/flexbar)
 * [GeneSCF](http://genescf.kandurilab.org/)
 * [GO Core Ontology (OBO Format)](http://geneontology.org/docs/download-ontology/)
-* [Python3](https://www.python.org/) and [BioPython](https://biopython.org/wiki/Download)
+* [Python3](https://www.python.org/)
 * [Snakemake (Version 4.6.0)](https://snakemake.readthedocs.io/en/stable/)
 
 Optional:
@@ -33,15 +33,19 @@ Please ensure that the latest versions of the dependencies mentioned above are i
 
 Q: How can I compute the total runtime of my analysis?
 
-Using the executable script mentioned above will automatically output the runtime at successful termination. Sequanix will not provide additional runtime information.
+A: Using the executable script mentioned above will automatically output the runtime at successful termination. Sequanix will not provide additional runtime information.
 
 Q: I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?
 
-Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set a specified {parameter} to a {value}.
+A: Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set a specified {parameter} to a {value}.
 
 Q: Snakemake is unable to activate the included environments - what can I do?
 
-This is a known issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 and modify your PATH in order to ensure compability with Snakemake.
+A: This is a known issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 and modify your PATH in order to ensure compability with Snakemake.
+
+Q: I get an Snakemake error stating that not all output, log and benchmarking files contain the same wildcards? What does this mean?
+
+A: Starting with Snakemake version 5 and above, the syntax for dynamic rules has been [updated](https://bitbucket.org/snakemake/snakemake/issues/955/problem-with-wildcard-and-dynamic-syntax). Please use Snakemake version 4.6.0 for running SCORE.
 
 Q: How do I cite SCORE?
 
