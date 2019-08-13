@@ -12,7 +12,7 @@ Dependencies:
 * [GeneSCF](http://genescf.kandurilab.org/)
 * [GO Core Ontology (OBO Format)](http://geneontology.org/docs/download-ontology/)
 * [Python3](https://www.python.org/) and [BioPython](https://biopython.org/wiki/Download)
-* [Snakemake](https://snakemake.readthedocs.io/en/stable/)
+* [Snakemake (Version 4.6.0)](https://snakemake.readthedocs.io/en/stable/)
 
 Optional:
 * [Sequanix](https://github.com/sequana/sequana/) (Part of Sequana)

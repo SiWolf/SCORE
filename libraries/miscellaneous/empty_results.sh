@@ -29,6 +29,7 @@ then
 	rm -r filtered*
 	rm -r pathway*
 	rm -r transcript*
+	rm -r summary*
 else	
 	ANALYSIS=$2
 	mkdir $ANALYSIS
@@ -37,6 +38,7 @@ else
 	mv diffexpr* $ANALYSIS
 	mv filtered* $ANALYSIS
 	mv pathway* $ANALYSIS
+	mv summary* $ANALYSIS
 	mv transcript* $ANALYSIS
 fi
 
