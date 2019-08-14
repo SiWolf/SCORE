@@ -31,7 +31,7 @@ ref_index_name: REF_INDEX
 flexbar_path: ./libraries/flexbar/flexbar
 geneSCF_path: ./libraries/geneSCF/geneSCF
 # SAMPLES
-metadata_file: Metadata.tsv
+metadata_file: raw/Metadata.tsv
 # WEIGHTS FOR CONSENSUS PREDICTION
 # DEFAULT - MAJORITY VOTE
 weight_bayseq: 1.0

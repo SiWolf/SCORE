@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: generate_summary.py
 # Author: Silver A. Wolf
-# Last Modified: Thue, 13.08.2019
-# Version: 0.0.2
+# Last Modified: Wed, 14.08.2019
+# Version: 0.0.3
 # -------------------------------
 
 # Imports
@@ -10,7 +10,12 @@ from Bio.Seq import Seq
 import argparse
 import csv
 
-def create_summary_file(ffn_file, genetic_code, conditions):
+def create_summary_file(ffn_file, genetic_code, metadata_file):
+	conditions = []
+	with open(metadata_file) as tsv:
+		for line in csv.reader(tsv, delimiter = "\t"):
+			if line[0][0] != "@":
+				conditions.append(line[1])
 	summary_file = open("deg/summary.tsv", "w")
 	with open("deg/diffexpr_results_all.csv") as diffexpr_full_results:
 		for diffexpr_line in csv.reader(diffexpr_full_results, delimiter = ","):
@@ -44,11 +49,11 @@ def create_summary_file(ffn_file, genetic_code, conditions):
 						if id == presence_absence_line[0]:
 							gene_name = presence_absence_line[1]
 							product = presence_absence_line[2]
-							if presence_absence_line[3] + presence_absence_line[4] + presence_absence_line[5] > 2:
+							if int(presence_absence_line[3]) + int(presence_absence_line[4]) + int(presence_absence_line[5]) > 2:
 								presence_absence_condition_1 = "1"
 							else:
 								presence_absence_condition_1 = "0"
-							if presence_absence_line[6] + presence_absence_line[7] + presence_absence_line[8] > 2:
+							if int(presence_absence_line[6]) + int(presence_absence_line[7]) + int(presence_absence_line[8]) > 2:
 								presence_absence_condition_2 = "1"
 							else:
 								presence_absence_condition_2 = "0"						
@@ -61,9 +66,9 @@ def create_summary_file(ffn_file, genetic_code, conditions):
 				with open("deg/consensus_diffexpr_results_extended.csv") as deg_file:
 					for deg_line in csv.reader(deg_file, delimiter = ","):
 						if id == deg_line[0]:
-							if fold_change > 0:
+							if float(fold_change) > 0:
 								deg = "1"
-							elif fold_change < 0:
+							elif float(fold_change) < 0:
 								deg = "-1"
 							else:
 								deg = "0"
@@ -84,10 +89,10 @@ def create_summary_file(ffn_file, genetic_code, conditions):
 	summary_file.close()
 	
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "")
-    parser.add_argument("-f", "--fasta_file", type = str, default = "references/REF.ffn", required = False, help = "FFN file in Fasta format")
-    parser.add_argument("-g", "--genetic_code", type = str, default = "11", required = False, help = "NCBI Identifier for the Genetic Code (organism specific)")
-	parser.add_argument("-s", "--sample_conditions", type = str, required = True, help = "List of sample conditions as defined in the Metadata Table")
-    args = parser.parse_args()
-
-    create_summary_file(args.fasta_file, args.genetic_code, args.sample_conditions)
+	parser = argparse.ArgumentParser(description = "")
+	parser.add_argument("-f", "--fasta_file", type = str, default = "references/REF.ffn", required = False, help = "FFN file in Fasta format")
+	parser.add_argument("-g", "--genetic_code", type = str, default = "11", required = False, help = "NCBI Identifier for the Genetic Code (organism specific)")
+	parser.add_argument("-m", "--metadata_table", type = str, default = "raw/Metadata.tsv", required = False, help = "The Metadata table used for the analysis")
+	args = parser.parse_args()
+	
+	create_summary_file(args.fasta_file, args.genetic_code, args.metadata_table)
