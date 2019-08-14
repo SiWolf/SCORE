@@ -2,7 +2,7 @@
 # Title: SCORE.R
 # Author: Silver A. Wolf
 # Last Modified: Wed, 14.08.2019
-# Version: 0.6.2
+# Version: 0.6.3
 # --------------------------------------------
 
 # Installers
@@ -171,11 +171,11 @@ create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
   abline(v = low_expression_cutoff, col = "red", lwd = 3)
   sum(median_log2_cpm > low_expression_cutoff)
   # Principal component analysis (PCA)
-  cpm_log_filtered <- cpm(count_matrix, log = TRUE)
-  pca <- prcomp(t(cpm_log_filtered), scale. = TRUE)
-  plot(pca$x[, 1], pca$x[, 2], pch = ".", xlab = "PC1", ylab = "PC2")
-  text(pca$x[, 1], pca$x[, 2], labels = colnames(cpm_log_filtered))
-  summary(pca)
+  # cpm_log_filtered <- cpm(count_matrix, log = TRUE)
+  # pca <- prcomp(t(cpm_log_filtered), scale. = TRUE)
+  # plot(pca$x[, 1], pca$x[, 2], pch = ".", xlab = "PC1", ylab = "PC2")
+  # text(pca$x[, 1], pca$x[, 2], labels = colnames(cpm_log_filtered))
+  # summary(pca)
   
   return(count_matrix)
 }

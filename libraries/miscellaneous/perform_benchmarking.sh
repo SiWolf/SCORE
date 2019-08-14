@@ -68,7 +68,7 @@ do
 	source deactivate
 	cd ../../../
 	source activate score_deg_env
-	Rscript libraries/SCORE.R Metadata_C1.tsv 5000 FALSE 0.05 5 0.5 1.0 0.75 0.75 2.5 0.5 TRUE TRUE FALSE 0.5
+	Rscript libraries/SCORE.R raw/Metadata.tsv 5000 FALSE 0.05 5 0.5 1.0 0.75 0.75 2.5 0.5 TRUE TRUE FALSE 0.5
 	source deactivate
 	cd libraries/miscellaneous/
 	./empty_results.sh full $benchmark
