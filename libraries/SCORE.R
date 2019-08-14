@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 25.07.2019
-# Version: 0.6.1
+# Last Modified: Wed, 14.08.2019
+# Version: 0.6.2
 # --------------------------------------------
 
 # Installers
@@ -487,7 +487,7 @@ argument_15 = args[15]
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
 if (is.na(argument_1)){
-  argument_1 = "Metadata_C1.tsv"
+  argument_1 = "raw/Metadata_C1.tsv"
   argument_2 = 5000
   argument_3 = FALSE
   argument_4 = 0.05
@@ -534,7 +534,7 @@ weights <- as.numeric(c(argument_6, argument_7, argument_8, argument_9, argument
 # It does not perform low-expression-filtering
 if (benchmark_mode == FALSE){
   metadata_file = argument_1
-  metadata = read.table(file = paste("raw/", metadata_file, sep = ""), sep = "\t", header = FALSE, comment.char = "@")
+  metadata = read.table(file = metadata_file, sep = "\t", header = FALSE, comment.char = "@")
   metadata_experiments <- metadata$V2
   
   gene_names <- create_gene_list(metadata$V1[1])
