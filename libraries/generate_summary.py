@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: generate_summary.py
 # Author: Silver A. Wolf
-# Last Modified: Wed, 14.08.2019
-# Version: 0.0.3
+# Last Modified: Thur, 15.08.2019
+# Version: 0.0.4
 # -------------------------------
 
 # Imports
@@ -21,7 +21,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 		for diffexpr_line in csv.reader(diffexpr_full_results, delimiter = ","):
 			id = diffexpr_line[0]
 			if id == "":
-				summary_file.write("ID\tgene name\tproduct\tlog2FC\tDE (SCORE) (1 = higher expression in " + conditions[0] + ", -1 = higher expression in " + conditions[4] + ")\tcorrected p-value (baySeq)\tcorrected p-value (DESeq2)\tcorrected p-value (edgeR)\tcorrected p-value (limma)\tcorrected p-value (NOISeq)\tcorrected p-value (sleuth)\t" + conditions[0] + "\t" + conditions[4] + "\tnucleotide sequence\tAA sequence\n")
+				summary_file.write("ID\tgene name\tproduct\tlog2FC\tDE (SCORE) (-1: " + conditions[0] + "> " + conditions[4] + "; 1: " + conditions[4] + ">" + conditions[0] + ")\tcorrected p-value (baySeq)\tcorrected p-value (DESeq2)\tcorrected p-value (edgeR)\tcorrected p-value (limma)\tcorrected p-value (NOISeq)\tcorrected p-value (sleuth)\t" + conditions[0] + "\t" + conditions[4] + "\tnucleotide sequence\tAA sequence\n")
 			else:
 				deg = "0"
 				nucleotide_sequence = ""
@@ -49,11 +49,11 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 						if id == presence_absence_line[0]:
 							gene_name = presence_absence_line[1]
 							product = presence_absence_line[2]
-							if int(presence_absence_line[3]) + int(presence_absence_line[4]) + int(presence_absence_line[5]) > 2:
+							if int(presence_absence_line[3]) + int(presence_absence_line[4]) + int(presence_absence_line[5]) > 1:
 								presence_absence_condition_1 = "1"
 							else:
 								presence_absence_condition_1 = "0"
-							if int(presence_absence_line[6]) + int(presence_absence_line[7]) + int(presence_absence_line[8]) > 2:
+							if int(presence_absence_line[6]) + int(presence_absence_line[7]) + int(presence_absence_line[8]) > 1:
 								presence_absence_condition_2 = "1"
 							else:
 								presence_absence_condition_2 = "0"						
