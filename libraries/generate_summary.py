@@ -2,7 +2,7 @@
 # Title: generate_summary.py
 # Author: Silver A. Wolf
 # Last Modified: Thur, 15.08.2019
-# Version: 0.0.5
+# Version: 0.0.6
 # -------------------------------
 
 # Imports
@@ -10,12 +10,27 @@ from Bio.Seq import Seq
 import argparse
 import csv
 
+def break_gene(sequence):
+	base_count = 0
+	new_sequence_list = ""
+	for base in sequence:
+		if base_count == 59:
+			new_sequence_list = new_sequence_list + base + "\n"
+			base_count = 0
+		else:
+			new_sequence_list = new_sequence_list + base
+			base_count += 1
+	return(sequence)
+				
 def create_summary_file(ffn_file, genetic_code, metadata_file):
 	conditions = []
 	with open(metadata_file) as tsv:
 		for line in csv.reader(tsv, delimiter = "\t"):
 			if line[0][0] != "@":
 				conditions.append(line[1])
+	genes_downregulated = open("deg/genes_downregulated.fasta", "w")
+	genes_neutral = open("deg/genes_neutral.tsv", "w")
+	genes_upregulated = open("deg/genes_upregulated.tsv", "w")
 	summary_file = open("deg/summary.tsv", "w")
 	with open("deg/diffexpr_results_all.csv") as diffexpr_full_results:
 		for diffexpr_line in csv.reader(diffexpr_full_results, delimiter = ","):
@@ -86,6 +101,21 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 				nucleotide_sequence_biopython = Seq(nucleotide_sequence)
 				aa_sequence = str(nucleotide_sequence_biopython.translate(table = genetic_code))
 				summary_file.write(id + "\t" + gene_name + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + presence_absence_condition_1 + "\t" + presence_absence_condition_2 + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
+				
+				gene_edit = break_gene(nucleotide_sequence)
+				
+				if deg == "-1":
+					genes_downregulated.write("> " + id + "\n" + gene_edit + "\n")
+				
+				elif deg == "1":
+					genes_upregulated.write("> " + id + "\n" + gene_edit + "\n")
+					
+				else:
+					genes_neutral.write("> " + id + "\n" + gene_edit + "\n")
+
+	genes_downregulated.close()
+	genes_neutral.close()
+	genes_upregulated.close()
 	summary_file.close()
 	
 if __name__ == "__main__":
