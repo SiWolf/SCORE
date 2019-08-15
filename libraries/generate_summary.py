@@ -2,7 +2,7 @@
 # Title: generate_summary.py
 # Author: Silver A. Wolf
 # Last Modified: Thur, 15.08.2019
-# Version: 0.0.4
+# Version: 0.0.5
 # -------------------------------
 
 # Imports
@@ -21,7 +21,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 		for diffexpr_line in csv.reader(diffexpr_full_results, delimiter = ","):
 			id = diffexpr_line[0]
 			if id == "":
-				summary_file.write("ID\tgene name\tproduct\tlog2FC\tDE (SCORE) (-1: " + conditions[0] + "> " + conditions[4] + "; 1: " + conditions[4] + ">" + conditions[0] + ")\tcorrected p-value (baySeq)\tcorrected p-value (DESeq2)\tcorrected p-value (edgeR)\tcorrected p-value (limma)\tcorrected p-value (NOISeq)\tcorrected p-value (sleuth)\t" + conditions[0] + "\t" + conditions[4] + "\tnucleotide sequence\tAA sequence\n")
+				summary_file.write("ID\tgene name\tproduct\tlog2FC\tDE (SCORE) (-1: " + conditions[0] + " > " + conditions[4] + "; 1: " + conditions[4] + " >" + conditions[0] + ")\tcorrected p-value (baySeq)\tcorrected p-value (DESeq2)\tcorrected p-value (edgeR)\tcorrected p-value (limma)\tcorrected p-value (NOISeq)\tcorrected p-value (sleuth)\t" + conditions[0] + "\t" + conditions[4] + "\tnucleotide sequence\tAA sequence\n")
 			else:
 				deg = "0"
 				nucleotide_sequence = ""
