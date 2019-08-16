@@ -28,7 +28,9 @@ then
 	rm -r diffexpr*
 	rm -r filtered*
 	rm -r genes*
+	rm -r hmmer*
 	rm -r pathway*
+	rm -r proteins*
 	rm -r transcript*
 	rm -r summary*
 else	
@@ -39,7 +41,9 @@ else
 	mv diffexpr* $ANALYSIS
 	mv filtered* $ANALYSIS
 	mv genes* $ANALYSIS
+	mv hmmer* $ANALYSIS
 	mv pathway* $ANALYSIS
+	mv proteins* $ANALYSIS
 	mv summary* $ANALYSIS
 	mv transcript* $ANALYSIS
 fi

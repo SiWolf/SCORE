@@ -2,7 +2,7 @@
 # Title: generate_summary.py
 # Author: Silver A. Wolf
 # Last Modified: Fr, 16.08.2019
-# Version: 0.0.8
+# Version: 0.0.9
 # -------------------------------
 
 # Imports
@@ -31,6 +31,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 	genes_downregulated = open("deg/genes_downregulated.fasta", "w")
 	genes_neutral = open("deg/genes_neutral.fasta", "w")
 	genes_upregulated = open("deg/genes_upregulated.fasta", "w")
+	proteins = open("deg/proteins.fasta", "w")
 	summary_file = open("deg/summary.tsv", "w")
 	with open("deg/diffexpr_results_all.csv") as diffexpr_full_results:
 		for diffexpr_line in csv.reader(diffexpr_full_results, delimiter = ","):
@@ -112,10 +113,15 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 					
 				else:
 					genes_neutral.write("> " + id + "\n" + gene_edit + "\n")
+					
+				protein_edit = break_gene(aa_sequence)
+				
+				proteins.write("> " + id + "\n" + protein_edit + "\n")
 
 	genes_downregulated.close()
 	genes_neutral.close()
 	genes_upregulated.close()
+	proteins.close()
 	summary_file.close()
 	
 if __name__ == "__main__":

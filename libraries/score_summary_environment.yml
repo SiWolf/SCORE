@@ -5,6 +5,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - hmmer=3.2.1=hf484d3e_1
   - biopython=1.74=py37h516909a_0
   - bzip2=1.0.8=h516909a_0
   - ca-certificates=2019.6.16=hecc5488_0
@@ -47,6 +48,7 @@ dependencies:
     - pyyaml==5.1.2
     - ratelimiter==1.2.0.post0
     - requests==2.22.0
+    - six==1.12.0
     - smmap==0.9.0
     - smmap2==2.0.5
     - urllib3==1.25.3
