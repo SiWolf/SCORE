@@ -2,7 +2,7 @@
 # Title: SCORE
 # Author: Silver A. Wolf
 # Last Modified: Fr, 16.08.2019
-# Version: 0.7.3
+# Version: 0.7.4
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -163,7 +163,12 @@ def fetch_gene_symbols(new_file):
 	with open("deg/consensus_diffexpr_results_extended.csv") as consensus_list:
 		for line in csv.reader(consensus_list, delimiter = ","):
 			if line[1] != "":
-				list_of_gene_symbols.write(line[1].split("_")[0] + "\n")
+				gene_variant_01 = line[1].split("_")[0]
+				gene_variant_02 = line[1].split("-")[0]
+				if len(gene_variant_01) > len(gene_variant_02):
+					list_of_gene_symbols.write(gene_variant_02 + "\n")
+				else:
+					list_of_gene_symbols.write(gene_variant_01 + "\n")
 	list_of_gene_symbols.close()
 
 def read_tsv(tsv_filename):
