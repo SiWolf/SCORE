@@ -13,12 +13,12 @@ Dependencies:
 * [GO Core Ontology (OBO Format)](http://geneontology.org/docs/download-ontology/)
 * [Python3](https://www.python.org/)
 * [Snakemake (Version 4.6.0)](https://snakemake.readthedocs.io/en/stable/)
-* [TIGRFAM Database](ftp://ftp.tigr.org/pub/data/TIGRFAMs/)
+* [TIGRFAM Database](http://tigrfams.jcvi.org/cgi-bin/index.cgi)
 
 Optional:
 * [Sequanix](https://github.com/sequana/sequana/) (Part of Sequana)
 
-Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it includes some of the required libraries during initial installation. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the dependencies mentioned above are installed accordingly. In order to identify TIGRFAM domains, the files "TIGRFAMs_15.0_HMM.LIB.gz", "TIGRFAMS_ROLE_LINK" and "TIGR_ROLE_NAMES" must be downloaded and extracted.
+Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it includes some of the required libraries during initial installation. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the dependencies mentioned above are installed accordingly. In order to identify TIGRFAM domains, the files "TIGRFAMs_15.0_HMM.LIB.gz", "TIGRFAMS_ROLE_LINK" and "TIGR_ROLE_NAMES" must be downloaded from the TIGRFAM FTP site and extracted to a location of choice.
 
 ### 1.2) Usage
 
