@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 14.08.2019
-# Version: 0.7.2
+# Last Modified: Fr, 16.08.2019
+# Version: 0.7.3
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -102,6 +102,11 @@ def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 								if id == current_id:
 									if "product=" in gff_line[8]:
 										product = gff_line[8].split("product=")[1]
+										# Clean up some of the annotations
+										product = product.replace("%2C ", " ")
+										product = product.replace("%3B ", " ")
+										product = product.replace("%2C", "-")
+										product = product.replace("%3B", "-")
 									else:
 										product = ""
 									if gff_line[8].split("ID=")[1].count("gene=") > 0:
@@ -130,6 +135,11 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 								if id == current_id:
 									if "product=" in gff_line[8]:
 										product = gff_line[8].split("product=")[1]
+										# Clean up some of the annotations
+										product = product.replace("%2C ", " ")
+										product = product.replace("%3B ", " ")
+										product = product.replace("%2C", "-")
+										product = product.replace("%3B", "-")
 									else:
 										product = ""
 									if gff_line[8].split("ID=")[1].count("gene=") > 0:
@@ -176,18 +186,26 @@ rule DEG_postprocessing:
 		"libraries/score_summary_environment.yml"
 	shell:
 		"""
+		# Generate final summary file
 		python3 libraries/generate_summary.py -f {REF_TRANSCRIPTOME} -g {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA}
+		# Rename additional output files and remove temp files
 		rm deg/consensus_diffexpr_results.csv
 		mv deg/consensus_diffexpr_results_extended.csv deg/consensus_diffexpr_results.csv
 		rm deg/filtered_gene_counts_raw.csv
 		mv deg/filtered_gene_counts_raw_extended.csv deg/filtered_gene_counts_raw.csv
 		rm deg/filtered_gene_counts_tpm.csv
-		mv deg/filtered_gene_counts_tpm_extended.csv deg/filtered_gene_counts_tpm.csv
+		mv deg/filtered_gene_counts_tpm_extended.csv deg/filtered_gene_counts_tpm.csv		
+		# Create alternative TSV file
+		cp deg/summary.tsv deg/summary_alt.tsv
+		sed -i 's/\./,/g' deg/summary_alt.tsv
+		# Create output dir
 		mkdir -p deg/{EXPERIMENT_NAME}
+		# Move all results files into output dir
 		mv deg/consensus* deg/{EXPERIMENT_NAME}
 		mv deg/deg* deg/{EXPERIMENT_NAME}
 		mv deg/diffexpr* deg/{EXPERIMENT_NAME}
 		mv deg/filtered* deg/{EXPERIMENT_NAME}
+		mv deg/genes* deg/{EXPERIMENT_NAME}
 		mv deg/pathway* deg/{EXPERIMENT_NAME}
 		mv deg/summary* deg/{EXPERIMENT_NAME}
 		mv deg/transcript* deg/{EXPERIMENT_NAME}

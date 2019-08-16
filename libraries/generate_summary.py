@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: generate_summary.py
 # Author: Silver A. Wolf
-# Last Modified: Thur, 15.08.2019
-# Version: 0.0.6
+# Last Modified: Fr, 16.08.2019
+# Version: 0.0.8
 # -------------------------------
 
 # Imports
@@ -20,7 +20,7 @@ def break_gene(sequence):
 		else:
 			new_sequence_list = new_sequence_list + base
 			base_count += 1
-	return(sequence)
+	return(new_sequence_list)
 				
 def create_summary_file(ffn_file, genetic_code, metadata_file):
 	conditions = []
@@ -29,8 +29,8 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 			if line[0][0] != "@":
 				conditions.append(line[1])
 	genes_downregulated = open("deg/genes_downregulated.fasta", "w")
-	genes_neutral = open("deg/genes_neutral.tsv", "w")
-	genes_upregulated = open("deg/genes_upregulated.tsv", "w")
+	genes_neutral = open("deg/genes_neutral.fasta", "w")
+	genes_upregulated = open("deg/genes_upregulated.fasta", "w")
 	summary_file = open("deg/summary.tsv", "w")
 	with open("deg/diffexpr_results_all.csv") as diffexpr_full_results:
 		for diffexpr_line in csv.reader(diffexpr_full_results, delimiter = ","):

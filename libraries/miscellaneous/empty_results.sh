@@ -27,6 +27,7 @@ then
 	rm -r deg*
 	rm -r diffexpr*
 	rm -r filtered*
+	rm -r genes*
 	rm -r pathway*
 	rm -r transcript*
 	rm -r summary*
@@ -37,6 +38,7 @@ else
 	mv deg* $ANALYSIS
 	mv diffexpr* $ANALYSIS
 	mv filtered* $ANALYSIS
+	mv genes* $ANALYSIS
 	mv pathway* $ANALYSIS
 	mv summary* $ANALYSIS
 	mv transcript* $ANALYSIS
