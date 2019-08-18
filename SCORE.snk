@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 16.08.2019
-# Version: 0.7.5
+# Last Modified: So, 18.08.2019
+# Version: 0.7.6
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -198,7 +198,7 @@ rule DEG_postprocessing:
 		python3 libraries/generate_summary.py -f {REF_TRANSCRIPTOME} -g {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA}
 		# Analyze proteins using TIGRFAM DB
 		hmmpress -f {REF_TIGRFAM_DB}
-		hmmscan --domtblout hmmer_output.txt {REF_TIGRFAM_DB} deg/proteins.fasta
+		hmmscan --domtblout deg/hmmer_output.txt {REF_TIGRFAM_DB} deg/proteins.fasta
 		# Merge summary file with TIGRFAM results
 		python3 libraries/merge_tigrfam_results.py -l {REF_TIGRFAM_LINKS} -r {REF_TIGRFAM_NAMES}
 		# Rename additional output files and remove temp files
