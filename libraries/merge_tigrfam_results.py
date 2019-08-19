@@ -2,7 +2,7 @@
 # Title: merge_tigrfam_results.py
 # Author: Silver A. Wolf
 # Last Modified: Mo, 19.08.2019
-# Version: 0.0.3
+# Version: 0.0.4
 # -------------------------------
 
 # Imports
@@ -39,23 +39,23 @@ def refine_summary_file(tigrfams_links_file, tigrfams_roles_file):
 					for hmmer_line in hmmer_file:
 						if hmmer_line[0] != "#":
 							if id in hmmer_line:
-								tigrfam_description = hmmer_line.split(": ")[1]
-								tigrfam_id = hmmer_line.split(" ")[0]
+								tigrfam_description = hmmer_line.split(": ")[1].strip()
+								tigrfam_id = hmmer_line.split(" ")[0].strip()
 								break
 				with open(tigrfams_links_file) as link_file:
 					for link_line in link_file:
 						if tigrfam_id in link_line:
-							role_id = link_line.split("\t")[1]
+							role_id = link_line.split("\t")[1].strip()
 							break
 				with open(tigrfams_roles_file) as roles_file:
 					for roles_line in roles_file:
-						current_role = roles_line.split("\t")[1]
+						current_role = roles_line.split("\t")[1].strip()
 						if role_id == current_role:
-							role_type = roles_line.split("\t")[2]
+							role_type = roles_line.split("\t")[2].strip()
 							if role_type == "mainrole:":
-								tigrfam_main_role = roles_line.split("\t")[3]
+								tigrfam_main_role = roles_line.split("\t")[3].strip()
 							else:
-								tigrfam_sub_role = roles_line.split("\t")[3]
+								tigrfam_sub_role = roles_line.split("\t")[3].strip()
 				summary_file_temp.write(id + "\t" + gene + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + group_01 + "\t" + group_02 + "\t" + tigrfam_main_role + "\t" + tigrfam_sub_role + "\t" + tigrfam_description + "\t" + tigrfam_id + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
 
 	summary_file_temp.close()
@@ -63,7 +63,7 @@ def refine_summary_file(tigrfams_links_file, tigrfams_roles_file):
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description = "")
 	parser.add_argument("-l", "--links_file", type = str, default = "references/tigrfam/TIGRFAMS_ROLE_LINK", required = False, help = "Links file for TIGRFAM")
-	parser.add_argument("-r", "--roles_file", type = str, default = "references/tigrfam/TIGRFAMS_ROLE_NAMES", required = False, help = "Roles file for TIGRFAM")
+	parser.add_argument("-r", "--roles_file", type = str, default = "references/tigrfam/TIGR_ROLE_NAMES", required = False, help = "Roles file for TIGRFAM")
 	args = parser.parse_args()
 	
 	refine_summary_file(args.links_file, args.roles_file)
