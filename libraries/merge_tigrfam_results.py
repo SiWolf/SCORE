@@ -2,7 +2,7 @@
 # Title: merge_tigrfam_results.py
 # Author: Silver A. Wolf
 # Last Modified: Mo, 19.08.2019
-# Version: 0.0.2
+# Version: 0.0.3
 # -------------------------------
 
 # Imports
@@ -37,25 +37,25 @@ def refine_summary_file(tigrfams_links_file, tigrfams_roles_file):
 				tigrfam_id = ""
 				with open("deg/hmmer_output.txt") as hmmer_file:
 					for hmmer_line in hmmer_file:
-						if line[0] != "#":
-							if id in line:
-								tigrfam_description = line.split(": ")[1]
-								tigrfam_id = line.split(" ")[0]
+						if hmmer_line[0] != "#":
+							if id in hmmer_line:
+								tigrfam_description = hmmer_line.split(": ")[1]
+								tigrfam_id = hmmer_line.split(" ")[0]
 								break
 				with open(tigrfams_links_file) as link_file:
-					for line in link_file:
-						if tigrfam_id in line:
-							role_id = line.split("\t")[1]
+					for link_line in link_file:
+						if tigrfam_id in link_line:
+							role_id = link_line.split("\t")[1]
 							break
 				with open(tigrfams_roles_file) as roles_file:
-					for line in roles_file:
-						current_role = line.split("\t")[1]
+					for roles_line in roles_file:
+						current_role = roles_line.split("\t")[1]
 						if role_id == current_role:
-							role_type = line.split("\t")[2]
+							role_type = roles_line.split("\t")[2]
 							if role_type == "mainrole:":
-								tigrfam_main_role = line.split("\t")[3]
+								tigrfam_main_role = roles_line.split("\t")[3]
 							else:
-								tigrfam_sub_role = line.split("\t")[3]
+								tigrfam_sub_role = roles_line.split("\t")[3]
 				summary_file_temp.write(id + "\t" + gene + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + group_01 + "\t" + group_02 + "\t" + tigrfam_main_role + "\t" + tigrfam_sub_role + "\t" + tigrfam_description + "\t" + tigrfam_id + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
 
 	summary_file_temp.close()
