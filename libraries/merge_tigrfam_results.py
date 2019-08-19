@@ -1,12 +1,12 @@
 # -------------------------------
 # Title: merge_tigrfam_results.py
 # Author: Silver A. Wolf
-# Last Modified: Fr, 16.08.2019
-# Version: 0.0.1
+# Last Modified: Mo, 19.08.2019
+# Version: 0.0.2
 # -------------------------------
 
 # Imports
-import args
+import argparse
 import csv
 		
 def refine_summary_file(tigrfams_links_file, tigrfams_roles_file):
