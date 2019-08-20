@@ -52,4 +52,4 @@ Q: How do I cite SCORE?
 
 Please cite the following:
 
-Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin.
+Wolf, S. (2019) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin.
