@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: generate_summary.py
 # Author: Silver A. Wolf
-# Last Modified: Thur, 21.08.2019
-# Version: 0.1.0
+# Last Modified: Thur, 22.08.2019
+# Version: 0.1.1
 # -------------------------------
 
 # Imports
@@ -37,7 +37,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 		for diffexpr_line in csv.reader(diffexpr_full_results, delimiter = ","):
 			id = diffexpr_line[0]
 			if id == "":
-				summary_file.write("ID\tgene name\tproduct\tlog2FC\tDE (SCORE) (-1: " + conditions[0] + " > " + conditions[4] + "; 1: " + conditions[0] + " < " + conditions[4] + ")\tcorrected p-value (baySeq)\tcorrected p-value (DESeq2)\tcorrected p-value (edgeR)\tcorrected p-value (limma)\tcorrected p-value (NOISeq)\tcorrected p-value (sleuth)\t" + conditions[0] + "\t" + conditions[4] + "\tnucleotide sequence\tAA sequence\n")
+				summary_file.write("ID\tgene name\tproduct\tlog2FC\tDE (SCORE) (-1: " + conditions[0] + " > " + conditions[4] + "; 1: " + conditions[0] + " < " + conditions[4] + ")\tcorrected p-value (baySeq)\tcorrected p-value (DESeq2)\tcorrected p-value (edgeR)\tcorrected p-value (limma)\tcorrected p-value (NOISeq)\tcorrected p-value (sleuth)\tPresence/Absence (" + conditions[0] + ")\tPresence/Absence (" + conditions[4] + ")\tMean TPM (" + conditions[0] + ")\tMean TPM (" + conditions[4] + ")\tnucleotide sequence\tAA sequence\n")
 			else:
 				deg = "0"
 				nucleotide_sequence = ""
@@ -74,6 +74,14 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 							else:
 								presence_absence_condition_2 = "0"						
 							break
+				with open("deg/filtered_gene_counts_tpm_extended.csv") as tpm_file:
+					for tpm_line in csv.reader(tpm_file, delimiter = ","):
+						if id == tpm_line[0]:
+							tpm_sum_condition_1 = float(tpm_line[3]) + float(tpm_line[4]) + float(tpm_line[5])
+							tpm_sum_condition_2 = float(tpm_line[6]) + float(tpm_line[7]) + float(tpm_line[8])
+							tpm_condition_1 = str(round(tpm_sum_condition_1))
+							tpm_condition_2 = str(round(tpm_sum_condition_2))
+							break
 				with open("deg/diffexpr_results_limma.csv") as limma_results:
 					for limma_line in csv.reader(limma_results, delimiter = ","):
 						if id == limma_line[0]:
@@ -101,7 +109,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 									nucleotide_sequence = nucleotide_sequence + line.strip()
 				nucleotide_sequence_biopython = Seq(nucleotide_sequence)
 				aa_sequence = str(nucleotide_sequence_biopython.translate(table = genetic_code))
-				summary_file.write(id + "\t" + gene_name + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + presence_absence_condition_1 + "\t" + presence_absence_condition_2 + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
+				summary_file.write(id + "\t" + gene_name + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + presence_absence_condition_1 + "\t" + presence_absence_condition_2 + "\t" + tpm_condition_1 + "\t" + tpm_condition_2 + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
 				
 				gene_edit = break_gene(nucleotide_sequence)
 				
