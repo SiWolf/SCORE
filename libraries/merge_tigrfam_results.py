@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: merge_tigrfam_results.py
 # Author: Silver A. Wolf
-# Last Modified: Thue, 20.08.2019
-# Version: 0.0.6
+# Last Modified: Thur, 22.08.2019
+# Version: 0.0.7
 # -------------------------------
 
 # Imports
@@ -26,10 +26,12 @@ def refine_summary_file(tigrfams_links_file, tigrfams_roles_file):
 			p_value_sleuth = summary_line[10]
 			group_01 = summary_line[11]
 			group_02 = summary_line[12]
-			nucleotide_sequence = summary_line[13]
-			aa_sequence = summary_line[14]
+			tpm_group_01 = summary_line[13]
+			tpm_group_02 = summary_line[14]
+			nucleotide_sequence = summary_line[15]
+			aa_sequence = summary_line[16]
 			if id == "ID":
-				summary_file_temp.write(id + "\t" + gene + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + group_01 + "\t" + group_02 + "\t" + "TIGRFAM main role" + "\t" + "TIGRFAM sub role" + "\t" + "TIGRFAM description" + "\t" + "TIGRFAM ID" + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
+				summary_file_temp.write(id + "\t" + gene + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + group_01 + "\t" + group_02 + "\t" + tpm_group_01 + "\t" tpm_group_02 + "\t" + "TIGRFAM main role" + "\t" + "TIGRFAM sub role" + "\t" + "TIGRFAM description" + "\t" + "TIGRFAM ID" + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
 			else:
 				found_tigrfam_id = False
 				found_tigrfam_role = False
@@ -62,7 +64,7 @@ def refine_summary_file(tigrfams_links_file, tigrfams_roles_file):
 									tigrfam_main_role = roles_line.split("\t")[3].strip()
 								else:
 									tigrfam_sub_role = roles_line.split("\t")[3].strip()
-				summary_file_temp.write(id + "\t" + gene + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + group_01 + "\t" + group_02 + "\t" + tigrfam_main_role + "\t" + tigrfam_sub_role + "\t" + tigrfam_description + "\t" + tigrfam_id + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
+				summary_file_temp.write(id + "\t" + gene + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + group_01 + "\t" + group_02 + "\t" + tpm_group_01 + "\t" tpm_group_02 + "\t" + tigrfam_main_role + "\t" + tigrfam_sub_role + "\t" + tigrfam_description + "\t" + tigrfam_id + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
 
 	summary_file_temp.close()
 	

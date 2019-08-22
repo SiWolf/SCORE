@@ -77,10 +77,10 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 				with open("deg/filtered_gene_counts_tpm_extended.csv") as tpm_file:
 					for tpm_line in csv.reader(tpm_file, delimiter = ","):
 						if id == tpm_line[0]:
-							tpm_sum_condition_1 = float(tpm_line[3]) + float(tpm_line[4]) + float(tpm_line[5])
-							tpm_sum_condition_2 = float(tpm_line[6]) + float(tpm_line[7]) + float(tpm_line[8])
-							tpm_condition_1 = str(round(tpm_sum_condition_1))
-							tpm_condition_2 = str(round(tpm_sum_condition_2))
+							tpm_condition_1_extended = (float(tpm_line[3]) + float(tpm_line[4]) + float(tpm_line[5])) / 3
+							tpm_condition_2_extended = (float(tpm_line[6]) + float(tpm_line[7]) + float(tpm_line[8])) / 3
+							tpm_condition_1 = str(round(tpm_condition_1_extended))
+							tpm_condition_2 = str(round(tpm_condition_2_extended))
 							break
 				with open("deg/diffexpr_results_limma.csv") as limma_results:
 					for limma_line in csv.reader(limma_results, delimiter = ","):
