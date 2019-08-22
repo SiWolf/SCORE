@@ -2,7 +2,7 @@
 # Title: generate_summary.py
 # Author: Silver A. Wolf
 # Last Modified: Thur, 22.08.2019
-# Version: 0.1.1
+# Version: 0.1.2
 # -------------------------------
 
 # Imports
@@ -79,8 +79,8 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 						if id == tpm_line[0]:
 							tpm_condition_1_extended = (float(tpm_line[3]) + float(tpm_line[4]) + float(tpm_line[5])) / 3
 							tpm_condition_2_extended = (float(tpm_line[6]) + float(tpm_line[7]) + float(tpm_line[8])) / 3
-							tpm_condition_1 = str(round(tpm_condition_1_extended))
-							tpm_condition_2 = str(round(tpm_condition_2_extended))
+							tpm_condition_1 = str(round(tpm_condition_1_extended, 4))
+							tpm_condition_2 = str(round(tpm_condition_2_extended, 4))
 							break
 				with open("deg/diffexpr_results_limma.csv") as limma_results:
 					for limma_line in csv.reader(limma_results, delimiter = ","):
