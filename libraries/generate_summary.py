@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: generate_summary.py
 # Author: Silver A. Wolf
-# Last Modified: Thur, 22.08.2019
-# Version: 0.1.2
+# Last Modified: Wed, 28.08.2019
+# Version: 0.1.3
 # -------------------------------
 
 # Imports
@@ -10,17 +10,21 @@ from Bio.Seq import Seq
 import argparse
 import csv
 
-def break_gene(sequence):
-	base_count = 0
-	new_sequence_list = ""
+def fasta_wrapper(sequence):
+	sequence = sequence.strip()
+	sequence_count = 0
+	sequence_length = len(sequence)
+	new_sequence = ""
+	new_sequence_count = 0
 	for base in sequence:
-		if base_count == 59:
-			new_sequence_list = new_sequence_list + base + "\n"
-			base_count = 0
+		sequence_count += 1
+		if (new_sequence_count == 59) and (sequence_length - sequence_count > 0):
+			new_sequence = new_sequence + base + "\n"
+			new_sequence_count = 0
 		else:
-			new_sequence_list = new_sequence_list + base
-			base_count += 1
-	return(new_sequence_list)
+			new_sequence = new_sequence + base
+			new_sequence_count += 1
+	return(new_sequence)
 				
 def create_summary_file(ffn_file, genetic_code, metadata_file):
 	conditions = []
@@ -111,7 +115,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 				aa_sequence = str(nucleotide_sequence_biopython.translate(table = genetic_code))
 				summary_file.write(id + "\t" + gene_name + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + presence_absence_condition_1 + "\t" + presence_absence_condition_2 + "\t" + tpm_condition_1 + "\t" + tpm_condition_2 + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
 				
-				gene_edit = break_gene(nucleotide_sequence)
+				gene_edit = fasta_wrapper(nucleotide_sequence)
 				
 				if deg == "-1":
 					genes_downregulated.write("> " + id + "\n" + gene_edit + "\n")
@@ -122,7 +126,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 				else:
 					genes_neutral.write("> " + id + "\n" + gene_edit + "\n")
 					
-				protein_edit = break_gene(aa_sequence)
+				protein_edit = fasta_wrapper(aa_sequence)
 				
 				proteins.write("> " + id + "\n" + protein_edit + "\n")
 

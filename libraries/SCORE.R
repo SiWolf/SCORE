@@ -1,15 +1,15 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 14.08.2019
-# Version: 0.6.3
+# Last Modified: Fr, 23.08.2019
+# Version: 0.6.4
 # --------------------------------------------
 
 # Installers
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("baySeq")
 #biocLite("DESeq2")
-#biocLite("edgeR")  
+#biocLite("edgeR")
 #biocLite("limma")
 #biocLite("NOISeq")
 #biocLite("rhdf5")
@@ -21,6 +21,7 @@
 library("baySeq")
 library("DESeq2")
 library("edgeR")
+library("ggplot2")
 library("limma")
 library("NOISeq")
 library("rhdf5")
@@ -167,10 +168,10 @@ create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
   # Histogram
   cpm_log <- cpm(count_matrix, log = TRUE)
   median_log2_cpm <- apply(cpm_log, 1, median)
-  hist(median_log2_cpm)
+  hist(median_log2_cpm, breaks = seq(-5, 15, 2.5), col = "grey", main = "Histogram of CPM", xlab = "Median log2CPM", ylab = "Frequency")
   abline(v = low_expression_cutoff, col = "red", lwd = 3)
   sum(median_log2_cpm > low_expression_cutoff)
-  # Principal component analysis (PCA)
+  # Principal component analysis (PCA) (old)
   # cpm_log_filtered <- cpm(count_matrix, log = TRUE)
   # pca <- prcomp(t(cpm_log_filtered), scale. = TRUE)
   # plot(pca$x[, 1], pca$x[, 2], pch = ".", xlab = "PC1", ylab = "PC2")
@@ -302,13 +303,15 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   
   # Plots
   # Normalized counts across groups for most significant gene
-  plotCounts(dds, gene = which.min(res$padj), intgroup = "sample_conditions")
+  plotCounts(dds, gene = which.min(res$padj), intgroup = "sample_conditions", xlab = "groups")
   # Histogram of adjusted p-values
-  hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust")
+  hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust", ylab = "Frequency")
   # Principal component analysis (PCA)
-  # This will not work with low-count genes and should be silenced in these cases
+  # This will not work with low-count genes and sho uld be silenced in these cases
   vsd <- vst(dds, blind = FALSE)
-  plotPCA(vsd, intgroup = c("sample_conditions"))
+  pca <- plotPCA(vsd, intgroup = c("sample_conditions"), ntop = length(list_of_gene_names), returnData = TRUE)
+  pca_gg_plot <- ggplot(pca, aes(x = PC1, y = PC2, colour = sample_conditions)) + geom_point()
+  print(pca_gg_plot)
   
   return(new_resdata)
 }
@@ -332,12 +335,14 @@ run_edger <- function(read_counts, metadata_labels){
   # How many genes are differentially expressed at an FDR of 5%?
   sum(edgeR_results$table$FDR < .05)
   plotSmear(et, de.tags = rownames(edgeR_results)[edgeR_results$table$FDR < .05], main = "Significant DEGs: logFC vs. logCPM")
-  abline(h = c(-2, 2), col = "blue")
-  extreme_values = edgeR_results[abs(edgeR_results$table$logFC)>2,]
-  n = nrow(extreme_values)
-  for (i in 1:n){
-    text(extreme_values$table$logCPM[i], extreme_values$table$logFC[i], labels = rownames(extreme_values)[i], cex = 0.7, pos = 4)
-  }
+  # The following lines allow labeling of individual genes
+  # This has been moved to an experimental setting as analyses with many DEGs might cause overlaps between labels
+  #abline(h = c(-2, 2), col = "blue")
+  #extreme_values = edgeR_results[abs(edgeR_results$table$logFC)>2,]
+  #n = nrow(extreme_values)
+  #for (i in 1:n){
+    #text(extreme_values$table$logCPM[i], extreme_values$table$logFC[i], labels = rownames(extreme_values)[i], cex = 0.7, pos = 4)
+  #}
 
   return(edgeR_results)
 }
