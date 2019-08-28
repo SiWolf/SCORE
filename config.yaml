@@ -16,7 +16,7 @@ genescf_kegg_db: ecg
 genescf_total_genes_species: 5000
 # MISCELLANEOUS
 analysis_name: A1
-merge_plots_into_pdf: FALSE
+merge_plots_into_pdf: TRUE
 ncbi_genetic_code_table: 11
 noiseq_assume_biological_replicates: TRUE
 # PARAMETERS

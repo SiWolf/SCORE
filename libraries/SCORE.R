@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 23.08.2019
-# Version: 0.6.4
+# Last Modified: Wed, 28.08.2019
+# Version: 0.6.5
 # --------------------------------------------
 
 # Installers
@@ -10,6 +10,7 @@
 #biocLite("baySeq")
 #biocLite("DESeq2")
 #biocLite("edgeR")
+#biocLite("ggplot2")
 #biocLite("limma")
 #biocLite("NOISeq")
 #biocLite("rhdf5")
@@ -307,7 +308,7 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Histogram of adjusted p-values
   hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust", ylab = "Frequency")
   # Principal component analysis (PCA)
-  # This will not work with low-count genes and sho uld be silenced in these cases
+  # This will not work with low-count genes and should be silenced in these cases
   vsd <- vst(dds, blind = FALSE)
   pca <- plotPCA(vsd, intgroup = c("sample_conditions"), ntop = length(list_of_gene_names), returnData = TRUE)
   pca_gg_plot <- ggplot(pca, aes(x = PC1, y = PC2, colour = sample_conditions)) + geom_point()
@@ -326,7 +327,7 @@ run_edger <- function(read_counts, metadata_labels){
   dgList <- estimateDisp(dgList)
   # Biological coefficient of variation
   sqrt(dgList$common.dispersion)
-  plotBCV(dgList)
+  plotBCV(dgList, main = "Biological Coefficient of Variation vs. Gene Abundance (log2CPM)")
   # Test for differential expression between the two classes
   et <- exactTest(dgList)
   edgeR_results <- topTags(et, n = nrow(read_counts), sort.by = "none")
@@ -335,9 +336,9 @@ run_edger <- function(read_counts, metadata_labels){
   # How many genes are differentially expressed at an FDR of 5%?
   sum(edgeR_results$table$FDR < .05)
   plotSmear(et, de.tags = rownames(edgeR_results)[edgeR_results$table$FDR < .05], main = "Significant DEGs: logFC vs. logCPM")
+  abline(h = c(-2, 2), col = "blue")
   # The following lines allow labeling of individual genes
   # This has been moved to an experimental setting as analyses with many DEGs might cause overlaps between labels
-  #abline(h = c(-2, 2), col = "blue")
   #extreme_values = edgeR_results[abs(edgeR_results$table$logFC)>2,]
   #n = nrow(extreme_values)
   #for (i in 1:n){
@@ -494,7 +495,7 @@ argument_15 = args[15]
 if (is.na(argument_1)){
   argument_1 = "raw/Metadata_C1.tsv"
   argument_2 = 5000
-  argument_3 = FALSE
+  argument_3 = TRUE
   argument_4 = 0.05
   argument_5 = 5
   argument_6 = 0.5

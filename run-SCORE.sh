@@ -7,9 +7,11 @@
 
 ./libraries/miscellaneous/empty_results.sh full
 
+snakemake -s "SCORE.snk" --forceall --dag | dot -Tsvg > deg/dag.svg
+
 if [ -z "$1" ]
 then
-	{ time snakemake -s "SCORE.snk" -j 4 --use-conda ; } 2>&1 | tee log.txt
+	{ time snakemake -s "SCORE.snk" -j 4 --use-conda ; } 2>&1 | tee deg/log.txt
 else
-	{ time snakemake -s "SCORE.snk" -j $1 --use-conda ; } 2>&1 | tee log.txt
+	{ time snakemake -s "SCORE.snk" -j $1 --use-conda ; } 2>&1 | tee deg/log.txt
 fi

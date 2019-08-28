@@ -24,11 +24,13 @@ cd ../../../deg/
 if [ -z "$2" ]
 then
 	rm -r consensus*
+	rm -r dag*
 	rm -r deg*
 	rm -r diffexpr*
 	rm -r filtered*
 	rm -r genes*
 	rm -r hmmer*
+	rm -r log*
 	rm -r pathway*
 	rm -r proteins*
 	rm -r transcript*
@@ -37,11 +39,13 @@ else
 	ANALYSIS=$2
 	mkdir $ANALYSIS
 	mv consensus* $ANALYSIS
+	mv dag* $ANALYSIS
 	mv deg* $ANALYSIS
 	mv diffexpr* $ANALYSIS
 	mv filtered* $ANALYSIS
 	mv genes* $ANALYSIS
 	mv hmmer* $ANALYSIS
+	mv log* $ANALYSIS
 	mv pathway* $ANALYSIS
 	mv proteins* $ANALYSIS
 	mv summary* $ANALYSIS
