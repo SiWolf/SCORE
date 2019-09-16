@@ -2,7 +2,7 @@
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
 # Last Modified: Mo, 16.09.2019
-# Version: 0.0.9
+# Version: 0.1.0
 # --------------------------------------------
 
 # Libraries
@@ -66,14 +66,14 @@ g3 <- pheatmap(tpm_degs_ordered[4:9], cluster_cols = TRUE, cluster_rows = FALSE,
         annotation_col = groups, fontsize_row = 9, fontsize_col = 9,
         cellheight = 10, cellwidth = 20,
         border_color = "black", gaps_row = c(5, 9, 10, 12, 14, 18, 20, 21, 26),
-        main = "Heatmap of genes (TPM)\nwith high log2FC (> 2)\nbetween sample groups\n",
+        main = "Heatmap of genes (TPM)\nwith absolute log2FC (> 2)\nbetween sample groups\n",
         scale = "none")
 
 g4 <- pheatmap(tpm_degs_ordered[4:9], cluster_cols = TRUE, cluster_rows = FALSE, annotation_row = tpm_degs_ordered[10],
          annotation_col = groups, fontsize_row = 9, fontsize_col = 9,
          cellheight = 10, cellwidth = 20,
          border_color = "black", gaps_row = c(5, 9, 10, 12, 14, 18, 20, 21, 26),
-         main = "Heatmap of genes (TPM)\nwith high log2FC (> 2)\nbetween sample groups (scaled)\n",
+         main = "Heatmap of genes (TPM)\nwith absolute log2FC (> 2)\nbetween sample groups (scaled)\n",
          scale = "row")
 
 # Exporting Pheatmaps
@@ -82,14 +82,14 @@ g4 <- pheatmap(tpm_degs_ordered[4:9], cluster_cols = TRUE, cluster_rows = FALSE,
          #annotation_col = groups, fontsize_row = 9, fontsize_col = 9,
          #cellheight = 10, cellwidth = 20,
          #border_color = "black", gaps_row = c(5, 9, 10, 12, 14, 18, 20, 21, 26),
-         #main = "Heatmap of genes (TPM)\nwith high log2FC (> 2)\nbetween sample groups\n",
+         #main = "Heatmap of genes (TPM)\nwith absolute log2FC (> 2)\nbetween sample groups\n",
          #scale = "none", file = "new_pheatmap_01.png")
 
 #pheatmap(tpm_degs_ordered[4:9], cluster_cols = TRUE, cluster_rows = FALSE, annotation_row = tpm_degs_ordered[10],
          #annotation_col = groups, fontsize_row = 9, fontsize_col = 9,
          #cellheight = 10, cellwidth = 20,
          #border_color = "black", gaps_row = c(5, 9, 10, 12, 14, 18, 20, 21, 26),
-         #main = "Heatmap of genes (TPM)\nwith high log2FC (> 2)\nbetween sample groups (scaled)\n",
+         #main = "Heatmap of genes (TPM)\nwith absolute log2FC (> 2)\nbetween sample groups (scaled)\n",
          #scale = "row", file = "new_pheatmap_02.png")
 
 # Histograms
