@@ -7,7 +7,7 @@
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 Dependencies:
-* [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html)
+* [Anaconda](https://anaconda.org/) or [Miniconda (Version 4.5.13)](https://conda.io/en/latest/miniconda.html)
 * [Flexbar](https://github.com/seqan/flexbar)
 * [GeneSCF](http://genescf.kandurilab.org/)
 * [GO Core Ontology (OBO Format)](http://geneontology.org/docs/download-ontology/)
