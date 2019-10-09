@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 26.09.2019
-# Version: 0.1.3
+# Last Modified: Mo, 07.10.2019
+# Version: 0.1.5
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -35,7 +35,7 @@ degs = final_summary[final_summary$DE..SCORE....1..Wildtype...ZnGroup..1..Wildty
 tpm_values <- read.csv(file = "filtered_gene_counts_tpm.csv", header = TRUE, sep = ",", quote = "", stringsAsFactors = FALSE)
 tpm_values$TIGRFAM <- final_summary$TIGRFAM.main.role
 
-if (export == True){
+if (export == TRUE){
   pdf("deg_analysis_graphs_extended.pdf", paper = "a4")
 }
 
@@ -397,6 +397,86 @@ g29 <- pheatmap(merged_df_4[, c("Z_5974", "Z_6122")], cluster_cols = FALSE, clus
                 main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
                 scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57))
 
+# Updated heatmap from 02.10.2019
+# Switched position of columns
+# TO-DO: Include genes only found in one of the strains
+# TO-DO: Include hypothetical genes (e.g. name them by ID)
+# TO-DO: Move exporting part of code to the exporting function below
+
+#final_summary_V1_known <- final_summary[final_summary$gene.name != "", ]
+#final_summary_V2_known <- final_summary_V2[final_summary_V2$gene.name != "", ]
+
+# Problem with filtering before merging: might loose potential genes
+# Merge first?
+final_summary_V1_unknown <- final_summary[which(final_summary$gene.name == "" & (final_summary$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup. == "1" | final_summary$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup. == "-1") & abs(final_summary$log2FC) > 2), ]
+final_summary_V2_unknown <- final_summary_V2[which(final_summary_V2$gene.name == "" & (final_summary_V2$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup. == "1" | final_summary_V2$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup. == "-1") & abs(final_summary_V2$log2FC) > 2), ]
+merged_df_5 <- merge(final_summary_V1_unknown, final_summary_V2_unknown, by = "nucleotide.sequence", all = TRUE)
+#temp_names <- sprintf("hypothetical_%s", seq(1:nrow(merged_df_5)))
+temp_names <- merged_df_5$ID.y
+merged_df_6 <- data.frame(gene.name = temp_names,
+                          "Z_6122" = merged_df_5$log2FC.x,
+                          "Z_5974" = merged_df_5$log2FC.y,
+                          "TPM1" = merged_df_5$Mean.TPM..Wildtype..y,
+                          "TPM2" = merged_df_5$Mean.TPM..Wildtype..x,
+                          "TPM3" = merged_df_5$Mean.TPM..ZnGroup..y,
+                          "TPM4" = merged_df_5$Mean.TPM..ZnGroup..x,
+                          TIGRFAM = merged_df_5$TIGRFAM.main.role.x)
+rownames(merged_df_6) <- temp_names
+# This will need to be manually updated for new data
+merged_df_6$TIGRFAM = c("Unknown function", "Unknown function", "Unknown function", "Unknown function", "Purines, pyrimidines, nucleosides, and nucleotides")
+merged_df_7 <- rbind(merged_df_6, merged_df_4)
+merged_df_7 <- merged_df_7[order(merged_df_7$TIGRFAM, tolower(merged_df_7$gene.name)), ]
+
+g30 <- pheatmap(merged_df_7[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = merged_df_7[8],
+                fontsize_row = 9, fontsize_col = 9,
+                cellheight = 10, cellwidth = 20,
+                border_color = "black", gaps_row = c(6, 10, 15, 21, 23, 27, 30, 31, 38),
+                main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
+                scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57))
+
+t1 <- merge(final_summary, final_summary_V2, by = "nucleotide.sequence", all = TRUE)
+t2 <- t1[which((abs(t1$log2FC.x) > 2 & (t1$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup..x == "1" | t1$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup..x == "-1")) | (abs(t1$log2FC.y) > 2) & (t1$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup..y == "1" | t1$DE..SCORE....1..Wildtype...ZnGroup..1..Wildtype...ZnGroup..y == "-1")), ]
+t3 <- data.frame(t2$gene.name.x, t2$gene.name.y)
+
+v <- as.vector(t3$t2.gene.name.x)
+v[3] <- "borD_1"
+v[51] <- "puuA"
+v[64] <- "borD_2" 
+v[65] <- "cysA"
+v[66] <- "ompF"
+v[67] <- "hpf"
+v[68] <- "zinT"
+v[69] <- "pgaB"
+# Check if these IDs are correct
+v[v == ""] <- as.character(temp_names)
+
+merged_df_8 <- data.frame(gene.name = v,
+                          "Z_6122" = t2$log2FC.x,
+                          "Z_5974" = t2$log2FC.y,
+                          "TPM1" = t2$Mean.TPM..Wildtype..y,
+                          "TPM2" = t2$Mean.TPM..Wildtype..x,
+                          "TPM3" = t2$Mean.TPM..ZnGroup..y,
+                          "TPM4" = t2$Mean.TPM..ZnGroup..x,
+                          TIGRFAM = t2$TIGRFAM.main.role.x)
+merged_df_8$TIGRFAM[is.na(merged_df_8$TIGRFAM)] <- "Unknown function"
+merged_df_8 <- merged_df_8[order(merged_df_8$TIGRFAM, tolower(merged_df_8$gene.name)), ]
+
+# zinT is duplicated for some reason...
+merged_df_8[67, 3] <- merged_df_8[68, 3]
+merged_df_8[67, 4] <- merged_df_8[68, 4]
+merged_df_8[67, 6] <- merged_df_8[68, 6]
+merged_df_8[68, ] <- merged_df_8[69, ]
+merged_df_8 <- merged_df_8[1:68, ]
+
+rownames(merged_df_8) <- merged_df_8$gene.name
+
+g31 <- pheatmap(merged_df_8[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = merged_df_8[8],
+                fontsize_row = 9, fontsize_col = 9,
+                cellheight = 10, cellwidth = 20,
+                border_color = "black", gaps_row = c(6, 10, 11, 17, 23, 25, 29, 32, 33, 39),
+                main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
+                scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57))
+
 # Exporting
 
 if (export == TRUE){
@@ -456,6 +536,20 @@ if (export == TRUE){
            main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
            scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57), file = "new_pheatmap_08.png")
   
+  pheatmap(merged_df_7[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = merged_df_7[8],
+          fontsize_row = 9, fontsize_col = 9,
+          cellheight = 10, cellwidth = 20,
+          border_color = "black", gaps_row = c(6, 10, 15, 21, 23, 27, 30, 31, 38),
+          main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
+          scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57), file = "new_pheatmap_09.png")
+  
+  pheatmap(merged_df_8[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = merged_df_8[8],
+          fontsize_row = 9, fontsize_col = 9,
+          cellheight = 10, cellwidth = 20,
+          border_color = "black", gaps_row = c(6, 10, 11, 17, 23, 25, 29, 32, 33, 39),
+          main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
+          scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57), file = "new_pheatmap_10.png")
+  
   print(g1)
   print(g2)
   print(g3)
@@ -485,6 +579,8 @@ if (export == TRUE){
   print(g27)
   print(g28)
   print(g29)
+  print(g30)
+  print(g31)
   
   dev.off()
 }
