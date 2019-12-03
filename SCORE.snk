@@ -19,15 +19,15 @@ import csv
 configfile: "config.yaml"
 
 # Global parameters
-ENABLE_BENCHMARKING = config["benchmarking"]
+ENABLE_BENCHMARKING = config["score_benchmarking"]
 EXPERIMENT_NAME = config["analysis_name"]
 METADATA = config["metadata_file"]
-MERGE_PLOTS_AND_PDF = config["merge_plots_into_pdf"]
-PARAM_DEG_GENERAL = config["general_threshold"]
-PARAM_DEG_LOW_EXPRESSED = config["low_expression_count"]
-PARAM_DEG_NOISEQ_BIO_MODE = config["noiseq_assume_biological_replicates"]
+MERGE_PLOTS_AND_PDF = config["score_merge_plots"]
+PARAM_DEG_GENERAL = config["param_threshold"]
+PARAM_DEG_LOW_EXPRESSED = config["score_low_expression_count"]
+PARAM_DEG_NOISEQ_BIO_MODE = config["noiseq_biological_replicates"]
 PARAM_DEG_SCORE_THRESHOLD = config["score_threshold"]
-PARAM_DEG_STRICT_MODE = config["enable_strict_mode"]
+PARAM_DEG_STRICT_MODE = config["score_strict_mode"]
 PARAM_DEG_WEIGHT_BAYSEQ = config["weight_bayseq"]
 PARAM_DEG_WEIGHT_DESEQ2 = config["weight_deseq2"]
 PARAM_DEG_WEIGHT_EDGER = config["weight_edger"]
@@ -39,19 +39,19 @@ PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
 PARAM_GENESCF_GO_DB = config["genescf_go_db"]
 PARAM_GENESCF_KEGG_DB = config["genescf_kegg_db"]
-PARAM_GENESCF_TOTAL_GENES_SPECIES = config["genescf_total_genes_species"]
+PARAM_GENESCF_TOTAL_GENES_SPECIES = config["param_total_genes"]
 PARAM_NCBI_GENETIC_CODE_TABLE = config["ncbi_genetic_code_table"]
-PATH_GENESCF = config["geneSCF_path"]
+PATH_GENESCF = config["genescf_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
-REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature_type"]
-REF_ANNOTATION_GENE_ID = config["ref_annotation_gene_type"]
-REF_FASTA = config["ref_fasta_genome"]
-REF_GO_FILE = config["ref_go_obo_file"]
-REF_INDEX = config["ref_index_name"]
+REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature"]
+REF_ANNOTATION_GENE_ID = config["ref_annotation_identifier"]
+REF_FASTA = config["ref_genome"]
+REF_GO_FILE = config["ref_go_obo"]
+REF_INDEX = config["ref_index"]
 REF_TIGRFAM_DB = config["ref_tigrfam_library"]
 REF_TIGRFAM_LINKS = config["ref_tigrfam_links"]
 REF_TIGRFAM_NAMES = config["ref_tigrfam_roles"]
-REF_TRANSCRIPTOME = config["ref_fasta_transcriptome"]
+REF_TRANSCRIPTOME = config["ref_transcriptome"]
 
 # Functions
 def create_presence_absence_matrix():
@@ -83,11 +83,11 @@ def create_presence_absence_matrix():
 				if float(counts_sample_6) > 0:
 					counts_sample_6 = "1"
 				presence_absence_matrix.write(id + "," + gene + "," + product + "," + counts_sample_1 + "," + counts_sample_2 + "," + counts_sample_3 + "," + counts_sample_4 + "," + counts_sample_5 + "," + counts_sample_6 + "\n")
-	presence_absence_matrix.close()	
+	presence_absence_matrix.close()
 
 def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 	count_file = "deg/" + count_file
-	counts_extended = open(count_file.split(".csv")[0] + "_extended.csv", "w") 
+	counts_extended = open(count_file.split(".csv")[0] + "_extended.csv", "w")
 	with open(count_file) as count_values:
 		for count_line in csv.reader(count_values, delimiter = ","):
 			gene = ""
@@ -118,7 +118,7 @@ def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 	counts_extended.close()
 
 def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
-	consensus_extended = open("deg/consensus_diffexpr_results_extended.csv", "w") 
+	consensus_extended = open("deg/consensus_diffexpr_results_extended.csv", "w")
 	with open("deg/consensus_diffexpr_results.csv") as consensus_results:
 		for consensus_line in csv.reader(consensus_results, delimiter = ","):
 			direction = ""
@@ -241,7 +241,7 @@ rule pathway_analysis:
 	shell:
 		"""
 		mkdir -p {output[0]}
-		mkdir -p {output[1]}		
+		mkdir -p {output[1]}
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_GO_DB}
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_KEGG_DB}
 		# Update GeneSCF results using the GO DB Reference File
@@ -284,7 +284,7 @@ rule DEG_analysis:
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
 		Rscript libraries/SCORE.R {METADATA} {PARAM_GENESCF_TOTAL_GENES_SPECIES} {MERGE_PLOTS_AND_PDF} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH} {ENABLE_BENCHMARKING} {PARAM_DEG_STRICT_MODE} {PARAM_DEG_NOISEQ_BIO_MODE} {PARAM_DEG_SCORE_THRESHOLD}
 		"""
-		
+
 # featureCounts 1.6.4
 # Counts mapped reads to genomic features
 # Needed for the quantification of Bowtie2 results
@@ -364,11 +364,11 @@ rule quality_control_and_trimming:
 		fastqc trimmed/{wildcards.sample}_trimmed_1.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
 		fastqc trimmed/{wildcards.sample}_trimmed_2.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
 		"""
-		
+
 onstart:
 	print("\n Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
-	print(" Please ensure all input files are located within the raw/ folder and your parameters have been set accordingly.")		
-		
+	print(" Please ensure all input files are located within the raw/ folder and your parameters have been set accordingly.")
+
 onerror:
 	print("\n It seems like something went wrong. Please refer to the error messages listed above for additional information. \n")
 
