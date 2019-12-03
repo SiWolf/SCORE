@@ -185,6 +185,8 @@ def read_tsv(tsv_filename):
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
+# Translation: Biopython (1.74)
+# TIGRFAM Classification: Hmmer (3.2.1)
 rule DEG_postprocessing:
 	input:
 		"deg/pathway_analysis_GO",
@@ -229,7 +231,7 @@ rule DEG_postprocessing:
 		mv deg/transcript* deg/{EXPERIMENT_NAME}
 		"""
 
-# GeneSCF 1.1-p2
+# Pathway analysis: GeneSCF (1.1-p2)
 # Performs a GO and KEGG overrepresentation analysis on the DEG list
 # TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
@@ -263,13 +265,14 @@ rule pathway_analysis_preprocessing:
 		# Generate the presence-absence matrix
 		create_presence_absence_matrix()
 
-# baySeq 2.16.0
-# DESeq2 1.22.1
-# edgeR 3.24.1
-# limma 3.38.3
-# NOISeq 2.26.0
-# sleuth 0.30.0
-# UpsetR 1.3.3
+# DEG Prediction (based on R script)
+# baySeq (2.16.0)
+# DESeq2 (1.22.1)
+# edgeR (3.24.1)
+# limma (3.38.3)
+# NOISeq (2.26.0)
+# sleuth (0.30.0)
+# UpsetR (1.3.3)
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
@@ -285,11 +288,16 @@ rule DEG_analysis:
 		Rscript libraries/SCORE.R {METADATA} {PARAM_GENESCF_TOTAL_GENES_SPECIES} {MERGE_PLOTS_AND_PDF} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH} {ENABLE_BENCHMARKING} {PARAM_DEG_STRICT_MODE} {PARAM_DEG_NOISEQ_BIO_MODE} {PARAM_DEG_SCORE_THRESHOLD}
 		"""
 
-# featureCounts 1.6.4
+# Quantification of transcripts
+# -----------------------------------
+# Counting: featureCounts (1.6.4)
+# -----------------------------------
 # Counts mapped reads to genomic features
-# Needed for the quantification of Bowtie2 results
+# Essential for the quantification of Bowtie2 results
 # Discards multi-mapping reads by default
-# TO-DO: Break iff 0 counts in total! (Warning else?)
+# featureCounts is part of the subread package
+# -----------------------------------
+# TO-DO: Break iff 0 counts in total! (else: warning?)
 rule counting:
 	input:
 		"mapped/bowtie2/{sample}.sam"
@@ -305,13 +313,15 @@ rule counting:
 		mv counts_{wildcards.sample}* {output}
 		"""
 
-# Bowtie2 2.3.4.3
-# Kallisto 0.45.0
-# Creates a reference index for each genome
-# Performs an ungapped genome mapping
+# Mapping
+# -----------------------------------
+# Ungapped: Bowtie2 (2.3.5)
+# Pseudo-Alignment: Kallisto (0.46.1)
+# -----------------------------------
+# Generates reference index for each genome
 # Bowtie2 allows up to 2 mismatches (default)
-# Moves the alignment reference index file afterwards, since it's not used anymore
-# Followed by quanitification of transcripts (counting of reads)
+# After mapping, moves alignment reference index since it's not used anymore
+# -----------------------------------
 # TO-DO: Verify that mapping went well?
 rule mapping:
 	input:
@@ -332,9 +342,11 @@ rule mapping:
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
-# FastQC 0.11.8
-# Flexbar 3.5.0
-# Quality control and basequality trimming
+# Quality Control
+# -----------------------------------
+# Quality Assessment: FastQC (0.11.8)
+# Trimming: Flexbar (3.5.0)
+# -----------------------------------
 # TO-DO: Should not forget adapter trimming when using new data!
 rule quality_control_and_trimming:
 	input:
