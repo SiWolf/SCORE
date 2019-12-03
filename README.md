@@ -1,6 +1,6 @@
 # SCORE: Smart Consensus Of RNA Expression pipelines
 
-## 1.) Getting started
+## 1.) Quick Start Guide
 
 ### 1.1) Setup
 
@@ -11,18 +11,20 @@ Dependencies:
 * [Flexbar](https://github.com/seqan/flexbar)
 * [GeneSCF](http://genescf.kandurilab.org/)
 * [GO Core Ontology (OBO Format)](http://geneontology.org/docs/download-ontology/)
+* libgfortran3
 * [Python3](https://www.python.org/)
-* [Snakemake (Version 4.6.0)](https://snakemake.readthedocs.io/en/stable/)
+* [Snakemake (< 4.6.0)](https://snakemake.readthedocs.io/en/stable/)
 * [TIGRFAM Database](http://tigrfams.jcvi.org/cgi-bin/index.cgi)
 
 Optional:
+* [Graphviz](https://www.graphviz.org/) (For DAG visualization)
 * [Sequanix](https://github.com/sequana/sequana/) (Part of Sequana)
 
-Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it includes some of the required libraries during initial installation. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the dependencies mentioned above are installed accordingly. In order to identify TIGRFAM domains, the files "TIGRFAMs_15.0_HMM.LIB.gz", "TIGRFAMS_ROLE_LINK" and "TIGR_ROLE_NAMES" must be downloaded from the TIGRFAM FTP site and extracted to a location of choice.
+Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it includes some of the required libraries during initial installation. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the dependencies mentioned above are installed accordingly. You may use the command "pip3 install 'snakemake<=4.6.0'" to install a compatible version of Snakemake. In order to identify TIGRFAM domains, the files "TIGRFAMs_15.0_HMM.LIB.gz", "TIGRFAMS_ROLE_LINK" and "TIGR_ROLE_NAMES" must be downloaded from the TIGRFAM FTP site and extracted to a location of choice. For a more detailed guide please visit our [wiki](https://github.com/SiWolf/SCORE/wiki). You can use the libraries/miscellaneous/install.sh script to download GeneSCF, the TIGRFAM database and the GO OWL file.
 
 ### 1.2) Usage
 
-1.) Feed the machine. Copy your adapter-trimmed gzipped NGS paired-end RNA-Seq reads as well as a Metadata table indicating sample groups (TSV format) into the raw/ folder. Please ensure that each read-pair shares a common prefix name (which should be consistent with the corresponding name listed in the Metadata table), followed by a suffix indicating the individual pair number (e.g. superpair_1.fastq.gz and superpair_2.fastq.gz). Please refer to [raw/Metadata.tsv](https://github.com/SiWolf/SCORE/blob/master/raw/Metadata.tsv) for an example of the required TSV format. In addition, SCORE requires a reference genome and transcriptome (both in fasta format), as well as a .gff file for annotations. These files should be placed in the references/ folder. Please ensure the following steps for preprocessing your gff file: 1.) Remove the FASTA sequence located at the end of the file, 2.) Check for any unmatched " symbols and 3.) Verify that the contig names specified within your FASTA genome are matched to those within the gff file (e.g. "_size" vs. "|size").
+1.) Feed the machine. Copy your adapter-trimmed gzipped NGS paired-end RNA-Seq reads as well as a Metadata table indicating sample groups (TSV format) into the raw/ folder. Please ensure that each read-pair shares a common prefix name (which should be consistent with the corresponding name listed in the Metadata table), followed by a suffix indicating the individual pair number (e.g. superpair_1.fastq.gz and superpair_2.fastq.gz). Please refer to [raw/Metadata.tsv](https://github.com/SiWolf/SCORE/blob/master/raw/Metadata.tsv) for an example of the required TSV format. In addition, SCORE requires a reference genome and transcriptome (both in fasta format), as well as a .gff file for annotations. These files should be placed in the references/ folder. They can be aquired for many organisms using NCBI (e.g. [here](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/) for E. coli) or by annotating a custom genome using tools such as [Prokka](https://github.com/tseemann/prokka). Please ensure the following steps for preprocessing your gff file: 1.) Remove the FASTA sequence located at the end of the file, 2.) Check for any unmatched " symbols and 3.) Verify that the contig names specified within your FASTA genome are matched to those within the gff file (e.g. "_size" vs. "|size").
 
 2.) Set parameters. Edit the parameters in the configuration file ([config.yaml](https://github.com/SiWolf/SCORE/blob/master/config.yaml)) according to your experimental setup. If you choose to use a GUI, you can instead load the Snakefile using Sequanix and edit the corresponding configuration file directly from within Sequanix.
 
@@ -42,7 +44,7 @@ A: Yes, it is possible to either edit the Snakefile itself (not recommended) or 
 
 Q: Snakemake is unable to activate the included environments - what can I do?
 
-A: This is a known issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 and modify your PATH in order to ensure compability with Snakemake.
+A: This is a known issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 ("conda install -n base conda=4.5.13") and modify your .bashrc (add line: export PATH="/full/path/to/miniconda/bin:$PATH") in order to ensure compability with Snakemake.
 
 Q: I get an Snakemake error stating that not all output, log and benchmarking files contain the same wildcards? What does this mean?
 
