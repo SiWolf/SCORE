@@ -1,55 +1,58 @@
 # EDIT THIS FILE ACCORDING TO YOUR EXPERIMENTAL SETUP
-# BENCHMARKING
-benchmarking: FALSE
-# DEG PREDICTION CUTOFFS
-general_threshold: 0.05
-enable_strict_mode: TRUE
-low_expression_count: 5
-score_threshold: 0.5
-# FLEXBAR SETTINGS
+# PLEASE REFER TO THE WIKI FOR MORE INFORMATION ABOUT INDIVIDUAL PARAMETERS
+# https://github.com/SiWolf/SCORE/wiki
+# --------------
+# BASIC SETTINGS
+# --------------
+analysis_name: A1
+metadata_file: raw/Metadata.tsv
+param_threshold: 0.05
+param_total_genes: 5000
+ref_annotation_file: references/REF.gff
+ref_annotation_feature: CDS
+ref_annotation_identifier: locus_tag
+ref_genome: references/REF.fasta
+ref_transcriptome: references/REF.ffn
+genescf_go_db: ecocyc
+genescf_kegg_db: ecg
+# -----------------
+# ADVANCED SETTINGS
+# -----------------
+# FLEXBAR
 flexbar_max_uncalled: 20
 flexbar_min_length: 20
 flexbar_min_qual: 20
-# GENESCF SETTINGS
-genescf_go_db: ecocyc
-genescf_kegg_db: ecg
-genescf_total_genes_species: 5000
 # MISCELLANEOUS
-analysis_name: A1
-merge_plots_into_pdf: TRUE
+genescf_path: ./libraries/geneSCF/geneSCF
 ncbi_genetic_code_table: 11
-noiseq_assume_biological_replicates: TRUE
-# PARAMETERS
-ref_annotation_file: references/REF.gff
-ref_annotation_feature_type: CDS
-ref_annotation_gene_type: locus_tag
-ref_fasta_genome: references/REF.fasta
-ref_fasta_transcriptome: references/REF.ffn
-ref_go_obo_file: references/go.obo
-ref_index_name: REF_INDEX
+noiseq_biological_replicates: TRUE
+# REFERENCES
+ref_go_obo: references/go.obo
+ref_index: REF_INDEX
 ref_tigrfam_library: references/tigrfam/TIGRFAMs_15.0_HMM.LIB
 ref_tigrfam_links: references/tigrfam/TIGRFAMS_ROLE_LINK
 ref_tigrfam_roles: references/tigrfam/TIGR_ROLE_NAMES
-# PATHS
-geneSCF_path: ./libraries/geneSCF/geneSCF
-# SAMPLES
-metadata_file: raw/Metadata.tsv
-# WEIGHTS FOR CONSENSUS PREDICTION
-# DEFAULT - MAJORITY VOTE
+# SCORE
+score_benchmarking: FALSE
+score_low_expression_count: 5
+score_merge_plots: TRUE
+score_strict_mode: TRUE
+score_threshold: 0.5
+# WEIGHTS - DEFAULT - MAJORITY VOTE
 weight_bayseq: 1.0
 weight_deseq2: 1.0
 weight_edger: 1.0
 weight_limma: 1.0
 weight_noiseq: 1.0
 weight_sleuth: 1.0
-# DEFAULT - STABLE
+# WEIGHTS - DEFAULT - STABLE
 # weight_bayseq: 0.5
 # weight_deseq2: 1.5
 # weight_edger: 1.0
 # weight_limma: 1.0
 # weight_noiseq: 1.5
 # weight_sleuth: 0.5
-# DEFAULT - EXPERIMENTAL
+# WEIGHTS - DEFAULT - EXPERIMENTAL
 # weight_bayseq: 0.5
 # weight_deseq2: 1.0
 # weight_edger: 0.75
