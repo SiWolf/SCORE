@@ -31,7 +31,6 @@ ref_tigrfam_library: references/tigrfam/TIGRFAMs_15.0_HMM.LIB
 ref_tigrfam_links: references/tigrfam/TIGRFAMS_ROLE_LINK
 ref_tigrfam_roles: references/tigrfam/TIGR_ROLE_NAMES
 # PATHS
-flexbar_path: ./libraries/flexbar/flexbar
 geneSCF_path: ./libraries/geneSCF/geneSCF
 # SAMPLES
 metadata_file: raw/Metadata.tsv
