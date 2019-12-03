@@ -265,13 +265,17 @@ rule pathway_analysis_preprocessing:
 		# Generate the presence-absence matrix
 		create_presence_absence_matrix()
 
-# DEG Prediction (based on R script)
+# DEG Prediction:
 # baySeq (2.16.0)
 # DESeq2 (1.22.1)
 # edgeR (3.24.1)
 # limma (3.38.3)
 # NOISeq (2.26.0)
 # sleuth (0.30.0)
+# Other Tools:
+# ggplot2 (3.2.1)
+# libgfortran (3.0.0)
+# rhdf5 (2.30.0)
 # UpsetR (1.3.3)
 rule DEG_analysis:
 	input:
