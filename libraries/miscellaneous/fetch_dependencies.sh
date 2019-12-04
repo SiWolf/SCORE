@@ -1,3 +1,10 @@
+# ------------------------------
+# Title: fetch_dependencies.py
+# Author: Silver A. Wolf
+# Last Modified: Wed, 04.12.2019
+# Version: 0.0.1
+# ------------------------------
+
 # Script for downloading SCORE dependencies
 
 # Download dependencies

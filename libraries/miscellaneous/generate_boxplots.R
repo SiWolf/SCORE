@@ -1,8 +1,17 @@
+# --------------------------------------------
+# Title: generate_boxplots.R
+# Author: Silver A. Wolf
+# Last Modified: Wed, 04.12.2019
+# Version: 0.0.1
+# --------------------------------------------
+
 # Visualize DEGs as Boxplots and other diagrams
 # Using ggplot2
 
+# Installers
 #install.packages("ggplot2")
 
+# Imports
 library("ggplot2")
 
 # Data preprocessing

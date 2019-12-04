@@ -1,3 +1,10 @@
+# --------------------------------------------
+# Title: generate_benchmarking_plots.R
+# Author: Silver A. Wolf
+# Last Modified: Wed, 04.12.2019
+# Version: 0.0.1
+# --------------------------------------------
+
 # Visualize DEG prediction accuracy
 # Uses R standard libraries
 

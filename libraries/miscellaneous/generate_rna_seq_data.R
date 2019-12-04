@@ -1,10 +1,19 @@
-# Script to simulate RNA-Seq data using Polyester
-# Useful for benchmarking SCORE
+# --------------------------------------------
+# Title: generate_rna_seq_data.R
+# Author: Silver A. Wolf
+# Last Modified: Wed, 04.12.2019
+# Version: 0.0.1
+# --------------------------------------------
 
-#if (!requireNamespace("BiocManager", quietly = TRUE))
-#  install.packages("BiocManager")
+# Script to simulate RNA-Seq data using Polyester
+# Used for benchmarking SCORE
+
+# Installers
+#install.packages("BiocManager")
+#BiocManager::install("Biostrings")
 #BiocManager::install("polyester")
 
+# Imports
 library("Biostrings")
 library("polyester")
 

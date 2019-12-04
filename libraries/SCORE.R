@@ -8,6 +8,7 @@
 # Installers
 #install.packages("BiocManager")
 #install.packages("devtools")
+#install.packages("ggplot2")
 #install.packages("plyr")
 #install.packages("UpSetR")
 #BiocManager::install("baySeq")

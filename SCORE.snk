@@ -206,12 +206,12 @@ rule DEG_postprocessing:
 		multiqc fastqc/*_raw -i qc_raw_samples -o fastqc/multiqc
 		multiqc fastqc/*_trimmed -i qc_trimmed_samples -o fastqc/multiqc
 		# Generate initial summary file
-		python3 libraries/generate_summary.py -f {REF_TRANSCRIPTOME} -g {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA}
+		python3 libraries/miscellaneous/generate_summary.py -f {REF_TRANSCRIPTOME} -g {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA}
 		# Analyze proteins using TIGRFAM DB
 		hmmpress -f {REF_TIGRFAM_DB}
 		hmmscan -o deg/hmmer_log.txt --domtblout deg/hmmer_output.txt {REF_TIGRFAM_DB} deg/proteins.fasta
 		# Merge summary file with TIGRFAM results
-		python3 libraries/merge_tigrfam_results.py -l {REF_TIGRFAM_LINKS} -r {REF_TIGRFAM_NAMES}
+		python3 libraries/miscellaneous/merge_tigrfam_results.py -l {REF_TIGRFAM_LINKS} -r {REF_TIGRFAM_NAMES}
 		# Rename additional output files and remove temp files
 		rm deg/consensus_diffexpr_results.csv
 		mv deg/consensus_diffexpr_results_extended.csv deg/consensus_diffexpr_results.csv
@@ -257,7 +257,7 @@ rule pathway_analysis:
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_GO_DB}
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_KEGG_DB}
 		# Update GeneSCF results using the GO DB Reference File
-		python3 libraries/genescf_update.py -d {PARAM_GENESCF_GO_DB} -o {REF_GO_FILE}
+		python3 libraries/miscellaneous/genescf_update.py -d {PARAM_GENESCF_GO_DB} -o {REF_GO_FILE}
 		"""
 
 rule pathway_analysis_preprocessing:
@@ -298,7 +298,7 @@ rule DEG_analysis:
 	shell:
 		"""
 		# Fetch transcript lengths using another python script
-		python3 libraries/fetch_transcript_lengths.py -a {REF_ANNOTATION} -f {REF_ANNOTATION_FEATURE_ID} -i {REF_ANNOTATION_GENE_ID}
+		python3 libraries/miscellaneous/fetch_transcript_lengths.py -a {REF_ANNOTATION} -f {REF_ANNOTATION_FEATURE_ID} -i {REF_ANNOTATION_GENE_ID}
 		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
 		Rscript libraries/SCORE.R {METADATA} {PARAM_GENESCF_TOTAL_GENES_SPECIES} {MERGE_PLOTS_AND_PDF} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH} {ENABLE_BENCHMARKING} {PARAM_DEG_STRICT_MODE} {PARAM_DEG_NOISEQ_BIO_MODE} {PARAM_DEG_SCORE_THRESHOLD}
 		"""

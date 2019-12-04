@@ -1,7 +1,7 @@
 # Script for deleting existing SCORE results
 # This is used for testing various experimental combinations and parameters
 # DEG results are either moved or deleted
-# FastQC and Flexbar files are deleted on default (default)
+# FastQC, Flexbar and MultiQC files are deleted on default (default)
 # Bowtie2, featureCounts and kallisto files are deleted on full reset (full)
 # To empty all primary results: ./empty_results.sh default
 # To empty all results: ./empty_results.sh full
