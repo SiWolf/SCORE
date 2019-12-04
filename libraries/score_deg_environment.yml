@@ -7,6 +7,7 @@ channels:
 dependencies:
   - bioconductor-annotate=1.64.0=r36_0
   - bioconductor-annotationdbi=1.48.0=r36_0
+  - bioconductor-bayseq=2.20.0=r36_0
   - bioconductor-biobase=2.46.0=r36h516909a_0
   - bioconductor-biocgenerics=0.32.0=r36_0
   - bioconductor-biocparallel=1.20.0=r36he1b5a44_0
@@ -81,6 +82,7 @@ dependencies:
   - pcre=8.43=he1b5a44_0
   - pixman=0.38.0=h516909a_1003
   - pthread-stubs=0.4=h14c3975_1001
+  - r-abind=1.4_5=r36h6115d3f_1002
   - r-acepack=1.4.1=r36h9bbef5b_1004
   - r-aggregation=1.0.1=r36h6115d3f_1001
   - r-assertthat=0.2.1=r36h6115d3f_1

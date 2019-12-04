@@ -1,21 +1,20 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 28.08.2019
-# Version: 0.6.5
+# Last Modified: Wed, 04.12.2019
+# Version: 0.6.6
 # --------------------------------------------
 
 # Installers
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("baySeq")
-#biocLite("DESeq2")
-#biocLite("edgeR")
-#biocLite("ggplot2")
-#biocLite("limma")
-#biocLite("NOISeq")
-#biocLite("rhdf5")
+#install.packages("BiocManager")
 #install.packages("devtools")
 #install.packages("UpSetR")
+#BiocManager::install("baySeq")
+#BiocManager::install("DESeq2")
+#BiocManager::install("edgeR")
+#BiocManager::install("limma")
+#BiocManager::install("NOISeq")
+#BiocManager::install("rhdf5")
 #devtools::install_github("pachterlab/sleuth")
 
 # Imports
