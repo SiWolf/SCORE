@@ -492,7 +492,7 @@ argument_15 = args[15]
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
 if (is.na(argument_1)){
-  argument_1 = "raw/Metadata_C1.tsv"
+  argument_1 = "raw/Metadata.tsv"
   argument_2 = 5000
   argument_3 = TRUE
   argument_4 = 0.05

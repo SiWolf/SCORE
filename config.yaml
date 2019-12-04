@@ -34,7 +34,7 @@ ref_tigrfam_links: references/tigrfam/TIGRFAMS_ROLE_LINK
 ref_tigrfam_roles: references/tigrfam/TIGR_ROLE_NAMES
 # SCORE
 score_benchmarking: FALSE
-score_low_expression_count: 5
+score_low_expression_count: 10
 score_merge_plots: TRUE
 score_strict_mode: TRUE
 score_threshold: 0.5
