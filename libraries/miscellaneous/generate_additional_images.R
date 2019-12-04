@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 07.10.2019
-# Version: 0.1.5
+# Last Modified: Thur, 14.11.2019
+# Version: 0.2.0
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -24,6 +24,7 @@ export = FALSE
 setwd("../../deg/V1/")
 
 final_summary <- read.csv(file = "summary.tsv", header = TRUE, sep = "\t", quote = "")
+final_summary_V1_extended <- read.csv(file = "summary_V1.tsv", header = TRUE, sep = "\t", quote = "", dec = ",")
 
 for (i in 1:nrow(final_summary)){
   if (as.character(final_summary$TIGRFAM.main.role[i]) == ""){
@@ -268,6 +269,7 @@ g22 <- ggplot(data = degs, aes(x = TIGRFAM.main.role, y = log2FC)) +
 setwd("../V2/")
 
 final_summary_V2 <- read.csv(file = "summary.tsv", header = TRUE, sep = "\t", quote = "")
+final_summary_V2_extended <- read.csv(file = "summary_V2.tsv", header = TRUE, sep = "\t", quote = "", dec = ",")
 
 for (i in 1:nrow(final_summary_V2)){
   if (as.character(final_summary_V2$TIGRFAM.main.role[i]) == ""){
@@ -441,7 +443,7 @@ t3 <- data.frame(t2$gene.name.x, t2$gene.name.y)
 v <- as.vector(t3$t2.gene.name.x)
 v[3] <- "borD_1"
 v[51] <- "puuA"
-v[64] <- "borD_2" 
+v[64] <- "borD_2"
 v[65] <- "cysA"
 v[66] <- "ompF"
 v[67] <- "hpf"
@@ -476,6 +478,328 @@ g31 <- pheatmap(merged_df_8[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, clus
                 border_color = "black", gaps_row = c(6, 10, 11, 17, 23, 25, 29, 32, 33, 39),
                 main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
                 scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57))
+
+merged_df_9 <- merged_df_8
+#merged_df_9[merged_df_9$gene.name == "yeaG",] <- c("yeaG", 2.0487, 1.1456, NA, NA, NA, NA, "Protein fate")
+#merged_df_9[merged_df_9$gene.name == "borD_2",] <- c("borD_2", -3.6996, -3.169, NA, NA, NA, NA, "Unknown function")
+#merged_df_9[merged_df_9$gene.name == "cysA",] <- c("cysA", -1.2269, -2.2662, NA, NA, NA, NA, "Unknown function")
+#merged_df_9[merged_df_9$gene.name == "hpf",] <- c("hpf", -0.017, 2.3889, NA, NA, NA, NA, "Unknown function")
+#merged_df_9[merged_df_9$gene.name == "ompF",] <- c("ompF", -1.1785, -4.6426, NA, NA, NA, NA, "Unknown function")
+#merged_df_9[merged_df_9$gene.name == "pgaB",] <- c("pgaB", -0.0532, -2.5346, NA, NA, NA, NA, "Unknown function")
+
+merged_df_9[29, 3] <- 1.1456
+merged_df_9[42, 2] <- -3.6996
+merged_df_9[45, 2] <- -1.2269
+merged_df_9[52, 2] <- -0.017
+merged_df_9[57, 2] <- -1.1785
+merged_df_9[58, 2] <- -0.0532
+
+colfunc <- colorRampPalette(c("blue", "aliceblue"))
+col1 <- colfunc(11)
+col2 <- "white"
+colfunc <- colorRampPalette(c("pink", "red3"))
+col3 <- colfunc(11)
+colours_new <- c(col1, col2, col3)
+
+g32 <- pheatmap(merged_df_9[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = merged_df_9[8],
+                fontsize_row = 9, fontsize_col = 9,
+                cellheight = 10, cellwidth = 20,
+                border_color = "black", gaps_row = c(6, 10, 11, 17, 23, 25, 29, 32, 33, 39),
+                main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
+                scale = "none", breaks = seq(-5.5, 5.5, 0.5), color = colours_new)
+
+# Scatter Plots
+
+temp_df <- data.frame(genes = c(as.character(merged_df_9$gene.name), as.character(merged_df_9$gene.name)), log_FC = c(merged_df_9$Z_6122, merged_df_9$Z_5974), Groups = c(rep("Z_6122", 68), rep("Z_5974", 68)), Regression = c(rep("Z_6122", 68), rep("Z_5974", 68)), TIGRFAM = c(as.character(merged_df_9$TIGRFAM), as.character(merged_df_9$TIGRFAM)), gene_number = c(seq(1, 68, 1), seq(1, 68, 1)))
+
+ggplot(temp_df, aes(x = gene_number, y = (log_FC), shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "lm", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2))
+
+ggsave("cloud01.png", width = 15, height = 10)
+
+ggplot(temp_df, aes(x = gene_number, y = (log_FC), shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = ""), method = "lm", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2))
+
+ggsave("cloud02.png", width = 15, height = 10)
+
+ggplot(temp_df, aes(x = gene_number, y = abs(log_FC), shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("absolute log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "lm", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02))
+
+ggsave("cloud03.png", width = 15, height = 10)
+
+ggplot(temp_df, aes(x = gene_number, y = abs(log_FC), shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("absolute log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = ""), method = "lm", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02))
+
+ggsave("cloud04.png", width = 15, height = 10)
+
+ggplot(temp_df, aes(x = gene_number, y = abs(log_FC), shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("absolute log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "loess", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02)) +
+  geom_vline(xintercept = c(6.5, 10.5, 11.5, 17.5, 23.5, 25.5, 29.5, 32.5, 33.5, 39.5), linetype = "dashed", color = "lightgrey", size = 1)
+
+ggsave("cloud05.png", width = 15, height = 10)
+
+ggplot(temp_df, aes(x = gene_number, y = log_FC, shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("relative log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "loess", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02)) +
+  geom_vline(xintercept = c(6.5, 10.5, 11.5, 17.5, 23.5, 25.5, 29.5, 32.5, 33.5, 39.5), linetype = "dashed", color = "lightgrey", size = 1)
+
+ggsave("cloud06.png", width = 15, height = 10)
+
+new_data <- read.csv(file = "summary_V1_V2_filtered.csv", header = TRUE, sep = "\t", quote = "")
+
+# New Revision of data from Vanessa
+
+temp_df_2 <- temp_df
+
+temp_genes <- as.character(temp_df_2$genes)
+temp_genes[33] <- "hiuH"
+temp_genes[101] <- "hiuH"
+temp_genes[53] <- "yciG"
+temp_genes[121] <- "yciG"
+temp_genes[54] <- "virK"
+temp_genes[122] <- "virK"
+temp_genes[56] <- "yebE "
+temp_genes[124] <- "yebE"
+
+temp_df_2$genes <- temp_genes
+
+temp_tigrfams <- as.character(temp_df_2$TIGRFAM)
+
+i = 0
+
+for (gene in temp_df_2$genes){
+  i = i + 1
+  if (gene %in% new_data$gene.name){
+    tigrfam <- as.character(new_data[new_data$gene.name == gene, 4])
+    if (is.na(tigrfam)){
+      temp_tigrfams[i] <- "Unknown function"
+    } else{
+      if (tigrfam == "Unknown"){
+        temp_tigrfams[i] <- "Unknown function"
+      } else{
+        temp_tigrfams[i] <- tigrfam
+      }
+    }
+  }
+}
+
+temp_df_2$TIGRFAM <- as.character(temp_tigrfams)
+
+temp_df_2 <- temp_df_2[order(temp_df_2$TIGRFAM, temp_df_2$genes), ]
+
+l = c(seq(1, 68, 1), seq(1, 68, 1))
+l = l[order(l)]
+
+temp_df_2$gene_number <- l
+
+ggplot(temp_df_2, aes(x = gene_number, y = abs(log_FC), shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("absolute log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "loess", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02))
+
+# WARNING - ISSUE WITH GENE YEBE - WRONG TIGRFAM
+
+ggsave("cloud07.png", width = 15, height = 10)
+
+merged_df_10 <- merged_df_9
+
+merged_genes <- as.character(merged_df_10$gene.name)
+merged_genes[33] <- "hiuH"
+merged_genes[53] <- "yciG"
+merged_genes[54] <- "virK"
+merged_genes[56] <- "yebE "
+
+merged_df_10$gene.name <- merged_genes
+rownames(merged_df_10) <- merged_genes
+
+merged_tigrfams <- as.character(merged_df_10$TIGRFAM)
+
+i = 0
+
+for (gene in merged_df_10$gene.name){
+  i = i + 1
+  if (gene %in% new_data$gene.name){
+    tigrfam <- as.character(new_data[new_data$gene.name == gene, 4])
+    if (is.na(tigrfam)){
+      merged_tigrfams[i] <- "Unknown function"
+    } else{
+      if (tigrfam == "Unknown"){
+        merged_tigrfams[i] <- "Unknown function"
+      } else{
+        merged_tigrfams[i] <- tigrfam
+      }
+    }
+  }
+}
+
+merged_df_10$TIGRFAM <- as.character(merged_tigrfams)
+
+merged_df_10 <- merged_df_10[order(merged_df_10$TIGRFAM, merged_df_10$gene.name), ]
+
+g33 <- pheatmap(merged_df_10[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = merged_df_10[8],
+                fontsize_row = 9, fontsize_col = 9,
+                cellheight = 10, cellwidth = 20,
+                border_color = "black", gaps_row = c(6, 10, 15, 16, 21, 28, 30, 36, 41, 42, 47, 64, 67),
+                main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
+                scale = "none", breaks = seq(-5.5, 5.5, 0.5), color = colours_new, file = "new_pheatmap_12.png")
+
+genes = c()
+logFC = c()
+groups = c()
+TIGRFAM = c()
+gene_number = c()
+n = 0
+
+#for (i in final_summary$ID){
+#  n = n + 1
+#  V1_gene_name = as.character(final_summary$gene.name[final_summary$ID == i])
+#  V1_nucleotide_seq = as.character(final_summary$nucleotide.sequence[final_summary$ID == i])
+#  for (j in final_summary_V2$ID){
+#    V2_gene_name = as.character(final_summary_V2$gene.name[final_summary_V2$ID == j])
+#    V2_nucleotide_seq = as.character(final_summary_V2$nucleotide.sequence[final_summary_V2$ID == j])
+#    if (((V1_gene_name == V2_gene_name) && (V1_gene_name != "")) || V1_nucleotide_seq == V2_nucleotide_seq){
+#      genes = c(genes, V1_gene_name, V1_gene_name)
+#      logFC = c(logFC, final_summary$log2FC[final_summary$ID == i], final_summary_V2$log2FC[final_summary_V2$ID == j])
+#      groups = c(groups, "Z_6122", "Z_5974")
+#      TIGRFAM = c(TIGRFAM, final_summary$TIGRFAM.main.role, final_summary$TIGRFAM.main.role)
+#      gene_number = c(gene_number, n, n)
+#    }
+#  }
+#}
+
+#regression = groups
+
+#final_df = data.frame(Genes = genes, logFC = logFC, Groups = groups, Regression = regression, TIGRFAM = TIGRAM, gene_number = gene_number)
+
+#ggplot(final_df, aes(x = gene_number, y = abs(logFC), shape = Groups, colour = TIGRFAM)) +
+#  geom_point() +
+#  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) +
+#  xlab("genes") +
+#  ylab("absolute log2 FC") +
+#  ggtitle("Z_5974 vs. Z_6122") +
+#  geom_smooth(aes(linetype = Regression, group = ""), method = "lm", formula = y ~ x, se = FALSE) +
+#  scale_x_continuous(breaks = seq(1, 68), labels = temp_df$genes[1:68], expand = c(0, 0.2)) +
+#  scale_y_continuous(expand = c(0, 0.02))
+
+#ggsave("cloud10.png", width = 15, height = 10)
+
+final_summary_V1_V2_merged <- merge(final_summary_V1_extended, final_summary_V2_extended, by = "nucleotide.sequence")
+final_genes = c(as.character(final_summary_V1_V2_merged$gene.name.x), as.character(final_summary_V1_V2_merged$gene.name.x))
+final_number_genes = nrow(final_summary_V1_V2_merged)
+final_logFC = c(final_summary_V1_V2_merged$log2FC.x, final_summary_V1_V2_merged$log2FC.y)
+final_groups = c(rep("Z_6122", final_number_genes), rep("Z_5974", final_number_genes))
+final_regression = final_groups
+final_TIGRFAM = c(as.character(final_summary_V1_V2_merged$TIGRFAM.main.role.x), as.character(final_summary_V1_V2_merged$TIGRFAM.main.role.y))
+final_TIGRFAM[final_TIGRFAM == ""] <- "Unknown function"
+final_gene_number = c(seq(1, final_number_genes, 1), seq(1, final_number_genes, 1))
+final_summary_V1_V2_output <- data.frame(Genes = final_genes, logFC = final_logFC, Groups = final_groups, Regression = final_regression, TIGRFAM = final_TIGRFAM, gene_number = final_gene_number)
+final_summary_V1_V2_output <- final_summary_V1_V2_output[order(final_summary_V1_V2_output$TIGRFAM, final_summary_V1_V2_output$Genes), ]
+s = c(seq(1, final_number_genes, 1), seq(1, final_number_genes, 1))
+s = s[order(s)]
+final_summary_V1_V2_output$gene_number <- s
+
+ggplot(final_summary_V1_V2_output, aes(x = gene_number, y = abs(logFC), shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("absolute log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "loess", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, final_number_genes), labels = final_summary_V1_V2_output$Genes[1:final_number_genes], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02)) +
+  geom_vline(xintercept = c(93.5, 252.5, 364.5, 518.5, 587.5, 711.5, 1031.5, 1069.5, 1097.5, 1125.5, 1287.5, 1471.5, 1531.5, 1669.5, 1692.5, 1726.5, 2103.5), linetype = "dashed", color = "lightgrey", size = 1) +
+  geom_vline(xintercept = 0, color = "black", size = 1) +
+  geom_hline(yintercept = 0, color = "black", size = 0.6)
+
+ggsave("cloud08.png", width = 15, height = 10)
+
+ggplot(final_summary_V1_V2_output, aes(x = gene_number, y = logFC, shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("relative log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "loess", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, final_number_genes), labels = final_summary_V1_V2_output$Genes[1:final_number_genes], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02)) +
+  geom_vline(xintercept = c(93.5, 252.5, 364.5, 518.5, 587.5, 711.5, 1031.5, 1069.5, 1097.5, 1125.5, 1287.5, 1471.5, 1531.5, 1669.5, 1692.5, 1726.5, 2103.5), linetype = "dashed", color = "lightgrey", size = 1) +
+  geom_vline(xintercept = 0, color = "black", size = 1)
+
+ggsave("cloud09.png", width = 15, height = 10)
+
+ggplot(final_summary_V1_V2_output[final_summary_V1_V2_output$logFC < 0, ], aes(x = gene_number, y = logFC, shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("relative log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "loess", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, final_number_genes), labels = final_summary_V1_V2_output$Genes[1:final_number_genes], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02)) +
+  geom_vline(xintercept = c(93.5, 252.5, 364.5, 518.5, 587.5, 711.5, 1031.5, 1069.5, 1097.5, 1125.5, 1287.5, 1471.5, 1531.5, 1669.5, 1692.5, 1726.5, 2103.5), linetype = "dashed", color = "lightgrey", size = 1) +
+  geom_vline(xintercept = 0, color = "black", size = 1) +
+  geom_hline(yintercept = 0, color = "black", size = 0.6)
+
+ggsave("cloud10.png", width = 15, height = 10)
+
+ggplot(final_summary_V1_V2_output[final_summary_V1_V2_output$logFC > 0, ], aes(x = gene_number, y = logFC, shape = Groups, colour = TIGRFAM)) +
+  geom_point() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5)) +
+  xlab("genes") +
+  ylab("relative log2 FC") +
+  ggtitle("Z_5974 vs. Z_6122") +
+  geom_smooth(aes(linetype = Regression, group = Groups), method = "loess", formula = y ~ x, se = FALSE) +
+  scale_x_continuous(breaks = seq(1, final_number_genes), labels = final_summary_V1_V2_output$Genes[1:final_number_genes], expand = c(0, 0.2)) +
+  scale_y_continuous(expand = c(0, 0.02)) +
+  geom_vline(xintercept = c(93.5, 252.5, 364.5, 518.5, 587.5, 711.5, 1031.5, 1069.5, 1097.5, 1125.5, 1287.5, 1471.5, 1531.5, 1669.5, 1692.5, 1726.5, 2103.5), linetype = "dashed", color = "lightgrey", size = 1) +
+  geom_vline(xintercept = 0, color = "black", size = 1) +
+  geom_hline(yintercept = 0, color = "black", size = 0.6)
+
+ggsave("cloud11.png", width = 15, height = 10)
 
 # Exporting
 
@@ -550,6 +874,13 @@ if (export == TRUE){
           main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
           scale = "none", breaks = seq(-5.5, 5.5, 0.2), color = plasma(57), file = "new_pheatmap_10.png")
   
+  pheatmap(merged_df_9[, c("Z_6122", "Z_5974")], cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = merged_df_9[8],
+           fontsize_row = 9, fontsize_col = 9,
+           cellheight = 10, cellwidth = 20,
+           border_color = "black", gaps_row = c(6, 10, 11, 17, 23, 25, 29, 32, 33, 39),
+           main = "Heatmap of the gene\nexpression (log2FC)\nbetween\nsample groups\n",
+           scale = "none", breaks = seq(-5.5, 5.5, 0.5), color = colours_new, file = "new_pheatmap_11.png")
+  
   print(g1)
   print(g2)
   print(g3)
@@ -581,6 +912,8 @@ if (export == TRUE){
   print(g29)
   print(g30)
   print(g31)
+  print(g32)
+  print(g33)
   
   dev.off()
 }
