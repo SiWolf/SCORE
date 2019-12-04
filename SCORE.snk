@@ -195,7 +195,7 @@ rule DEG_postprocessing:
 		"deg/pathway_analysis_GO",
 		"deg/pathway_analysis_KEGG"
 	conda:
-		"libraries/envs/score_summary_environment.yml"
+		"libraries/env/score_summary_environment.yml"
 	shell:
 		"""
 		# Summarizing QC reports
@@ -289,7 +289,7 @@ rule DEG_analysis:
 	output:
 		"deg/deg_analysis_graphs.pdf"
 	conda:
-		"libraries/envs/score_deg_environment.yml"
+		"libraries/env/score_deg_environment.yml"
 	shell:
 		"""
 		# Fetch transcript lengths using another python script
@@ -314,7 +314,7 @@ rule counting:
 	output:
 		"mapped/bowtie2/featureCounts/{sample}/"
 	conda:
-		"libraries/envs/score_count_environment.yml"
+		"libraries/env/score_count_environment.yml"
 	threads:
 		4
 	shell:
@@ -340,7 +340,7 @@ rule mapping:
 	output:
 		"mapped/bowtie2/{sample}.sam"
 	conda:
-		"libraries/envs/score_map_environment.yml"
+		"libraries/env/score_map_environment.yml"
 	threads:
 		4
 	shell:
@@ -366,7 +366,7 @@ rule quality_control_and_trimming:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
 		"trimmed/{sample}_trimmed_2.fastq.gz"
 	conda:
-		"libraries/envs/score_qc_environment.yml"
+		"libraries/env/score_qc_environment.yml"
 	log:
 		"trimmed/logs/"
 	threads:
