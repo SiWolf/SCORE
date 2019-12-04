@@ -185,6 +185,7 @@ def read_tsv(tsv_filename):
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
+# Summarizing QC: MultiQC (1.8)
 # Translation: Biopython (1.74)
 # TIGRFAM Classification: Hmmer (3.2.1)
 rule DEG_postprocessing:
@@ -195,6 +196,9 @@ rule DEG_postprocessing:
 		"libraries/score_summary_environment.yml"
 	shell:
 		"""
+		# Summarizing QC reports
+		multiqc fastqc/*_raw -i qc_raw_samples -o fastqc/multiqc
+		multiqc fastqc/*_trimmed -i qc_trimmed_samples -o fastqc/multiqc
 		# Generate initial summary file
 		python3 libraries/generate_summary.py -f {REF_TRANSCRIPTOME} -g {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA}
 		# Analyze proteins using TIGRFAM DB
@@ -368,8 +372,8 @@ rule quality_control_and_trimming:
 	shell:
 		"""
 		# Initial FastQC
-		mkdir -p fastqc/{wildcards.sample}/
-		fastqc {input} -o fastqc/{wildcards.sample}/
+		mkdir -p fastqc/{wildcards.sample}_raw/
+		fastqc {input} -o fastqc/{wildcards.sample}_raw/
 		# Trimming
 		flexbar -r {input[0]} -p {input[1]} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
 		mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/
