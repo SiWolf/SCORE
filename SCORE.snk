@@ -185,7 +185,9 @@ def read_tsv(tsv_filename):
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 
-# Summarizing QC: MultiQC (1.8)
+# Summarizing
+# -----------------------------------
+# Merging QC Reports: MultiQC (1.8)
 # Translation: Biopython (1.74)
 # TIGRFAM Classification: Hmmer (3.2.1)
 rule DEG_postprocessing:
@@ -193,7 +195,7 @@ rule DEG_postprocessing:
 		"deg/pathway_analysis_GO",
 		"deg/pathway_analysis_KEGG"
 	conda:
-		"libraries/score_summary_environment.yml"
+		"libraries/envs/score_summary_environment.yml"
 	shell:
 		"""
 		# Summarizing QC reports
@@ -236,7 +238,7 @@ rule DEG_postprocessing:
 		"""
 
 # Pathway analysis: GeneSCF (1.1-p2)
-# Performs a GO and KEGG overrepresentation analysis on the DEG list
+# Performs GO and KEGG overrepresentation analysis on the DEG list
 # TO-DO: Test different GO and KEGG dbs
 rule pathway_analysis:
 	input:
@@ -287,7 +289,7 @@ rule DEG_analysis:
 	output:
 		"deg/deg_analysis_graphs.pdf"
 	conda:
-		"libraries/score_deg_environment.yml"
+		"libraries/envs/score_deg_environment.yml"
 	shell:
 		"""
 		# Fetch transcript lengths using another python script
@@ -312,7 +314,7 @@ rule counting:
 	output:
 		"mapped/bowtie2/featureCounts/{sample}/"
 	conda:
-		"libraries/score_count_environment.yml"
+		"libraries/envs/score_count_environment.yml"
 	threads:
 		4
 	shell:
@@ -338,7 +340,7 @@ rule mapping:
 	output:
 		"mapped/bowtie2/{sample}.sam"
 	conda:
-		"libraries/score_map_environment.yml"
+		"libraries/envs/score_map_environment.yml"
 	threads:
 		4
 	shell:
@@ -364,7 +366,7 @@ rule quality_control_and_trimming:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
 		"trimmed/{sample}_trimmed_2.fastq.gz"
 	conda:
-		"libraries/score_qc_environment.yml"
+		"libraries/envs/score_qc_environment.yml"
 	log:
 		"trimmed/logs/"
 	threads:

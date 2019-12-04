@@ -1,5 +1,6 @@
 name: score_summary_env
 channels:
+  - r
   - conda-forge
   - bioconda
   - defaults
