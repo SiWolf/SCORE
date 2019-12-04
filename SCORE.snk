@@ -14,6 +14,7 @@
 
 # Imports
 import csv
+import os
 
 # Specifying the config file
 configfile: "config.yaml"
@@ -181,6 +182,9 @@ def read_tsv(tsv_filename):
 				samples_dic[line[0]] = line[1]
 	return(samples_dic)
 
+# Remove spaces in the reference transcriptome
+os.system("sed -i 's/ /|/g' " + REF_TRANSCRIPTOME)
+
 # Samples
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
@@ -271,16 +275,17 @@ rule pathway_analysis_preprocessing:
 		# Generate the presence-absence matrix
 		create_presence_absence_matrix()
 
-# DEG Prediction:
+# DEG Prediction (R-based):
 # baySeq (2.16.0)
 # DESeq2 (1.22.1)
 # edgeR (3.24.1)
 # limma (3.38.3)
 # NOISeq (2.26.0)
 # sleuth (0.30.0)
-# Other Tools:
+# Other Packages:
 # ggplot2 (3.2.1)
 # libgfortran (3.0.0)
+# plyr (1.8.4)
 # rhdf5 (2.30.0)
 # UpsetR (1.3.3)
 rule DEG_analysis:

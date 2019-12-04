@@ -8,6 +8,7 @@
 # Installers
 #install.packages("BiocManager")
 #install.packages("devtools")
+#install.packages("plyr")
 #install.packages("UpSetR")
 #BiocManager::install("baySeq")
 #BiocManager::install("DESeq2")
@@ -24,6 +25,7 @@ library("edgeR")
 library("ggplot2")
 library("limma")
 library("NOISeq")
+library("plyr")
 library("rhdf5")
 library("sleuth")
 library("UpSetR")
@@ -168,7 +170,7 @@ create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
   # Histogram
   cpm_log <- cpm(count_matrix, log = TRUE)
   median_log2_cpm <- apply(cpm_log, 1, median)
-  hist(median_log2_cpm, breaks = seq(-5, 15, 2.5), col = "grey", main = "Histogram of CPM", xlab = "Median log2CPM", ylab = "Frequency")
+  hist(median_log2_cpm, col = "grey", main = "Histogram of CPM", xlab = "Median log2CPM", ylab = "Frequency")
   abline(v = low_expression_cutoff, col = "red", lwd = 3)
   sum(median_log2_cpm > low_expression_cutoff)
   # Principal component analysis (PCA) (old)
@@ -193,8 +195,8 @@ filter_matrix <- function(input_matrix, cutoff){
 # Merges the results of all individual tools into a CSV file
 export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, noiseq_result, sleuth_result, gene_names_list){
   # Write individual results to files
-  write.csv(bayseq_result, file = "diffexpr_results_bayseq.csv")
-  write.csv(deseq2_result, file = "diffexpr_results_deseq2.csv")
+  write.csv(bayseq_result, file = "diffexpr_results_bayseq.csv", row.names = FALSE)
+  write.csv(deseq2_result, file = "diffexpr_results_deseq2.csv", row.names = FALSE)
   write.csv(edgeR_result, file = "diffexpr_results_edger.csv")
   write.csv(limma_result, file = "diffexpr_results_limma.csv")
   write.csv(noiseq_result, file = "diffexpr_results_noiseq.csv")
@@ -268,10 +270,10 @@ probabilities_to_binaries <- function(cutoff_general){
 }
 
 # Function to call baySeq
-run_bayseq <- function(gene_list, gene_counts, raw_replicates_list, total_genes_background){
+run_bayseq <- function(gene_list, bayseq_gene_counts, raw_replicates_list, total_genes_background){
   DE <- as.numeric(raw_replicates_list == unique(raw_replicates_list)[2])
   groups <- list(NDE = rep(1, length(raw_replicates_list)), DE = DE + 1)
-  CD <- new("countData", data = gene_counts, replicates = raw_replicates_list, groups = groups)
+  CD <- new("countData", data = bayseq_gene_counts, replicates = raw_replicates_list, groups = groups)
   libsizes(CD) <- getLibsizes(CD)
   CD@annotation <- as.data.frame(gene_list)
   cl <- NULL
@@ -282,6 +284,7 @@ run_bayseq <- function(gene_list, gene_counts, raw_replicates_list, total_genes_
   #NBML.TPs <- getTPs(CDPost.NBML, group = 2, TPs= 1:100)
   # Fetching (all) top hits
   bayseq_de = topCounts(CDPost.NBML, group = 2, number = length(gene_list))
+  rownames(bayseq_de) <- c()
   return(bayseq_de)
 }
 
@@ -295,17 +298,16 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # Retrieve differential expression results
   res <- results(dds)
   table(res$padj<0.05)
-  # Merge with normalized count data and gene symbols
+  # Merge with normalized count data and rename first column
   resdata <- merge(as.matrix(res), as.matrix(counts(dds, normalized = TRUE)), by = "row.names", sort = FALSE)
-  new_resdata <- merge(as.matrix(resdata), as.matrix(list_of_gene_names), by = "row.names", sort = FALSE)
-  new_resdata <- new_resdata[3:13]
-  names(new_resdata)[11] <- "Gene"
+  colnames(resdata)[1] <- "Genes"
+  rownames(resdata) <- c()
   
   # Plots
   # Normalized counts across groups for most significant gene
   plotCounts(dds, gene = which.min(res$padj), intgroup = "sample_conditions", xlab = "groups")
   # Histogram of adjusted p-values
-  hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust", ylab = "Frequency")
+  hist(res$padj, breaks = 50, col = "grey", main = "Histogram of adjusted p-values", xlab = "p_adjust", ylab = "frequency")
   # Principal component analysis (PCA)
   # This will not work with low-count genes and should be silenced in these cases
   vsd <- vst(dds, blind = FALSE)
@@ -313,7 +315,7 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   pca_gg_plot <- ggplot(pca, aes(x = PC1, y = PC2, colour = sample_conditions)) + geom_point()
   print(pca_gg_plot)
   
-  return(new_resdata)
+  return(resdata)
 }
 
 # Function to call edgeR
@@ -344,7 +346,7 @@ run_edger <- function(read_counts, metadata_labels){
     #text(extreme_values$table$logCPM[i], extreme_values$table$logFC[i], labels = rownames(extreme_values)[i], cex = 0.7, pos = 4)
   #}
 
-  return(edgeR_results)
+  return(edgeR_results$table)
 }
 
 # Function to call voom and limma
@@ -360,20 +362,32 @@ run_limma <- function(counts, groups){
   fit <- lmFit(v, DE)
   fit <- eBayes(fit)
   limma_results <- topTable(fit, coef = ncol(DE) - 0, number = length(counts))
+  limma_results <- limma_results[order(row.names(limma_results)), ]
   return(limma_results)
 }
 
 # Function to call NOIseq
 run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold, use_biological_samples){
+  # Import and format list of lengths
+  # Lengths corresponding to fragments of the same gene (identifier) are summed
   list_of_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
-  internal_threshold = 1 - as.numeric(threshold)
+  list_of_lengths <- ddply(list_of_lengths, "Transcript.ID", numcolwise(sum))
+  list_of_lengths <- list_of_lengths[order(list_of_lengths$Transcript.ID), ]
+  rownames(list_of_lengths) <- c()
+  
+  # Convert list to data frame
   lengths_DF <- as.data.frame(list_of_lengths$Length, levels(list_of_lengths$Transcript.ID))
   colnames(lengths_DF) <- c("Lengths")
+  
+  # Filter DF according to pre-filtered gene list
   lengths_DF_new <- lengths_DF[rownames(lengths_DF) %in% names_noiseq, ]
   lengths_DF_new <- as.data.frame(lengths_DF_new, names_noiseq)
   #lengths_DF_turned <- as.data.frame(lengths_DF_new$lengths_DF_new,c("ID", "Length"))
+  
+  # DEG Prediction
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
+  internal_threshold = 1 - as.numeric(threshold)
   mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
   
   if(use_biological_samples == TRUE){
@@ -386,6 +400,7 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold, us
 
   # TO-DO: Implement degenes instead of filtering genes by myself
   noiseq_results = degenes(mynoiseqbio, q = internal_threshold, M = NULL)
+  noiseq_results <- noiseq_results[order(rownames(noiseq_results)), ]
   #noiseq_results <- mynoiseqbio@results[[1]]
   return(noiseq_results)
 }
@@ -496,13 +511,13 @@ if (is.na(argument_1)){
   argument_2 = 5000
   argument_3 = TRUE
   argument_4 = 0.05
-  argument_5 = 5
-  argument_6 = 0.5
+  argument_5 = 10
+  argument_6 = 1.0
   argument_7 = 1.0
-  argument_8 = 0.75
-  argument_9 = 0.75
-  argument_10 = 2.5
-  argument_11 = 0.5
+  argument_8 = 1.0
+  argument_9 = 1.0
+  argument_10 = 1.0
+  argument_11 = 1.0
   argument_12 = FALSE
   argument_13 = TRUE
   argument_14 = TRUE
@@ -593,8 +608,13 @@ if (benchmark_mode == FALSE){
   results_folder = "deg/"
 }
 
+# Ensure lexicographical ordering of genes
+filtered_gene_counts <- filtered_gene_counts[order(row.names(filtered_gene_counts)), ]
+filtered_gene_names <- sort(filtered_gene_names)
+gene_names <- sort(gene_names)
+
 setwd(results_folder)
-  
+
 # Performs DEG analyis using the individual tools
 # TO-DO: Also possible to try baySeq in edgeR mode?
 # TO-DO: Verify normalization for sequencing depth?
