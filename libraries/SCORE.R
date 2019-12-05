@@ -1,15 +1,15 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 04.12.2019
-# Version: 0.6.6
+# Last Modified: Thur, 05.12.2019
+# Version: 0.6.7
 # --------------------------------------------
 
 # Installers
 #install.packages("BiocManager")
 #install.packages("devtools")
-#install.packages("ggplot2")
 #install.packages("plyr")
+#install.packages("stringr")
 #install.packages("UpSetR")
 #BiocManager::install("baySeq")
 #BiocManager::install("DESeq2")
@@ -29,6 +29,7 @@ library("NOISeq")
 library("plyr")
 library("rhdf5")
 library("sleuth")
+library("stringr")
 library("UpSetR")
 
 # Functions
@@ -194,23 +195,30 @@ filter_matrix <- function(input_matrix, cutoff){
 }
 
 # Merges the results of all individual tools into a CSV file
-export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_result, noiseq_result, sleuth_result, gene_names_list){
+export_results <- function(bayseq_result, deseq2_result, edger_result, limma_result, noiseq_result, sleuth_result, gene_names_list){
   # Write individual results to files
   write.csv(bayseq_result, file = "diffexpr_results_bayseq.csv", row.names = FALSE)
   write.csv(deseq2_result, file = "diffexpr_results_deseq2.csv", row.names = FALSE)
-  write.csv(edgeR_result, file = "diffexpr_results_edger.csv")
+  write.csv(edger_result, file = "diffexpr_results_edger.csv")
   write.csv(limma_result, file = "diffexpr_results_limma.csv")
   write.csv(noiseq_result, file = "diffexpr_results_noiseq.csv")
+  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv", row.names = FALSE)
+  
   # Filtering sleuth -> gene subset
+  # This will remove genes which did not pass the low expression filter
   sleuth_result <- subset(sleuth_result, target_id %in% gene_names_list)
-  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv")
+  
+  # Old reordering steps
+  #bayseq_result <- bayseq_result[order(match(bayseq_result$gene_list, gene_names_list)), ]
+  #limma_result <- limma_result[order(match(rownames(limma_result), gene_names_list)), ]
   
   # Fetch probabilities/p-values of differential expression
-  bayseq_reordered <- bayseq_result[order(match(bayseq_result[[1]], gene_names_list)), ]
-  bayseq_FDR <- bayseq_reordered$FDR.DE
-  limma_reordered <- limma_result[order(match(rownames(limma_result), gene_names_list)), ]
-  limma_pvalues <- limma_reordered$adj.P.Val
-  edger_FDR <- unlist(edgeR_result[, "FDR"])[1:length(gene_names_list)]
+  bayseq_FDR <- bayseq_result$FDR.DE
+  #deseq2_pvalues <- deseq2_result[, "padj"]
+  deseq2_pvalues <- deseq2_result$padj
+  #edger_FDR <- unlist(edger_result[, "FDR"])[1:length(gene_names_list)]
+  edger_FDR <- edger_result$FDR
+  limma_pvalues <- limma_result$adj.P.Val
   
   # Adding missing genes as NA values to NOISeq and sleuth
   for (gene in gene_names_list){
@@ -223,8 +231,7 @@ export_results <- function(bayseq_result, deseq2_result, edgeR_result, limma_res
       sleuth_result[nrow(sleuth_result) + 1, ] = as.data.frame(new_row_sleuth)
     }
   }
-
-  deseq2_pvalues <- deseq2_result[, "padj"]
+  
   noiseq_reordered <- noiseq_result[order(match(rownames(noiseq_result), gene_names_list)), ]
   noiseq_probabilities <- noiseq_reordered$prob
   
@@ -247,16 +254,17 @@ probabilities_to_binaries <- function(cutoff_general){
   rownames(binary_results) <- raw_binary_results[,1]
   
   # Special case for NOISeq since it uses probabilities not p_values
-  # In addition, NOISeq was already filtered according to the significance level
-  # This means all entrys which are not equal to NA are true DEGs
+  # This means all entrys which are not equal to NA should be true DEGs
+  # Filter by 1 - p_value threshold to ensure this
   noiseq_column <- binary_results$NOISeq
   noiseq_column[is.na(noiseq_column)] <- 0
-  noiseq_column[noiseq_column > 0] <- 1
+  noiseq_column[noiseq_column <= (1 - cutoff_general)] <- 0
+  noiseq_column[noiseq_column > (1 - cutoff_general)] <- 1
   
   # baySeq, DESeq, edgeR, limma and sleuth results are simply transformed
-  # Compare p_values to cutoff
-  # This includes the NOISeq column which will be replaced later
-  binary_results[is.na(binary_results)] <- 100
+  # By comparing p_values to cutoff
+  # Includes the NOISeq column which will be replaced later
+  binary_results[is.na(binary_results)] <- 0
   binary_results[binary_results > cutoff_general] <- 100
   binary_results[binary_results <= cutoff_general] <- 0
   binary_results[binary_results == 0] <- 1
@@ -266,7 +274,6 @@ probabilities_to_binaries <- function(cutoff_general){
   binary_results$NOISeq <- noiseq_column
   
   write.csv(binary_results, file = "diffexpr_results_all_binary.csv") 
-  
   return(binary_results)
 }
 
@@ -285,6 +292,7 @@ run_bayseq <- function(gene_list, bayseq_gene_counts, raw_replicates_list, total
   #NBML.TPs <- getTPs(CDPost.NBML, group = 2, TPs= 1:100)
   # Fetching (all) top hits
   bayseq_de = topCounts(CDPost.NBML, group = 2, number = length(gene_list))
+  bayseq_de <- bayseq_de[order(bayseq_de$gene_list), ]
   rownames(bayseq_de) <- c()
   return(bayseq_de)
 }
@@ -368,7 +376,7 @@ run_limma <- function(counts, groups){
 }
 
 # Function to call NOIseq
-run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold, use_biological_samples){
+run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold_noiseq, use_biological_samples){
   # Import and format list of lengths
   # Lengths corresponding to fragments of the same gene (identifier) are summed
   list_of_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
@@ -388,7 +396,7 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold, us
   # DEG Prediction
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
-  internal_threshold = 1 - as.numeric(threshold)
+  internal_threshold = 1 - as.numeric(threshold_noiseq)
   mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
   
   if(use_biological_samples == TRUE){
@@ -407,7 +415,7 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold, us
 }
 
 # Function to call sleuth
-run_sleuth <- function(metadata_sleuth, benchmarking){
+run_sleuth <- function(metadata_sleuth, benchmarking, identifier_sleuth){
   colnames(metadata_sleuth) <- c("sample", "condition")
   path_list = ""
   if(benchmarking == FALSE){
@@ -426,6 +434,21 @@ run_sleuth <- function(metadata_sleuth, benchmarking){
   so <- sleuth_fit(so, ~1, "reduced")
   so <- sleuth_lrt(so, "reduced", "full")
   sleuth_table <- sleuth_results(so, "reduced:full", "lrt", show_all = TRUE)
+  
+  # Renaming long names to make table easier to read
+  # Increases compatibility with merging later
+  # Filters all NA-value-genes from table
+  # Checks for duplicate IDs and will only keep the first hit
+  first_split <- str_split_fixed(sleuth_table$target_id, paste(identifier_sleuth, "=", sep = ""), 2)
+  first_split <- as.data.frame(first_split)
+  second_split <- str_split_fixed(first_split$V2, "]", 2)
+  second_split <- as.data.frame(second_split)
+  sleuth_table$target_id <- second_split$V1
+  sleuth_table <- sleuth_table[!is.na(sleuth_table$pval), ]
+  sleuth_table <- sleuth_table[!duplicated(sleuth_table$target_id), ]
+  sleuth_table <- sleuth_table[order(sleuth_table$target_id), ]
+  rownames(sleuth_table) <- c()
+  
   return(sleuth_table)
 }
 
@@ -523,6 +546,7 @@ if (is.na(argument_1)){
   argument_13 = TRUE
   argument_14 = TRUE
   argument_15 = 0.5
+  argument_16 = "locus_tag"
   setwd("../")
 }
 
@@ -535,6 +559,7 @@ options(scipen = 999)
 # Might need to be adjusted per experiment
 benchmark_mode = as.logical(argument_12)
 genes_background = argument_2
+identifier = argument_16
 merge_images = as.logical(argument_3)
 noiseq_biological_mode = as.logical(argument_14)
 strict_mode = argument_13
@@ -630,7 +655,7 @@ results_limma = run_limma(filtered_gene_counts, metadata_experiments)
 time_limma <- Sys.time()
 results_noiseq = run_noiseq(filtered_gene_names, filtered_gene_counts, metadata_experiments, threshold_general, noiseq_biological_mode)
 time_noiseq <- Sys.time()
-results_sleuth = run_sleuth(metadata[1:2], benchmark_mode)
+results_sleuth = run_sleuth(metadata[1:2], benchmark_mode, identifier)
 time_sleuth <- Sys.time()
 
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, results_sleuth, filtered_gene_names)
