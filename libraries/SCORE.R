@@ -202,11 +202,11 @@ export_results <- function(bayseq_result, deseq2_result, edger_result, limma_res
   write.csv(edger_result, file = "diffexpr_results_edger.csv")
   write.csv(limma_result, file = "diffexpr_results_limma.csv")
   write.csv(noiseq_result, file = "diffexpr_results_noiseq.csv")
-  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv", row.names = FALSE)
   
   # Filtering sleuth -> gene subset
   # This will remove genes which did not pass the low expression filter
   sleuth_result <- subset(sleuth_result, target_id %in% gene_names_list)
+  write.csv(sleuth_result, file = "diffexpr_results_sleuth.csv", row.names = FALSE)
   
   # Old reordering steps
   #bayseq_result <- bayseq_result[order(match(bayseq_result$gene_list, gene_names_list)), ]
@@ -258,17 +258,17 @@ probabilities_to_binaries <- function(cutoff_general){
   # Filter by 1 - p_value threshold to ensure this
   noiseq_column <- binary_results$NOISeq
   noiseq_column[is.na(noiseq_column)] <- 0
-  noiseq_column[noiseq_column <= (1 - cutoff_general)] <- 0
-  noiseq_column[noiseq_column > (1 - cutoff_general)] <- 1
+  noiseq_column[noiseq_column < (1 - cutoff_general)] <- 0
+  noiseq_column[noiseq_column >= (1 - cutoff_general)] <- 1
   
   # baySeq, DESeq, edgeR, limma and sleuth results are simply transformed
   # By comparing p_values to cutoff
   # Includes the NOISeq column which will be replaced later
-  binary_results[is.na(binary_results)] <- 0
-  binary_results[binary_results > cutoff_general] <- 100
-  binary_results[binary_results <= cutoff_general] <- 0
-  binary_results[binary_results == 0] <- 1
-  binary_results[binary_results == 100] <- 0
+  binary_results[is.na(binary_results)] <- 10
+  binary_results[binary_results > cutoff_general] <- 10
+  binary_results[binary_results <= cutoff_general] <- 20
+  binary_results[binary_results == 20] <- 1
+  binary_results[binary_results == 10] <- 0
   
   # Overwrite the noiseq results with the precomputed ones
   binary_results$NOISeq <- noiseq_column
