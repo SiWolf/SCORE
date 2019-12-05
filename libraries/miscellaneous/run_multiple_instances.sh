@@ -1,3 +1,10 @@
+# --------------------------------
+# Title: run_multiple_instances.sh
+# Author: Silver A. Wolf
+# Last Modified: Thur, 05.12.2019
+# Version: 0.0.1
+# --------------------------------
+
 # Script for running multiple SCORE instances in a row
 
 ./libraries/miscellaneous/empty_results.sh full

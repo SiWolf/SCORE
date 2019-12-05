@@ -7,22 +7,34 @@
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 Dependencies:
-* [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html)
-* [Flexbar](https://github.com/seqan/flexbar)
-* [GeneSCF](http://genescf.kandurilab.org/)
-* [GO Core Ontology (OBO Format)](http://geneontology.org/docs/download-ontology/)
-* libgfortran3
+* [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html) (< 4.5.13)
 * [Python3](https://www.python.org/)
 * [Snakemake (< 4.6.0)](https://snakemake.readthedocs.io/en/stable/)
-* [TIGRFAM Database](http://tigrfams.jcvi.org/cgi-bin/index.cgi)
+* tar
 
 Optional:
-* [Graphviz](https://www.graphviz.org/) (For DAG visualization)
-* [Sequanix](https://github.com/sequana/sequana/) (Part of Sequana)
+* [Graphviz](https://www.graphviz.org/) (DAG visualization)
+* [Sequanix](https://github.com/sequana/sequana/) (GUI)
+* git
 
-Please ensure that the latest versions of the dependencies mentioned above are installed on your system. For Conda environments, it is recommend to use Anaconda since it includes some of the required libraries during initial installation. Sequanix is an optional choice depending on whether or not the user would prefer to use a GUI or prefers to work on the command line. Sequanix should not be installed for the latter case. SCORE primarily supports Ubuntu Linux distributions but might work on other systems as long as the dependencies mentioned above are installed accordingly. You may use the command "pip3 install 'snakemake<=4.6.0'" to install a compatible version of Snakemake. In order to identify TIGRFAM domains, the files "TIGRFAMs_15.0_HMM.LIB.gz", "TIGRFAMS_ROLE_LINK" and "TIGR_ROLE_NAMES" must be downloaded from the TIGRFAM FTP site and extracted to a location of choice. For a more detailed guide please visit our [wiki](https://github.com/SiWolf/SCORE/wiki). You can use the libraries/miscellaneous/install.sh script to download GeneSCF, the TIGRFAM database and the GO OWL file.
+'''
+# Run the installer script
+cd SCORE/ && ./libraries/miscellaneous/install.sh
+'''
 
 ### 1.2) Usage
+
+'''
+# Download the SCORE repository
+git clone https://github.com/SiWolf/SCORE.git
+
+
+
+# Run SCORE (commandline)
+# Place your raw data in raw/
+# Update the config.yaml accordingly
+./run-SCORE.sh <amount_of_threads>
+'''
 
 1.) Feed the machine. Copy your adapter-trimmed gzipped NGS paired-end RNA-Seq reads as well as a Metadata table indicating sample groups (TSV format) into the raw/ folder. Please ensure that each read-pair shares a common prefix name (which should be consistent with the corresponding name listed in the Metadata table), followed by a suffix indicating the individual pair number (e.g. superpair_1.fastq.gz and superpair_2.fastq.gz). Please refer to [raw/Metadata.tsv](https://github.com/SiWolf/SCORE/blob/master/raw/Metadata.tsv) for an example of the required TSV format. In addition, SCORE requires a reference genome and transcriptome (both in fasta format), as well as a .gff file for annotations. These files should be placed in the references/ folder. They can be aquired for many organisms using NCBI (e.g. [here](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/) for E. coli) or by annotating a custom genome using tools such as [Prokka](https://github.com/tseemann/prokka). Please ensure the following steps for preprocessing your gff file: 1.) Remove the FASTA sequence located at the end of the file, 2.) Check for any unmatched " symbols and 3.) Verify that the contig names specified within your FASTA genome are matched to those within the gff file (e.g. "_size" vs. "|size").
 
@@ -31,6 +43,8 @@ Please ensure that the latest versions of the dependencies mentioned above are i
 3.) Run SCORE. If you have chosen to use Sequanix you can launch SCORE using the GUI. If you are working on the command line execute the run-SCORE.sh shell script (make sure the script is executable) and specify the amount of threads the analysis may use. Example: ./run-SCORE.sh 8 to launch SCORE using 8 threads (default = 4). SCORE will automatically parallelize the internal rules accordingly.
 
 4.) Analyze the results. All results essential for the DEG prediction are saved within the deg/<analysis_name>/ folder.
+
+For a more details please visit our [wiki](https://github.com/SiWolf/SCORE/wiki). 
 
 ## 2.) FAQ
 
