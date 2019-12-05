@@ -8,18 +8,18 @@ Download and extract the latest stable release of SCORE from [here](https://gith
 
 Dependencies:
 * [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html) (< 4.5.13)
-* [Python3](https://www.python.org/)
-* [Snakemake (< 4.6.0)](https://snakemake.readthedocs.io/en/stable/)
-* tar
+* [Python 3](https://www.python.org/)
+* [Snakemake](https://snakemake.readthedocs.io/en/stable/) (< 4.6.0)
+* [tar](https://en.wikipedia.org/wiki/Tar_(computing))
 
 Optional:
+* [git](https://git-scm.com/) (Download)
 * [Graphviz](https://www.graphviz.org/) (DAG visualization)
 * [Sequanix](https://github.com/sequana/sequana/) (GUI)
-* git
 
 Please ensure that the latest versions of the dependencies mentioned above are installed on your system.
 
-The run the installer script:
+Then run the installer script:
 
 ```
 ./libraries/miscellaneous/install.sh
