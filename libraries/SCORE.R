@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 05.12.2019
-# Version: 0.6.7
+# Last Modified: Fr, 06.12.2019
+# Version: 0.6.8
 # --------------------------------------------
 
 # Installers
@@ -527,6 +527,7 @@ argument_12 = args[12]
 argument_13 = args[13]
 argument_14 = args[14]
 argument_15 = args[15]
+argument_16 = args[16]
 
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
