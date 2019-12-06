@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: fetch_transcript_lengths
 # Author: Silver A. Wolf
-# Last Modified: Wed, 04.12.2019
-# Version: 0.0.8
+# Last Modified: Fr, 06.12.2019
+# Version: 0.0.9
 # -------------------------------
 
 # Imports
@@ -12,7 +12,7 @@ import csv
 def fetch_lengths(gff, feature, id):
 	id = id + "="
 	output_lengths = open("deg/transcript_lengths.csv", "w")
-	output_lengths.write("Transcript ID,Length\n")
+	output_lengths.write("Transcript_ID,Length\n")
 	with open(gff) as full_gff_file:
 		for line in csv.reader(full_gff_file, delimiter = "\t"):
 			if len(line) > 0:

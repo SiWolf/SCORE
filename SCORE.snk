@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 05.12.2019
-# Version: 0.8.0
+# Last Modified: Fr, 06.12.2019
+# Version: 0.8.1
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -137,7 +137,7 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
 								if id == current_id:
 									if "product=" in gff_line[8]:
-										product = gff_line[8].split("product=")[1]
+										product = gff_line[8].split("product=")[1].split(";")[0]
 										# Clean up some of the annotations
 										product = product.replace("%2C ", " ")
 										product = product.replace("%3B ", " ")
