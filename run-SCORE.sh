@@ -1,3 +1,10 @@
+# -----------------------------
+# Title: run-SCORE.sh
+# Author: Silver A. Wolf
+# Last Modified: Fr, 06.12.2019
+# Version: 0.0.1
+# -----------------------------
+
 # Run script for the Snakemake file
 # Contains basic settings for running the Snakefile
 # The first given argument is the number of cores Snakemake will be able to use

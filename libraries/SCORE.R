@@ -190,7 +190,7 @@ create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
 # Filter out all genes which do not have rowsum >= cutoff
 # TO-DO: Remove ubiquitous genes?
 filter_matrix <- function(input_matrix, cutoff){
-  output_matrix <- input_matrix[rowSums(input_matrix) >= as.numeric(cutoff), ]
+  output_matrix <- input_matrix[rowSums(input_matrix) >= cutoff, ]
   return(output_matrix)
 }
 
@@ -285,7 +285,7 @@ run_bayseq <- function(gene_list, bayseq_gene_counts, raw_replicates_list, total
   libsizes(CD) <- getLibsizes(CD)
   CD@annotation <- as.data.frame(gene_list)
   cl <- NULL
-  CDP.NBML <- getPriors.NB(CD, samplesize = as.numeric(total_genes_background), estimation = "QL", cl = cl)
+  CDP.NBML <- getPriors.NB(CD, samplesize = total_genes_background, estimation = "QL", cl = cl)
   CDPost.NBML <- getLikelihoods(CDP.NBML, pET = "BIC", cl = cl)
   #CDPost.NBML@estProps
   #topCounts(CDPost.NBML, group = 2)
@@ -396,7 +396,7 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold_noi
   # DEG Prediction
   DE_noiseq <- as.data.frame(as.numeric(groups_noiseq == unique(groups_noiseq)[2]) + 1)
   colnames(DE_noiseq) <- c("Group")
-  internal_threshold = 1 - as.numeric(threshold_noiseq)
+  internal_threshold = 1 - threshold_noiseq
   mydata <- readData(data = counts_noiseq, length = lengths_DF_new, factors = DE_noiseq)
   
   if(use_biological_samples == TRUE){
@@ -559,12 +559,12 @@ options(scipen = 999)
 # Percentage of expected DEGs
 # Might need to be adjusted per experiment
 benchmark_mode = as.logical(argument_12)
-genes_background = argument_2
+genes_background = as.numeric(argument_2)
 identifier = argument_16
 merge_images = as.logical(argument_3)
 noiseq_biological_mode = as.logical(argument_14)
-strict_mode = argument_13
-threshold_general = argument_4
+strict_mode = as.logical(argument_13)
+threshold_general = as.numeric(argument_4)
 threshold_expression_count = argument_5
 threshold_majority_vote = as.numeric(argument_15)
 
