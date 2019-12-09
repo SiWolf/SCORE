@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 09.12.2019
-# Version: 0.6.9
+# Last Modified: Mo, 09.12.2019
+# Version: 0.7.0
 # --------------------------------------------
 
 # Installers
@@ -435,15 +435,16 @@ run_sleuth <- function(metadata_sleuth, benchmarking, identifier_sleuth){
   so <- sleuth_lrt(so, "reduced", "full")
   sleuth_table <- sleuth_results(so, "reduced:full", "lrt", show_all = TRUE)
   
-  # Renaming long names to make table easier to read
+  # Renaming long names to make table easier to read (old)
   # Increases compatibility with merging later
+  #first_split <- str_split_fixed(sleuth_table$target_id, paste(identifier_sleuth, "=", sep = ""), 2)
+  #first_split <- as.data.frame(first_split)
+  #second_split <- str_split_fixed(first_split$V2, "]", 2)
+  #second_split <- as.data.frame(second_split)
+  #sleuth_table$target_id <- second_split$V1
+  
   # Filters all NA-value-genes from table
   # Checks for duplicate IDs and will only keep the first hit
-  first_split <- str_split_fixed(sleuth_table$target_id, paste(identifier_sleuth, "=", sep = ""), 2)
-  first_split <- as.data.frame(first_split)
-  second_split <- str_split_fixed(first_split$V2, "]", 2)
-  second_split <- as.data.frame(second_split)
-  sleuth_table$target_id <- second_split$V1
   sleuth_table <- sleuth_table[!is.na(sleuth_table$pval), ]
   sleuth_table <- sleuth_table[!duplicated(sleuth_table$target_id), ]
   sleuth_table <- sleuth_table[order(sleuth_table$target_id), ]
@@ -543,9 +544,9 @@ if (is.na(argument_1)){
   argument_9 = 1.0
   argument_10 = 1.0
   argument_11 = 1.0
-  argument_12 = FALSE
+  argument_12 = TRUE
   argument_13 = TRUE
-  argument_14 = TRUE
+  argument_14 = FALSE
   argument_15 = 0.5
   argument_16 = "locus_tag"
   setwd("../")
