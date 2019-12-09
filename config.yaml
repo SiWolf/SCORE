@@ -9,7 +9,7 @@ metadata_file: raw/Metadata.tsv
 param_threshold: 0.05
 param_total_genes: 5000
 ref_annotation_file: references/REF.gff
-ref_annotation_feature: CDS
+ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag
 ref_genome: references/REF.fasta
 ref_transcriptome: references/REF.ffn

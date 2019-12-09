@@ -2,7 +2,7 @@
 # Title: preprocess_transcriptome.py
 # Author: Silver A. Wolf
 # Last Modified: Mo, 09.12.2019
-# Version: 0.0.1
+# Version: 0.0.2
 # ----------------------------------
 
 # Imports
@@ -29,10 +29,8 @@ def update_headers(input_file, id):
 	output.close()
 
 	if found_id == False:
-		os.system("sed -i 's/ /|/g' " + input_file)
-		os.system("rm " + input_file + ".tmp")
-	else:
-		os.system("mv " + input_file + ".tmp " + input_file)
+		os.system("cp " + input_file + " " + input_file + ".tmp")
+		os.system("sed -i 's/ /|/g' " + input_file + ".tmp")
 
 # Main
 if __name__ == "__main__":
