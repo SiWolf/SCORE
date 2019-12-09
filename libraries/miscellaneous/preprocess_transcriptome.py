@@ -2,7 +2,7 @@
 # Title: preprocess_transcriptome.py
 # Author: Silver A. Wolf
 # Last Modified: Mo, 09.12.2019
-# Version: 0.0.3
+# Version: 0.0.4
 # ----------------------------------
 
 # Imports
@@ -26,7 +26,7 @@ def update_headers(input_file, id):
 				else:
 					ignore_entry = False
 					names.append(name)
-					name_line = "> " + name + "\n"
+					name_line = ">" + name + "\n"
 					output.write(name_line)
 			elif found_id == True and ignore_entry == False:
 				seq = line.strip() + "\n"
