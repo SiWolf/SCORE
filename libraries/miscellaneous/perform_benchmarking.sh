@@ -1,7 +1,14 @@
+# --------------------------------
+# Title: perform_benchmarking.sh
+# Author: Silver A. Wolf
+# Last Modified: Fr, 06.12.2019
+# Version: 0.0.1
+# --------------------------------
+
 # Script for benchmarking SCORE
 # TO-DO: Split script into data generation and evaluation?
-# Goal: Simulate 1x, analyse 20x
-# Before: Simulate: 8x, analyse, 1x
+# Goal: Simulate 1x, analyze 20x
+# Before: Simulate: 8x, analyze, 1x
 
 for benchmark in {1..8}
 do

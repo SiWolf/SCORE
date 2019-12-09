@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 06.12.2019
-# Version: 0.6.8
+# Last Modified: Fr, 09.12.2019
+# Version: 0.6.9
 # --------------------------------------------
 
 # Installers
@@ -118,7 +118,7 @@ calculate_tpm <- function(transcript_counts){
   transcript_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
   c = 0
   for (transcript in row.names(transcript_counts)){
-    l = transcript_lengths[transcript_lengths$Transcript.ID == transcript, 2] / 1000
+    l = transcript_lengths[transcript_lengths$Transcript_ID == transcript, 2] / 1000
     transcript_counts[c,] <- transcript_counts[c,] / l
     c = c + 1
   }
@@ -380,12 +380,12 @@ run_noiseq <- function(names_noiseq, counts_noiseq, groups_noiseq, threshold_noi
   # Import and format list of lengths
   # Lengths corresponding to fragments of the same gene (identifier) are summed
   list_of_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
-  list_of_lengths <- ddply(list_of_lengths, "Transcript.ID", numcolwise(sum))
-  list_of_lengths <- list_of_lengths[order(list_of_lengths$Transcript.ID), ]
+  list_of_lengths <- ddply(list_of_lengths, "Transcript_ID", numcolwise(sum))
+  list_of_lengths <- list_of_lengths[order(list_of_lengths$Transcript_ID), ]
   rownames(list_of_lengths) <- c()
   
   # Convert list to data frame
-  lengths_DF <- as.data.frame(list_of_lengths$Length, levels(list_of_lengths$Transcript.ID))
+  lengths_DF <- as.data.frame(list_of_lengths$Length, levels(list_of_lengths$Transcript_ID))
   colnames(lengths_DF) <- c("Lengths")
   
   # Filter DF according to pre-filtered gene list

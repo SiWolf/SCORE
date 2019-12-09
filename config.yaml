@@ -23,6 +23,7 @@ flexbar_max_uncalled: 20
 flexbar_min_length: 20
 flexbar_min_qual: 20
 # MISCELLANEOUS
+kallisto_bootstrap: 100
 genescf_path: ./libraries/geneSCF/geneSCF
 ncbi_genetic_code_table: 11
 noiseq_biological_replicates: TRUE

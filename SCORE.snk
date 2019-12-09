@@ -41,6 +41,7 @@ PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
 PARAM_GENESCF_GO_DB = config["genescf_go_db"]
 PARAM_GENESCF_KEGG_DB = config["genescf_kegg_db"]
 PARAM_GENESCF_TOTAL_GENES_SPECIES = config["param_total_genes"]
+PARAM_KALLISTO_BOOTSTRAP = config["kallisto_bootstrap"]
 PARAM_NCBI_GENETIC_CODE_TABLE = config["ncbi_genetic_code_table"]
 PATH_GENESCF = config["genescf_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
@@ -354,7 +355,7 @@ rule mapping:
 		bowtie2-build {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 		bowtie2 -q --phred33 -p {threads} --no-unal -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
 		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
-		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b 100 -t {threads} {input[0]} {input[1]}
+		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} {input[0]} {input[1]}
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
