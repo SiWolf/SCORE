@@ -2,7 +2,7 @@
 # Title: preprocess_transcriptome.py
 # Author: Silver A. Wolf
 # Last Modified: Mo, 09.12.2019
-# Version: 0.0.2
+# Version: 0.0.3
 # ----------------------------------
 
 # Imports
@@ -11,19 +11,27 @@ import os
 
 def update_headers(input_file, id):
 	found_id = False
+	ignore_entry = False
+	names = []
 	output = open(input_file + ".tmp", "w")
 	seq = ""
 
 	with open(input_file) as file:
 		for line in file:
 			if id in line:
-				name = "> " + line.split(id + "=")[1].split("]")[0] + "\n"
-				output.write(name)
 				found_id = True
-			elif found_id == True:
+				name = line.split(id + "=")[1].split("]")[0]
+				if name in names:
+					ignore_entry = True
+				else:
+					ignore_entry = False
+					names.append(name)
+					name_line = "> " + name + "\n"
+					output.write(name_line)
+			elif found_id == True and ignore_entry == False:
 				seq = line.strip() + "\n"
 				output.write(seq)
-			else:
+			elif found_id == False:
 				break
 
 	output.close()

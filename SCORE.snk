@@ -186,6 +186,7 @@ def read_tsv(tsv_filename):
 # Rename transcripts in the reference transcriptome for later analysis
 # Checks for user-specified ID in headers of fasta entries
 # Iff these cannot be found: Removes spaces in the headers as an alternative
+# Also performs duplicate check and filters duplicated IDs (keeps first entry with specific ID)
 os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
 REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
 
