@@ -37,12 +37,13 @@ WEIGHT_SLEUTH="1.0"
 # Preprocessing
 cd ../../
 ./libraries/miscellaneous/empty_results.sh full
-python3 libraries/miscellaneous/preprocess_transcriptome.py -f $REF_TRANSCRIPTOME -i $REF_ID
 python3 libraries/miscellaneous/fetch_transcript_lengths.py -a $REF_GFF -f $REF_FEATURE -i $REF_ID
 
 # 8 Simulation Rounds
 for BENCHMARK in {1..8}
 do
+	python3 libraries/miscellaneous/preprocess_transcriptome.py -f $REF_TRANSCRIPTOME -i $REF_ID
+
 	# Simulate RNA-Seq data with different parameters
 	if [ $BENCHMARK -eq 1 ]
 	then
