@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 06.12.2019
-# Version: 0.8.1
+# Last Modified: Mo, 09.12.2019
+# Version: 0.8.2
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -183,8 +183,10 @@ def read_tsv(tsv_filename):
 				samples_dic[line[0]] = line[1]
 	return(samples_dic)
 
-# Remove spaces in the reference transcriptome
-os.system("sed -i 's/ /|/g' " + REF_TRANSCRIPTOME)
+# Rename transcripts in the reference transcriptome for later analysis
+# Checks for user-specified ID in headers of fasta entries
+# Iff these cannot be found: Removes spaces in the headers as an alternative
+os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
 
 # Samples
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)

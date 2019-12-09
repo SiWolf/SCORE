@@ -1,8 +1,8 @@
 # --------------------------------
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
-# Last Modified: Fr, 06.12.2019
-# Version: 0.0.1
+# Last Modified: Mo, 09.12.2019
+# Version: 0.0.2
 # --------------------------------
 
 # Script for benchmarking SCORE
@@ -10,74 +10,140 @@
 # Goal: Simulate 1x, analyze 20x
 # Before: Simulate: 8x, analyze, 1x
 
-for benchmark in {1..8}
+# Global Variables
+BENCHMARK_MODE="TRUE"
+BOOTSTRAP="100"
+LOW_EXPRESSION_CUTOFF="10"
+MERGE_OUTPUT="FALSE"
+METADATA="raw/Metadata.tsv"
+NOISEQ_BIOLOGICAL_REPLICATES="FALSE"
+REF_GFF="references/BENCHMARK_ANNOTATION.gff"
+REF_FEATURE="CDS"
+REF_ID="locus_tag"
+REF_TRANSCRIPTOME="references/BENCHMARK_TRANSCRIPTOME.ffn"
+STRICT_MODE="TRUE"
+SCORE_THRESHOLD="0.5"
+THREADS="4"
+THRESHOLD="0.05"
+TOTAL_GENES="5000"
+WEIGHT_BAYSEQ="1.0"
+WEIGHT_DESEQ2="1.0"
+WEIGHT_EDGER="1.0"
+WEIGHT_LIMMA="1.0"
+WEIGHT_NOISEQ="1.0"
+WEIGHT_SLEUTH="1.0"
+
+# Preprocessing
+cd ../../
+./libraries/miscellaneous/empty_results.sh full
+python3 libraries/miscellaneous/preprocess_transcriptome.py -f $REF_TRANSCRIPTOME -i $REF_ID
+python3 libraries/miscellaneous/fetch_transcript_lengths.py -a $REF_GFF -f $REF_FEATURE -i $REF_ID
+
+# 8 Simulation Rounds
+for BENCHMARK in {1..8}
 do
-	./empty_results.sh full
-	cd ../../
-	python libraries/fetch_transcript_lengths.py -f references/human_transduced/PROKKA_07132018.gff -i ID
-	cd libraries/miscellaneous/
-	
-	if [ $benchmark -eq 1 ]
+	# Simulate RNA-Seq data with different parameters
+	if [ $BENCHMARK -eq 1 ]
 	then
-		Rscript generate_rna_seq_data.R 50 TRUE 100 20 4
-	fi
-	
-	if [ $benchmark -eq 2 ]
-	then
-		Rscript generate_rna_seq_data.R 250 TRUE 100 20 4
-	fi
-	
-	if [ $benchmark -eq 3 ]
-	then
-		Rscript generate_rna_seq_data.R 50 FALSE 100 20 4
-	fi
-	
-	if [ $benchmark -eq 4 ]
-	then
-		Rscript generate_rna_seq_data.R 50 TRUE 150 20 4
-	fi
-	
-	if [ $benchmark -eq 5 ]
-	then
-		Rscript generate_rna_seq_data.R 50 TRUE 100 50 4
-	fi
-	
-	if [ $benchmark -eq 6 ]
-	then
-		Rscript generate_rna_seq_data.R 100 FALSE 125 25 4
+		COVERAGE="20"
+		DEG_FOLD_CHANGE="4"
+		DEGS_PER_GROUP="50"
+		RANDOMIZED="FALSE"
+		READ_LENGTH="100"
 	fi
 
-	if [ $benchmark -eq 7 ]
+	if [ $BENCHMARK -eq 2 ]
 	then
-		Rscript generate_rna_seq_data.R 50 TRUE 100 20 3
-	fi
-	
-	if [ $benchmark -eq 8 ]
-	then
-		Rscript generate_rna_seq_data.R 50 TRUE 100 20 5
+		COVERAGE="20"
+		DEG_FOLD_CHANGE="4"
+		DEGS_PER_GROUP="50"
+		RANDOMIZED="TRUE"
+		READ_LENGTH="100"
 	fi
 
-	cd simulation_data/
+	if [ $BENCHMARK -eq 3 ]
+	then
+		COVERAGE="20"
+		DEG_FOLD_CHANGE="4"
+		DEGS_PER_GROUP="250"
+		RANDOMIZED="TRUE"
+		READ_LENGTH="100"
+	fi
+
+	if [ $BENCHMARK -eq 4 ]
+	then
+		COVERAGE="20"
+		DEG_FOLD_CHANGE="4"
+		DEGS_PER_GROUP="50"
+		RANDOMIZED="TRUE"
+		READ_LENGTH="50"
+	fi
+
+	if [ $BENCHMARK -eq 5 ]
+	then
+		COVERAGE="20"
+		DEG_FOLD_CHANGE="4"
+		DEGS_PER_GROUP="50"
+		RANDOMIZED="TRUE"
+		READ_LENGTH="150"
+	fi
+
+	if [ $BENCHMARK -eq 6 ]
+	then
+		COVERAGE="30"
+		DEG_FOLD_CHANGE="4"
+		DEGS_PER_GROUP="50"
+		RANDOMIZED="TRUE"
+		READ_LENGTH="100"
+	fi
+
+	if [ $BENCHMARK -eq 7 ]
+	then
+		COVERAGE="20"
+		DEG_FOLD_CHANGE="2"
+		DEGS_PER_GROUP="50"
+		RANDOMIZED="TRUE"
+		READ_LENGTH="100"
+	fi
+
+	if [ $BENCHMARK -eq 8 ]
+	then
+		COVERAGE="20"
+		DEG_FOLD_CHANGE="6"
+		DEGS_PER_GROUP="50"
+		RANDOMIZED="TRUE"
+		READ_LENGTH="100"
+	fi
+
+	Rscript libraries/miscellaneous/generate_rna_seq_data.R $REF_TRANSCRIPTOME $COVERAGE $DEG_FOLD_CHANGE $DEGS_PER_GROUP $RANDOMIZED $READ_LENGTH
+
+	# Kallisto Quantification
 	source activate score_map_env
-	kallisto index -i index.idx PROKKA_07132018.ffn
-	for value in {1..6}
+	kallisto index -i index.idx $REF_TRANSCRIPTOME
+
+	for SAMPLE_NUMBER in {1..6}
 	do
-		break_symbol="/"
-		kallisto_name="kallisto/"
-		no_1="_1.fasta.gz"
-		no_2="_2.fasta.gz"
-		sample="sample_0"
-		sample_name_1="$sample$value$no_1"
-		sample_name_2="$sample$value$no_2"
-		sample_folder="$kallisto_name$sample$value$break_symbol"
-		kallisto quant -i index.idx -o $sample_folder -b 100 -t 8 $sample_name_1 $sample_name_2
+		BREAK_SYMBOL="/"
+		KALLISTO_FOLDER="libraries/miscellaneous/simulation_data/kallisto/"
+		PREFIX_FOLDER="libraries/miscellaneous/simulation_data/"
+		RP_1="_1.fasta.gz"
+		RP_2="_2.fasta.gz"
+		SAMPLE="sample_0"
+		SAMPLE_NAME_1="$PREFIX_FOLDER$SAMPLE$SAMPLE_NUMBER$RP_1"
+		SAMPLE_NAME_2="$PREFIX_FOLDER$SAMPLE$SAMPLE_NUMBER$RP_2"
+		SAMPLE_FOLDER="$KALLISTO_FOLDER$SAMPLE$SAMPLE_NUMBER$BREAK_SYMBOL"
+		kallisto quant -i index.idx -o $SAMPLE_FOLDER -b $BOOTSTRAP -t $THREADS $SAMPLE_NAME_1 $SAMPLE_NAME_2
 	done
+
 	source deactivate
-	cd ../../../
+	rm index.idx
+
+	# DEG Prediction
 	source activate score_deg_env
-	Rscript libraries/SCORE.R raw/Metadata.tsv 5000 FALSE 0.05 5 0.5 1.0 0.75 0.75 2.5 0.5 TRUE TRUE FALSE 0.5
+	Rscript libraries/SCORE.R $METADATA	$TOTAL_GENES $MERGE_OUTPUT $THRESHOLD $LOW_EXPRESSION_CUTOFF $WEIGHT_BAYSEQ $WEIGHT_DESEQ2 $WEIGHT_EDGER $WEIGHT_LIMMA $WEIGHT_NOISEQ $WEIGHT_SLEUTH $BENCHMARK_MODE $STRICT_MODE $NOISEQ_BIOLOGICAL_REPLICATES $SCORE_THRESHOLD $REF_ID
 	source deactivate
-	cd libraries/miscellaneous/
-	./empty_results.sh full $benchmark
+	./libraries/miscellaneous/empty_results.sh full $BENCHMARK
 done
-Rscript generate_benchmarking_plots.R
+
+# Visualization
+Rscript libraries/miscellaneous/generate_benchmarking_plots.R

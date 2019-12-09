@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_rna_seq_data.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 04.12.2019
-# Version: 0.0.1
+# Last Modified: Fr, 06.12.2019
+# Version: 0.0.2
 # --------------------------------------------
 
 # Script to simulate RNA-Seq data using Polyester
@@ -23,26 +23,28 @@ argument_1 = args[1]
 argument_2 = args[2]
 argument_3 = args[3]
 argument_4 = args[4]
-argument_5 = args[4]
+argument_5 = args[5]
+argument_6 = args[6]
 
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
 if (is.na(argument_1)){
-  argument_1 = 50
-  argument_2 = TRUE
-  argument_3 = 100
-  argument_4 = 20
-  argument_5 = 4
+  argument_1 = "references/BENCHMARK_TRANSCRIPTOME.ffn"
+  argument_2 = 20
+  argument_3 = 4
+  argument_4 = 50
+  argument_5 = TRUE
+  argument_6 = 100
 }
 
-overrepresented_genes = as.numeric(argument_1)
-random_overrepresented_genes = as.logical(argument_2)
-read_length = as.numeric(argument_3)
-coverage_val = as.numeric(argument_4)
-deg_fold_change = as.numeric(argument_5)
+reference_path = argument_1
+coverage_val = as.numeric(argument_2)
+deg_fold_change = as.numeric(argument_3)
+overrepresented_genes = as.numeric(argument_4)
+random_overrepresented_genes = as.logical(argument_5)
+read_length = as.numeric(argument_6)
 
 # Read fasta file
-reference_path = "simulation_data/PROKKA_07132018.ffn"
 fasta = readDNAStringSet(reference_path)
 
 # Value for coverage
@@ -78,6 +80,6 @@ if (random_overrepresented_genes == FALSE){
 
 # Run simulation
 replicates = c(3, 3)
-results_folder = "simulation_data/"
+results_folder = "libraries/miscellaneous/simulation_data/"
 simulate_experiment(reference_path, reads_per_transcript = readspertx, num_reps = replicates, fold_changes = fold_changes, outdir = results_folder, readlen = read_length, paired = TRUE)
-system("gzip simulation_data/*.fasta")
+system("gzip libraries/miscellaneous/simulation_data/*.fasta")
