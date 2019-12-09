@@ -544,9 +544,9 @@ if (is.na(argument_1)){
   argument_9 = 1.0
   argument_10 = 1.0
   argument_11 = 1.0
-  argument_12 = TRUE
+  argument_12 = FALSE
   argument_13 = TRUE
-  argument_14 = FALSE
+  argument_14 = TRUE
   argument_15 = 0.5
   argument_16 = "locus_tag"
   setwd("../")
