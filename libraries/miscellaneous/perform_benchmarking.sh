@@ -2,7 +2,7 @@
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
 # Last Modified: Mo, 09.12.2019
-# Version: 0.0.2
+# Version: 0.0.4
 # --------------------------------
 
 # Script for benchmarking SCORE
@@ -18,13 +18,14 @@ MERGE_OUTPUT="FALSE"
 METADATA="raw/Metadata.tsv"
 NOISEQ_BIOLOGICAL_REPLICATES="FALSE"
 REF_GFF="references/BENCHMARK_ANNOTATION.gff"
-REF_FEATURE="CDS"
+REF_FEATURE="gene"
 REF_ID="locus_tag"
 REF_TRANSCRIPTOME="references/BENCHMARK_TRANSCRIPTOME.ffn"
 STRICT_MODE="TRUE"
 SCORE_THRESHOLD="0.5"
 THREADS="4"
 THRESHOLD="0.05"
+TMP=".tmp"
 TOTAL_GENES="5000"
 WEIGHT_BAYSEQ="1.0"
 WEIGHT_DESEQ2="1.0"
@@ -115,11 +116,11 @@ do
 		READ_LENGTH="100"
 	fi
 
-	Rscript libraries/miscellaneous/generate_rna_seq_data.R $REF_TRANSCRIPTOME $COVERAGE $DEG_FOLD_CHANGE $DEGS_PER_GROUP $RANDOMIZED $READ_LENGTH
+	Rscript libraries/miscellaneous/generate_rna_seq_data.R $REF_TRANSCRIPTOME$TMP $COVERAGE $DEG_FOLD_CHANGE $DEGS_PER_GROUP $RANDOMIZED $READ_LENGTH
 
 	# Kallisto Quantification
 	source activate score_map_env
-	kallisto index -i index.idx $REF_TRANSCRIPTOME
+	kallisto index -i index.idx $REF_TRANSCRIPTOME$TMP
 
 	for SAMPLE_NUMBER in {1..6}
 	do
