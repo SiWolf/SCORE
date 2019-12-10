@@ -220,22 +220,26 @@ export_results <- function(bayseq_result, deseq2_result, edger_result, limma_res
   edger_FDR <- edger_result$FDR
   limma_pvalues <- limma_result$adj.P.Val
   
+  rownames(sleuth_result) <- sleuth_result$target_id
+  
   # Adding missing genes as NA values to NOISeq and sleuth
   for (gene in gene_names_list){
     if ((gene %in% rownames(noiseq_result)) == FALSE){
       new_row_noiseq <- matrix(c(NA, NA, NA, NA, NA, NA), nrow = 1, dimnames = list(gene))
       noiseq_result[nrow(noiseq_result) + 1, ] = as.data.frame(new_row_noiseq)
     }
-    if ((gene %in% sleuth_result$target_id) == FALSE){
-      new_row_sleuth <- matrix(c(gene, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), nrow = 1)
+    if ((gene %in% rownames(sleuth_result)) == FALSE){
+      new_row_sleuth <- matrix(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), nrow = 1, dimnames = list(gene))
       sleuth_result[nrow(sleuth_result) + 1, ] = as.data.frame(new_row_sleuth)
     }
   }
   
+  sleuth_result <- sleuth_result[2:12]
+  
   noiseq_reordered <- noiseq_result[order(match(rownames(noiseq_result), gene_names_list)), ]
   noiseq_probabilities <- noiseq_reordered$prob
   
-  sleuth_reordered <- sleuth_result[order(match(sleuth_result$target_id, gene_names_list)), ]
+  sleuth_reordered <- sleuth_result[order(match(rownames(sleuth_result), gene_names_list)), ]
   sleuth_qvalues <- sleuth_reordered$qval
     
   final_results <- structure(list(baySeq = bayseq_FDR, DESeq2 = deseq2_pvalues, edgeR = edger_FDR, limma = limma_pvalues, NOISeq = noiseq_probabilities, sleuth = sleuth_qvalues), row.names = gene_names_list, class = "data.frame")
