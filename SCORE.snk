@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Mo, 09.12.2019
-# Version: 0.8.2
+# Last Modified: Thue, 10.12.2019
+# Version: 0.8.3
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -93,8 +93,8 @@ def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 	with open(count_file) as count_values:
 		for count_line in csv.reader(count_values, delimiter = ","):
 			gene = ""
-			product = ""
 			id = count_line[0]
+			product = ""
 			if id == "":
 				counts_extended.write("ID,gene name,product," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
 			else:
@@ -104,19 +104,11 @@ def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 							if len(gff_line) > 8 and gff_line[2] == annotation_feature:
 								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
 								if id == current_id:
-									if "product=" in gff_line[8]:
-										product = gff_line[8].split("product=")[1].split(";")[0]
-										# Clean up some of the annotations
-										product = product.replace("%2C ", " ")
-										product = product.replace("%3B ", " ")
-										product = product.replace("%2C", "-")
-										product = product.replace("%3B", "-")
-									else:
-										product = ""
+									product = fetch_gene_product(id, gff_line[8], gff_file)
 									if gff_line[8].split("ID=")[1].count("gene=") > 0:
 										gene = gff_line[8].split("gene=")[1].split(";")[0]
 									break
-				counts_extended.write(count_line[0] + "," + gene + "," + product + "," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
+				counts_extended.write(id + "," + gene + "," + product + "," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
 	counts_extended.close()
 
 def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
@@ -126,8 +118,8 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 			direction = ""
 			fold_change = ""
 			gene = ""
-			product = ""
 			id = consensus_line[0]
+			product = ""
 			if id == "":
 				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + ",ordering,log2FC\n")
 			else:
@@ -137,15 +129,7 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 							if len(gff_line) > 8 and gff_line[2] == annotation_feature:
 								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
 								if id == current_id:
-									if "product=" in gff_line[8]:
-										product = gff_line[8].split("product=")[1].split(";")[0]
-										# Clean up some of the annotations
-										product = product.replace("%2C ", " ")
-										product = product.replace("%3B ", " ")
-										product = product.replace("%2C", "-")
-										product = product.replace("%3B", "-")
-									else:
-										product = ""
+									product = fetch_gene_product(id, gff_line[8], gff_file)
 									if gff_line[8].split("ID=")[1].count("gene=") > 0:
 										gene = gff_line[8].split("gene=")[1].split(";")[0]
 									break
@@ -159,8 +143,29 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 						if id == limma_line[0]:
 							fold_change = limma_line[1]
 							break
-				consensus_extended.write(consensus_line[0] + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + "," + direction + "," + fold_change + "\n")
+				consensus_extended.write(id + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + "," + direction + "," + fold_change + "\n")
 	consensus_extended.close()
+
+# Extract a gene product from the current GFF line
+# If not found search for an alternative in the entire GFF file
+# Last option: replace with an empty string
+def fetch_gene_product(id, line, file):
+	product = ""
+	if "product=" in line:
+		product = line.split("product=")[1].split(";")[0]
+	else:
+		with open(file) as annotation_file:
+			for annotation_line in csv.reader(annotation_file, delimiter = "\t"):
+				merged_line = "".join(annotation_line)
+				if id in merged_line and "product=" in merged_line:
+					product = annotation_line[8].split("product=")[1].split(";")[0]
+					break
+	# Clean up some of the annotations
+	product = product.replace("%2C ", " ")
+	product = product.replace("%3B ", " ")
+	product = product.replace("%2C", "-")
+	product = product.replace("%3B", "-")
+	return(product)
 
 def fetch_gene_symbols(new_file):
 	list_of_gene_symbols = open(new_file, "w")
@@ -199,6 +204,7 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 # Merging QC Reports: MultiQC (1.8)
 # Translation: Biopython (1.74)
 # TIGRFAM Classification: Hmmer (3.2.1)
+# -----------------------------------
 rule DEG_postprocessing:
 	input:
 		"deg/pathway_analysis_GO",
@@ -261,7 +267,7 @@ rule pathway_analysis:
 		mkdir -p {output[1]}
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_GO_DB}
 		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_KEGG_DB}
-		# Update GeneSCF results using the GO DB Reference File
+		# Update GeneSCF results using the GO DB reference file
 		python3 libraries/miscellaneous/genescf_update.py -d {PARAM_GENESCF_GO_DB} -o {REF_GO_FILE}
 		"""
 
@@ -319,6 +325,7 @@ rule DEG_analysis:
 # featureCounts is part of the subread package
 # -----------------------------------
 # TO-DO: Break iff 0 counts in total! (else: warning?)
+# -----------------------------------
 rule counting:
 	input:
 		"mapped/bowtie2/{sample}.sam"
@@ -344,6 +351,7 @@ rule counting:
 # After mapping, moves alignment reference index since it's not used anymore
 # -----------------------------------
 # TO-DO: Verify that mapping went well?
+# -----------------------------------
 rule mapping:
 	input:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
@@ -369,6 +377,7 @@ rule mapping:
 # Trimming: Flexbar (3.5.0)
 # -----------------------------------
 # TO-DO: Should not forget adapter trimming when using new data!
+# -----------------------------------
 rule quality_control_and_trimming:
 	input:
 		"raw/{sample}_1.fastq.gz",
