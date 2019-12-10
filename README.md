@@ -27,23 +27,25 @@ Then run the installer script:
 
 ### 1.2) Usage
 
+Requirements:
+* Adapter-Trimmed Reads (.fastq.gz)
+* Reference Annotation file (.gff)
+* Reference Genome (.fasta)
+* Reference Transcriptome(.fasta)
 
-1.) Feed the machine. Copy your adapter-trimmed gzipped NGS paired-end RNA-Seq reads as well as a Metadata table indicating sample groups (TSV format) into the raw/ folder. Please ensure that each read-pair shares a common prefix name (which should be consistent with the corresponding name listed in the Metadata table), followed by a suffix indicating the individual pair number (e.g. superpair_1.fastq.gz and superpair_2.fastq.gz). Please refer to [raw/Metadata.tsv](https://github.com/SiWolf/SCORE/blob/master/raw/Metadata.tsv) for an example of the required TSV format. In addition, SCORE requires a reference genome and transcriptome (both in fasta format), as well as a .gff file for annotations. These files should be placed in the references/ folder. They can be aquired for many organisms using NCBI (e.g. [here](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/) for E. coli) or by annotating a custom genome using tools such as [Prokka](https://github.com/tseemann/prokka). Please ensure the following steps for preprocessing your gff file: 1.) Remove the FASTA sequence located at the end of the file, 2.) Check for any unmatched " symbols and 3.) Verify that the contig names specified within your FASTA genome are matched to those within the gff file (e.g. "_size" vs. "|size").
+Place input reads into the [raw/](https://github.com/SiWolf/SCORE/tree/master/raw) directory and the reference files into [references/](https://github.com/SiWolf/SCORE/tree/master/references).
 
-2.) Set parameters. Edit the parameters in the configuration file ([config.yaml](https://github.com/SiWolf/SCORE/blob/master/config.yaml)) according to your experimental setup. If you choose to use a GUI, you can instead load the Snakefile using Sequanix and edit the corresponding configuration file directly from within Sequanix.
+Set parameters in the following files:
+* [config.yaml](https://github.com/SiWolf/SCORE/blob/master/config.yaml)
+* [raw/Metadata.tsv](https://github.com/SiWolf/SCORE/blob/master/raw/Metadata.tsv)
 
-3.) Run SCORE. If you have chosen to use Sequanix you can launch SCORE using the GUI. If you are working on the command line execute the run-SCORE.sh shell script (make sure the script is executable) and specify the amount of threads the analysis may use. Example: ./run-SCORE.sh 8 to launch SCORE using 8 threads (default = 4). SCORE will automatically parallelize the internal rules accordingly.
-
-4.) Analyze the results. All results essential for the DEG prediction are saved within the deg/<analysis_name>/ folder.
+And run SCORE:
 
 ```
-# Run SCORE (commandline)
-# Place your raw data in raw/
-# Update the config.yaml accordingly
 ./run-SCORE.sh <amount_of_threads>
 ```
 
-For a more details please visit our [wiki](https://github.com/SiWolf/SCORE/wiki). 
+For a more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki). 
 
 ## 2.) FAQ
 
