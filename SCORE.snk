@@ -136,7 +136,7 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 				with open("deg/diffexpr_results_bayseq.csv") as bayseq_results:
 					for bayseq_line in csv.reader(bayseq_results, delimiter = ","):
 						if id == bayseq_line[0] or id == bayseq_line[1]:
-							direction = bayseq_line[9]
+							direction = bayseq_line[8]
 							break
 				with open("deg/diffexpr_results_limma.csv") as limma_results:
 					for limma_line in csv.reader(limma_results, delimiter = ","):
