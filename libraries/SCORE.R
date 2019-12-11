@@ -680,7 +680,7 @@ rownames(summary_frame) <- c(tool_selection, "SCORE")
 percentage_degs = round((nrow(results_consensus)/length(gene_names))*100, digits = 2)
 percentage_genes = round((length(filtered_gene_names)/length(gene_names))*100, digits = 2)
 additional_stats_c1 <- c("Total", "Filtered", "DEGs-SCORE")
-additional_stats_c2 <- c(length(gene_names), paste(length(filtered_gene_names), "(", percentage_genes, "%)", sep = ""), paste(nrow(results_consensus), "(", percentage_degs, "%)", sep = ""))
+additional_stats_c2 <- c(length(gene_names), paste(length(filtered_gene_names), " (", percentage_genes, "%)", sep = ""), paste(nrow(results_consensus), " (", percentage_degs, "%)", sep = ""))
 additional_stats <- data.frame(Genes = additional_stats_c1, Amount = additional_stats_c2)
 
 if (benchmark_mode == TRUE){
@@ -701,7 +701,7 @@ if (benchmark_mode == TRUE){
 
 tpm_gene_counts = calculate_tpm(filtered_gene_counts)
 
-write.csv(additional_stats, file = "deg_stats.csv")
+write.csv(additional_stats, file = "deg_stats.csv", row.names = FALSE)
 write.csv(filtered_gene_counts, file = "filtered_gene_counts_raw.csv")
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
 write.csv(summary_frame, file = "deg_summary.csv")
