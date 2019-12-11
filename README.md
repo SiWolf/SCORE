@@ -1,12 +1,13 @@
 # SCORE
-Smart Consensus Of RNA Expression pipelines
+>Smart Consensus Of RNA Expression pipelines
 
-## Table of Contents
-- [1. Quick Start Guide](#1-quick-start-guide)
-- [1.1 Setup](#11-setup)
-- [1.2 Usage](#12-usage)
-- [2. FAQ](#2-faq)
-- [3. License](#3-license)
+### Table of Contents
+
+- [Quick Start Guide](#1-quick-start-guide)
+  - [Setup](#11-setup)
+  - [Usage](#12-usage)
+- [FAQ](#2-faq)
+- [License](#3-license)
 
 ## 1.) Quick Start Guide
 
@@ -53,27 +54,27 @@ And run SCORE:
 ./run-SCORE.sh <amount_of_threads>
 ```
 
-For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki). 
+For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki).
 
 ## 2.) FAQ
 
-### How can I compute the total runtime of my analysis?
+#### How can I compute the total runtime of my analysis?
 
 Using the executable script mentioned above will automatically output the runtime at successful termination. Sequanix will not provide additional runtime information.
 
-### I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?
+#### I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?
 
 Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set a specified {parameter} to a {value}.
 
-### Snakemake is unable to activate the included environments - what can I do?
+#### Snakemake is unable to activate the included environments - what can I do?
 
 This is a known issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 ("conda install -n base conda=4.5.13") and modify your .bashrc (add line: export PATH="/full/path/to/miniconda/bin:$PATH") in order to ensure compability with Snakemake.
 
-### Snakemake outputs an error stating that not all output, log and benchmarking files contain the same wildcards? What does this mean?
+#### Snakemake outputs an error stating that not all output, log and benchmarking files contain the same wildcards? What does this mean?
 
 Starting with Snakemake version 5 and above, the syntax for dynamic rules has been [updated](https://bitbucket.org/snakemake/snakemake/issues/955/problem-with-wildcard-and-dynamic-syntax). Please use Snakemake version 4.6.0 for running SCORE.
 
-### How do I cite SCORE?
+#### How do I cite SCORE?
 
 Please cite the following:
 
@@ -81,4 +82,4 @@ Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus
 
 ## 3.) License
 
-This project is licensed under the GPLv3 License. See the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the GPLv3 License. See the [LICENSE.md](LICENSE) file for details.
