@@ -1,11 +1,12 @@
 # SCORE
-# Smart Consensus Of RNA Expression pipelines
+Smart Consensus Of RNA Expression pipelines
 
 ## Table of Contents
 - [1. Quick Start Guide](#1-quick-start-guide)
 - [1.1 Setup](#11-setup)
 - [1.2 Usage](#12-usage)
 - [2. FAQ](#2-faq)
+- [3. License](#3-license)
 
 ## 1.) Quick Start Guide
 
@@ -77,3 +78,7 @@ Starting with Snakemake version 5 and above, the syntax for dynamic rules has be
 Please cite the following:
 
 Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin.
+
+## 3.) License
+
+This project is licensed under the GPLv3 License. See the [LICENSE.md](LICENSE.md) file for details.
