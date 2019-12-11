@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 10.12.2019
-# Version: 0.7.1
+# Last Modified: Wed, 11.12.2019
+# Version: 0.7.2
 # --------------------------------------------
 
 # Installers
@@ -676,6 +676,11 @@ time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time
 summary_frame <- data.frame(Runtimes = time_frame, DEGs = deg_frame)
 rownames(summary_frame) <- c(tool_selection, "SCORE")
 
+# Output additional stats such as the total amount of genes and filtered genes
+additional_stats_c1 <- c("Total", "Filtered", "DEGs-SCORE")
+additional_stats_c2 <- c(length(gene_names), length(filtered_gene_names), nrow(results_consensus))
+additional_stats <- data.frame(Genes = additional_stats_c1, Amount = additional_stats_c2)
+
 if (benchmark_mode == TRUE){
   results_binary$DE <- simulation_table_updated$DE
   statistics_frame <- calculate_statistics(results_binary, results_consensus)
@@ -694,10 +699,11 @@ if (benchmark_mode == TRUE){
 
 tpm_gene_counts = calculate_tpm(filtered_gene_counts)
 
+write.csv(additional_stats, file = "deg_stats.csv")
 write.csv(filtered_gene_counts, file = "filtered_gene_counts_raw.csv")
 write.csv(results_consensus, file = "consensus_diffexpr_results.csv")
-write.csv(tpm_gene_counts, file = "filtered_gene_counts_tpm.csv")
 write.csv(summary_frame, file = "deg_summary.csv")
+write.csv(tpm_gene_counts, file = "filtered_gene_counts_tpm.csv")
 
 dev.off()
 

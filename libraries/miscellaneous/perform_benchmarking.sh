@@ -1,8 +1,8 @@
 # --------------------------------
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
-# Last Modified: Thue, 10.12.2019
-# Version: 0.0.5
+# Last Modified: Wed, 11.12.2019
+# Version: 0.0.6
 # --------------------------------
 
 # Script for benchmarking SCORE
@@ -14,9 +14,9 @@
 BENCHMARK_MODE="TRUE"
 BOOTSTRAP="100"
 LOW_EXPRESSION_CUTOFF="10"
-MERGE_OUTPUT="FALSE"
+MERGE_OUTPUT="TRUE"
 METADATA="raw/Metadata.tsv"
-NOISEQ_BIOLOGICAL_REPLICATES="FALSE"
+NOISEQ_BIOLOGICAL_REPLICATES="TRUE"
 REF_GFF="references/BENCHMARK_ANNOTATION.gff"
 REF_FEATURE="gene"
 REF_ID="locus_tag"

@@ -1,14 +1,14 @@
 # --------------------------------------------
 # Title: generate_benchmarking_plots.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 04.12.2019
-# Version: 0.0.1
+# Last Modified: Wed, 11.12.2019
+# Version: 0.0.2
 # --------------------------------------------
 
 # Visualize DEG prediction accuracy
 # Uses R standard libraries
 
-setwd("../../deg/")
+setwd("deg/")
 
 # Data preprocessing
 data_1 <- read.csv(file = "1/deg_summary.csv", header = TRUE, sep = ",")
