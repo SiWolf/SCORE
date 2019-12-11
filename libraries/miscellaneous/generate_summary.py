@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: generate_summary.py
 # Author: Silver A. Wolf
-# Last Modified: Wed, 28.08.2019
-# Version: 0.1.3
+# Last Modified: Wed, 11.12.2019
+# Version: 0.1.4
 # -------------------------------
 
 # Imports
@@ -25,8 +25,8 @@ def fasta_wrapper(sequence):
 			new_sequence = new_sequence + base
 			new_sequence_count += 1
 	return(new_sequence)
-				
-def create_summary_file(ffn_file, genetic_code, metadata_file):
+
+def create_summary_file(genetic_code, metadata_file, ffn_file):
 	conditions = []
 	with open(metadata_file) as tsv:
 		for line in csv.reader(tsv, delimiter = "\t"):
@@ -76,7 +76,7 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 							if int(presence_absence_line[6]) + int(presence_absence_line[7]) + int(presence_absence_line[8]) > 1:
 								presence_absence_condition_2 = "1"
 							else:
-								presence_absence_condition_2 = "0"						
+								presence_absence_condition_2 = "0"
 							break
 				with open("deg/filtered_gene_counts_tpm_extended.csv") as tpm_file:
 					for tpm_line in csv.reader(tpm_file, delimiter = ","):
@@ -107,40 +107,49 @@ def create_summary_file(ffn_file, genetic_code, metadata_file):
 							read_gene = True
 						else:
 							if read_gene == True:
-								if line[0] == ">":
+								if line[0] == ">" or line[0] == "":
 									break
 								else:
 									nucleotide_sequence = nucleotide_sequence + line.strip()
-				nucleotide_sequence_biopython = Seq(nucleotide_sequence)
-				aa_sequence = str(nucleotide_sequence_biopython.translate(table = genetic_code))
-				summary_file.write(id + "\t" + gene_name + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + presence_absence_condition_1 + "\t" + presence_absence_condition_2 + "\t" + tpm_condition_1 + "\t" + tpm_condition_2 + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
-				
-				gene_edit = fasta_wrapper(nucleotide_sequence)
-				
-				if deg == "-1":
-					genes_downregulated.write("> " + id + "\n" + gene_edit + "\n")
-				
-				elif deg == "1":
-					genes_upregulated.write("> " + id + "\n" + gene_edit + "\n")
-					
+
+				# Special case for when the ID was not found in the transcriptome file
+				# The gene will be included in the summary table, but does not contain any sequence information
+				# It will not be included in the output fasta files
+				if len(nucleotide_sequence) > 1:
+					nucleotide_sequence_biopython = Seq(nucleotide_sequence)
+					aa_sequence = str(nucleotide_sequence_biopython.translate(table = genetic_code))
+
+					gene_edit = fasta_wrapper(nucleotide_sequence)
+
+					if deg == "-1":
+						genes_downregulated.write("> " + id + "\n" + gene_edit + "\n")
+					elif deg == "1":
+						genes_upregulated.write("> " + id + "\n" + gene_edit + "\n")
+					else:
+						genes_neutral.write("> " + id + "\n" + gene_edit + "\n")
+
+					protein_edit = fasta_wrapper(aa_sequence)
+
+					proteins.write("> " + id + "\n" + protein_edit + "\n")
+
 				else:
-					genes_neutral.write("> " + id + "\n" + gene_edit + "\n")
-					
-				protein_edit = fasta_wrapper(aa_sequence)
-				
-				proteins.write("> " + id + "\n" + protein_edit + "\n")
+					nucleotide_sequence = ""
+					aa_sequence = ""
+
+				summary_file.write(id + "\t" + gene_name + "\t" + product + "\t" + fold_change + "\t" + deg + "\t" + p_value_bayseq + "\t" + p_value_deseq2 + "\t" + p_value_edger + "\t" + p_value_limma + "\t" + p_value_noiseq + "\t" + p_value_sleuth + "\t" + presence_absence_condition_1 + "\t" + presence_absence_condition_2 + "\t" + tpm_condition_1 + "\t" + tpm_condition_2 + "\t" + nucleotide_sequence + "\t" + aa_sequence + "\n")
 
 	genes_downregulated.close()
 	genes_neutral.close()
 	genes_upregulated.close()
 	proteins.close()
 	summary_file.close()
-	
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description = "")
-	parser.add_argument("-f", "--fasta_file", type = str, default = "references/REF.ffn", required = False, help = "FFN file in Fasta format")
-	parser.add_argument("-g", "--genetic_code", type = str, default = "11", required = False, help = "NCBI Identifier for the Genetic Code (organism specific)")
+	parser.add_argument("-c", "--genetic_code", type = str, default = "11", required = False, help = "NCBI identifier for the genetic code (organism specific)")
 	parser.add_argument("-m", "--metadata_table", type = str, default = "raw/Metadata.tsv", required = False, help = "The Metadata table used for the analysis")
+	parser.add_argument("-t", "--transcriptome_fasta", type = str, default = "references/REF.ffn", required = False, help = "Transcriptome in fasta format")
+
 	args = parser.parse_args()
-	
-	create_summary_file(args.fasta_file, args.genetic_code, args.metadata_table)
+
+	create_summary_file(args.genetic_code, args.metadata_table, args.transcriptome_fasta)
