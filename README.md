@@ -3,15 +3,12 @@
 
 ### Table of Contents
 
-- [Quick Start Guide](#1-quick-start-guide)
-  - [Setup](#11-setup)
-  - [Usage](#12-usage)
-- [FAQ](#2-faq)
-- [License](#3-license)
+1. [Setup](#1-setup)
+2. [Usage](#2-usage)
+3. [FAQ](#3-faq)
+4. [License](#4-license)
 
-## 1.) Quick Start Guide
-
-### 1.1) Setup
+## 1.) Setup
 
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
@@ -34,7 +31,7 @@ Then run the installation script:
 ./libraries/miscellaneous/install.sh
 ```
 
-### 1.2) Usage
+### 2) Usage
 
 Requirements:
 * Adapter-Trimmed NGS Reads (.fastq.gz)
@@ -56,7 +53,7 @@ And run SCORE:
 
 For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki).
 
-## 2.) FAQ
+## 3.) FAQ
 
 #### How can I compute the total runtime of my analysis?
 
@@ -80,6 +77,6 @@ Please cite the following:
 
 Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin.
 
-## 3.) License
+## 4.) License
 
 This project is licensed under the GPLv3 License. See the [LICENSE.md](LICENSE) file for details.
