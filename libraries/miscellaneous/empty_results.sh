@@ -1,15 +1,14 @@
-# ------------------------------
+# -------------------------------
 # Title: empty_results.sh
 # Author: Silver A. Wolf
-# Last Modified: Mo, 09.12.2019
-# Version: 0.0.1
-# ------------------------------
+# Last Modified: Thur, 12.12.2019
+# Version: 0.0.2
+# -------------------------------
 
 # Script for deleting existing SCORE results
-# This is used for testing various experimental combinations and parameters
-# To empty all primary results: ./empty_results.sh default
-# To empty all results: ./empty_results.sh full
-# To empty all primary results but save previous results: ./empty_results.sh default Test_Folder
+# Useful for rapidly testing various experimental combinations and parameters
+# Empty all/none/primary results: ./empty_results.sh <full/fair/default> 
+# Empty all/none/primary results and save previous run: ./empty_results.sh <full/fair/default> <Analysis_Folder>
 
 PARENT_FOLDER_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 MODE=$1
@@ -39,8 +38,15 @@ then
 	rm -r proteins*
 	rm -r transcript*
 	rm -r summary*
-else	
-	ANALYSIS=$2
+else
+	ANALYSIS=$2-`date '+%Y-%m-%d-%H-%M'`-`uuidgen -t | head -c 5`
+	
+	# Iff an older analysis folder is found, remove it
+	if [ -d "$ANALYSIS" ]
+	then
+		rm -r $ANALYSIS
+	fi
+	
 	mkdir $ANALYSIS
 	mv consensus* $ANALYSIS
 	mv dag* $ANALYSIS
@@ -61,7 +67,11 @@ cd ../
 rm log.txt
 rm references/*.tmp
 
-# FastQC, flexbar and MultiQC files are deleted on default (default mode)
+# Fair mode
+# Does not delete any of the results
+
+# Default mode
+# FastQC, flexbar and MultiQC files are deleted on default
 if [ "$MODE" = "default" ]
 then
 	cd fastqc/
@@ -71,7 +81,8 @@ then
 	cd ../
 fi
 
-# In addition, Bowtie2, featureCounts and kallisto files are deleted on full reset (full mode)
+# Full mode
+# In addition, Bowtie2, featureCounts and kallisto files are deleted on full reset
 if [ "$MODE" = "full" ]
 then
 	cd fastqc/

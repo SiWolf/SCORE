@@ -16,7 +16,6 @@ Download and extract the latest stable release of SCORE from [here](https://gith
 * [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html) (< 4.5.13)
 * [Python 3](https://www.python.org/)
 * [Snakemake](https://snakemake.readthedocs.io/en/stable/) (< 4.6.0)
-* [tar](https://en.wikipedia.org/wiki/Tar_(computing))
 
 **Optional:**
 * [git](https://git-scm.com/) (Download)
@@ -34,7 +33,7 @@ Then run the installation script:
 ## 2. Usage
 
 **Requirements:**
-* Adapter-Trimmed NGS Reads (.fastq.gz)
+* Adapter-Trimmed NGS Reads (.fastq or .fastq.gz)
 * Reference Annotation File (.gff)
 * Reference Genome (.fasta)
 * Reference Transcriptome (.fasta)
@@ -79,4 +78,4 @@ Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus
 
 ## 4. License
 
-This project is licensed under the GPLv3 License. See the [LICENSE.md](LICENSE) file for details.
+This project is licensed under the GPLv3 License. See the [LICENSE](LICENSE) file for more details.

@@ -1,8 +1,8 @@
 # --------------------------------
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
-# Last Modified: Wed, 11.12.2019
-# Version: 0.0.6
+# Last Modified: Thur, 12.12.2019
+# Version: 0.0.7
 # --------------------------------
 
 # Script for benchmarking SCORE
@@ -13,19 +13,19 @@
 # Global Variables
 BENCHMARK_MODE="TRUE"
 BOOTSTRAP="100"
+INDEX="REF_INDEX"
 LOW_EXPRESSION_CUTOFF="10"
 MERGE_OUTPUT="TRUE"
 METADATA="raw/Metadata.tsv"
 NOISEQ_BIOLOGICAL_REPLICATES="TRUE"
-REF_GFF="references/BENCHMARK_ANNOTATION.gff"
+REF_GFF="references/REF.gff"
 REF_FEATURE="gene"
 REF_ID="locus_tag"
-REF_TRANSCRIPTOME="references/BENCHMARK_TRANSCRIPTOME.ffn"
+REF_TRANSCRIPTOME="references/REF.ffn"
 STRICT_MODE="TRUE"
 SCORE_THRESHOLD="0.5"
 THREADS="4"
 THRESHOLD="0.05"
-TMP=".tmp"
 TOTAL_GENES="5000"
 WEIGHT_BAYSEQ="1.0"
 WEIGHT_DESEQ2="1.0"
@@ -117,11 +117,11 @@ do
 		READ_LENGTH="100"
 	fi
 
-	Rscript libraries/miscellaneous/generate_rna_seq_data.R $REF_TRANSCRIPTOME$TMP $COVERAGE $DEG_FOLD_CHANGE $DEGS_PER_GROUP $RANDOMIZED $READ_LENGTH
+	Rscript libraries/miscellaneous/generate_rna_seq_data.R $REF_TRANSCRIPTOME.tmp $COVERAGE $DEG_FOLD_CHANGE $DEGS_PER_GROUP $RANDOMIZED $READ_LENGTH
 
 	# Kallisto Quantification
 	source activate score_map_env
-	kallisto index -i index.idx $REF_TRANSCRIPTOME$TMP
+	kallisto index -i $INDEX.idx $REF_TRANSCRIPTOME.tmp
 
 	for SAMPLE_NUMBER in {1..6}
 	do
@@ -134,11 +134,11 @@ do
 		SAMPLE_NAME_1="$PREFIX_FOLDER$SAMPLE$SAMPLE_NUMBER$RP_1"
 		SAMPLE_NAME_2="$PREFIX_FOLDER$SAMPLE$SAMPLE_NUMBER$RP_2"
 		SAMPLE_FOLDER="$KALLISTO_FOLDER$SAMPLE$SAMPLE_NUMBER$BREAK_SYMBOL"
-		kallisto quant -i index.idx -o $SAMPLE_FOLDER -b $BOOTSTRAP -t $THREADS $SAMPLE_NAME_1 $SAMPLE_NAME_2
+		kallisto quant -i $INDEX.idx -o $SAMPLE_FOLDER -b $BOOTSTRAP -t $THREADS $SAMPLE_NAME_1 $SAMPLE_NAME_2
 	done
 
 	source deactivate
-	rm index.idx
+	rm $INDEX.idx
 
 	# DEG Prediction
 	source activate score_deg_env

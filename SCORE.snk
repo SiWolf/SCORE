@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 11.12.2019
-# Version: 0.8.5
+# Last Modified: Thur, 12.12.2019
+# Version: 0.8.6
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -195,6 +195,9 @@ def read_tsv(tsv_filename):
 os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
 REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
 
+# gzip raw reads in case some of them where not previously compressed
+os.system("gzip raw/*.fastq")
+
 # Samples
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
@@ -235,21 +238,8 @@ rule DEG_postprocessing:
 		# Create alternative TSV file
 		cp deg/summary.tsv deg/summary_alt.tsv
 		sed -i 's/\./,/g' deg/summary_alt.tsv
-		# Create output dir
-		mkdir -p deg/{EXPERIMENT_NAME}
 		# Move all results files into output dir
-		mv deg/consensus* deg/{EXPERIMENT_NAME}
-		mv deg/dag* deg/{EXPERIMENT_NAME}
-		mv deg/deg* deg/{EXPERIMENT_NAME}
-		mv deg/diffexpr* deg/{EXPERIMENT_NAME}
-		mv deg/filtered* deg/{EXPERIMENT_NAME}
-		mv deg/genes* deg/{EXPERIMENT_NAME}
-		mv deg/hmmer* deg/{EXPERIMENT_NAME}
-		mv deg/log* deg/{EXPERIMENT_NAME}
-		mv deg/pathway* deg/{EXPERIMENT_NAME}
-		mv deg/proteins* deg/{EXPERIMENT_NAME}
-		mv deg/summary* deg/{EXPERIMENT_NAME}
-		mv deg/transcript* deg/{EXPERIMENT_NAME}
+		./libraries/miscellaneous/empty_results.sh fair {EXPERIMENT_NAME}
 		"""
 
 # Pathway analysis: GeneSCF (1.1-p2)
