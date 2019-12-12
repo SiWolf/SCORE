@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_rna_seq_data.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 06.12.2019
-# Version: 0.0.2
+# Last Modified: Thur, 12.12.2019
+# Version: 0.0.3
 # --------------------------------------------
 
 # Script to simulate RNA-Seq data using Polyester
@@ -29,7 +29,7 @@ argument_6 = args[6]
 # Special case if this script is executed manually without any given parameters
 # Example: RStudio
 if (is.na(argument_1)){
-  argument_1 = "references/BENCHMARK_TRANSCRIPTOME.ffn"
+  argument_1 = "references/REF.ffn"
   argument_2 = 20
   argument_3 = 4
   argument_4 = 50

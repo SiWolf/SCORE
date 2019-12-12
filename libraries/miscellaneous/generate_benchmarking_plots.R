@@ -1,24 +1,23 @@
 # --------------------------------------------
 # Title: generate_benchmarking_plots.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 11.12.2019
-# Version: 0.0.2
+# Last Modified: Thur, 12.12.2019
+# Version: 0.0.3
 # --------------------------------------------
 
 # Visualize DEG prediction accuracy
 # Uses R standard libraries
 
+i = 1
 setwd("deg/")
+folders <- list.files(path = ".", pattern = "B[0-9]*")
+tools <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth", "SCORE")
 
 # Data preprocessing
-data_1 <- read.csv(file = "1/deg_summary.csv", header = TRUE, sep = ",")
-data_2 <- read.csv(file = "2/deg_summary.csv", header = TRUE, sep = ",")
-data_3 <- read.csv(file = "3/deg_summary.csv", header = TRUE, sep = ",")
-data_4 <- read.csv(file = "4/deg_summary.csv", header = TRUE, sep = ",")
-data_5 <- read.csv(file = "5/deg_summary.csv", header = TRUE, sep = ",")
-data_6 <- read.csv(file = "6/deg_summary.csv", header = TRUE, sep = ",")
-data_7 <- read.csv(file = "7/deg_summary.csv", header = TRUE, sep = ",")
-data_8 <- read.csv(file = "8/deg_summary.csv", header = TRUE, sep = ",")
+for (f in folders) {
+  assign(paste("data_", i, sep = ""), read.csv(file = paste(f, "/deg_summary.csv", sep = ""), header = TRUE, sep = ","))
+  i = i + 1
+}
 
 data_frame_accuracy = data.frame(data_1$X, data_1$ACC, data_2$ACC, data_3$ACC, data_4$ACC, data_5$ACC, data_6$ACC, data_7$ACC, data_8$ACC)
 data_frame_degs = data.frame(data_1$X, data_1$DEGS, data_2$DEGS, data_3$DEGS, data_4$DEGS, data_5$DEGS, data_6$DEGS, data_7$DEGS, data_8$DEGS)
@@ -32,8 +31,6 @@ data_frame_fdr = data.frame(data_1$X, data_1$FDR, data_2$FDR, data_3$FDR, data_4
 data_frame_fpr = data.frame(data_1$X, data_1$FPR, data_2$FPR, data_3$FPR, data_4$FPR, data_5$FPR, data_6$FPR, data_7$FPR, data_8$FPR)
 data_frame_fnr = data.frame(data_1$X, data_1$FNR, data_2$FNR, data_3$FNR, data_4$FNR, data_5$FNR, data_6$FNR, data_7$FNR, data_8$FNR)
 data_frame_pre = data.frame(data_1$X, data_1$PRE, data_2$PRE, data_3$PRE, data_4$PRE, data_5$PRE, data_6$PRE, data_7$PRE, data_8$PRE)
-
-tools <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth", "SCORE")
 
 # TO-DO: Visualize averages?
 
