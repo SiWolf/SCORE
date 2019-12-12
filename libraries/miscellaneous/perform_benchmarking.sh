@@ -144,7 +144,7 @@ do
 	source activate score_deg_env
 	Rscript libraries/SCORE.R $METADATA $TOTAL_GENES $MERGE_OUTPUT $THRESHOLD $LOW_EXPRESSION_CUTOFF $WEIGHT_BAYSEQ $WEIGHT_DESEQ2 $WEIGHT_EDGER $WEIGHT_LIMMA $WEIGHT_NOISEQ $WEIGHT_SLEUTH $BENCHMARK_MODE $STRICT_MODE $NOISEQ_BIOLOGICAL_REPLICATES $SCORE_THRESHOLD $REF_ID
 	source deactivate
-	./libraries/miscellaneous/empty_results.sh full $BENCHMARK
+	./libraries/miscellaneous/empty_results.sh full B$BENCHMARK
 done
 
 # Visualization
