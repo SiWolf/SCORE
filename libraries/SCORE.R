@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 11.12.2019
-# Version: 0.7.2
+# Last Modified: Thur, 12.12.2019
+# Version: 0.7.3
 # --------------------------------------------
 
 # Installers
@@ -670,7 +670,7 @@ results_consensus = smart_consensus(results_binary, weights, strict_mode, thresh
 visualization(results_binary, merge_images)
 
 deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth), nrow(results_consensus))
-time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"), "")
+time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"), " ")
 
 # Combine runtime and DEG counts into one summary file for the analysis
 summary_frame <- data.frame(Runtimes = time_frame, DEGs = deg_frame)
