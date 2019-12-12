@@ -251,6 +251,8 @@ rule pathway_analysis:
 	output:
 		"deg/pathway_analysis_GO",
 		"deg/pathway_analysis_KEGG"
+	conda:
+		"libraries/env/score_deg_environment.yml"
 	shell:
 		"""
 		mkdir -p {output[0]}
@@ -354,8 +356,8 @@ rule mapping:
 		4
 	shell:
 		"""
-		bowtie2-build {REF_FASTA} {REF_INDEX}_{wildcards.sample}
-		bowtie2 -q --phred33 -p {threads} --no-unal -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
+		bowtie2-build --quiet {REF_FASTA} {REF_INDEX}_{wildcards.sample}
+		bowtie2 -q --phred33 -p {threads} --no-unal --quiet -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
 		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
 		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} {input[0]} {input[1]}
 		rm {REF_INDEX}_{wildcards.sample}*
