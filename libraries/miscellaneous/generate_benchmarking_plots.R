@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_benchmarking_plots.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 12.12.2019
-# Version: 0.0.3
+# Last Modified: Fr, 13.12.2019
+# Version: 0.0.4
 # --------------------------------------------
 
 # Visualize DEG prediction accuracy
@@ -20,7 +20,7 @@ for (f in folders) {
 }
 
 data_frame_accuracy = data.frame(data_1$X, data_1$ACC, data_2$ACC, data_3$ACC, data_4$ACC, data_5$ACC, data_6$ACC, data_7$ACC, data_8$ACC)
-data_frame_degs = data.frame(data_1$X, data_1$DEGS, data_2$DEGS, data_3$DEGS, data_4$DEGS, data_5$DEGS, data_6$DEGS, data_7$DEGS, data_8$DEGS)
+data_frame_degs = data.frame(data_1$X, data_1$DEGs, data_2$DEGs, data_3$DEGs, data_4$DEGs, data_5$DEGs, data_6$DEGs, data_7$DEGs, data_8$DEGs)
 data_frame_fns = data.frame(data_1$X, data_1$FN, data_2$FN, data_3$FN, data_4$FN, data_5$FN, data_6$FN, data_7$FN, data_8$FN)
 data_frame_fps = data.frame(data_1$X, data_1$FP, data_2$FP, data_3$FP, data_4$FP, data_5$FP, data_6$FP, data_7$FP, data_8$FP)
 data_frame_tns = data.frame(data_1$X, data_1$TN, data_2$TN, data_3$TN, data_4$TN, data_5$TN, data_6$TN, data_7$TN, data_8$TN)
@@ -52,16 +52,16 @@ dev.off()
 
 # DEGs
 png(filename = "benchmarking_diagram_degs.png", width = 20, height = 20, units = "cm", res = 600)
-plot(data_1$DEGS, type = "o", lty = 1, pch = 15, col = "blue", ylim = c(50, 800), axes = FALSE, xlab = "Tools", ylab = "Amount of identified DEGs", lwd = 2.5)
+plot(data_1$DEGs, type = "o", lty = 1, pch = 15, col = "blue", ylim = c(50, 800), axes = FALSE, xlab = "Tools", ylab = "Amount of identified DEGs", lwd = 2.5)
 axis(1, 1:7, lab = tools)
 axis(2)
-lines(data_2$DEGS, type = "o", lty = 1, pch = 16, col = "red", lwd = 2.5)
-lines(data_3$DEGS, type = "o", lty = 1, pch = 17, col = "green", lwd = 2.5)
-lines(data_4$DEGS, type = "o", lty = 1, pch = 18, col = "orange", lwd = 2.5)
-lines(data_5$DEGS, type = "o", lty = 1, pch = 18, col = "grey", lwd = 2.5)
-lines(data_6$DEGS, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
-lines(data_7$DEGS, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
-lines(data_8$DEGS, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
+lines(data_2$DEGs, type = "o", lty = 1, pch = 16, col = "red", lwd = 2.5)
+lines(data_3$DEGs, type = "o", lty = 1, pch = 17, col = "green", lwd = 2.5)
+lines(data_4$DEGs, type = "o", lty = 1, pch = 18, col = "orange", lwd = 2.5)
+lines(data_5$DEGs, type = "o", lty = 1, pch = 18, col = "grey", lwd = 2.5)
+lines(data_6$DEGs, type = "o", lty = 1, pch = 18, col = "black", lwd = 2.5)
+lines(data_7$DEGs, type = "o", lty = 1, pch = 18, col = "cyan", lwd = 2.5)
+lines(data_8$DEGs, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
 legend(1.5, 800, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 0.7, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1, ncol = 4)
 dev.off()

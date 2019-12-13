@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 12.12.2019
-# Version: 0.7.3
+# Last Modified: Fr, 13.12.2019
+# Version: 0.7.4
 # --------------------------------------------
 
 # Installers
@@ -168,13 +168,6 @@ create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
   # Filter lowly expressed genes
   count_matrix <- filter_matrix(count_matrix, low_expression_cutoff)
   
-  # Initial visualization
-  # Histogram
-  cpm_log <- cpm(count_matrix, log = TRUE)
-  median_log2_cpm <- apply(cpm_log, 1, median)
-  hist(median_log2_cpm, col = "grey", main = "Histogram of CPM", xlab = "Median log2CPM", ylab = "Frequency")
-  abline(v = low_expression_cutoff, col = "red", lwd = 3)
-  sum(median_log2_cpm > low_expression_cutoff)
   # Principal component analysis (PCA) (old)
   # cpm_log_filtered <- cpm(count_matrix, log = TRUE)
   # pca <- prcomp(t(cpm_log_filtered), scale. = TRUE)
@@ -183,6 +176,17 @@ create_count_matrix <- function(sample_list, gene_list, low_expression_cutoff){
   # summary(pca)
   
   return(count_matrix)
+}
+
+# Generate a histogram of the frequency of CPM values
+# For all filtered genes
+# The count cutoff is visualized as a vertical line
+create_cpm_histogram <- function(counts, threshold){
+  cpm_log <- cpm(counts, log = TRUE)
+  median_log2_cpm <- apply(cpm_log, 1, median)
+  hist(median_log2_cpm, col = "grey", main = "Histogram of CPM", xlab = "Median log2CPM", ylab = "Frequency")
+  abline(v = threshold, col = "red", lwd = 3)
+  sum(median_log2_cpm > threshold)
 }
 
 # Removes genes with low counts
@@ -644,6 +648,10 @@ if (benchmark_mode == FALSE){
 filtered_gene_counts <- filtered_gene_counts[order(row.names(filtered_gene_counts)), ]
 filtered_gene_names <- sort(filtered_gene_names)
 gene_names <- sort(gene_names)
+
+# Initial visualization
+# Histogram
+create_cpm_histogram(filtered_gene_counts, threshold_expression_count)
 
 setwd(results_folder)
 

@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 12.12.2019
-# Version: 0.8.6
+# Last Modified: Fr, 13.12.2019
+# Version: 0.8.7
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -217,8 +217,8 @@ rule DEG_postprocessing:
 	shell:
 		"""
 		# Summarizing QC reports
-		multiqc fastqc/*_raw -i qc_raw_samples -o fastqc/multiqc
-		multiqc fastqc/*_trimmed -i qc_trimmed_samples -o fastqc/multiqc
+		multiqc fastqc/*_raw -q -i qc_raw_samples -o fastqc/multiqc
+		multiqc fastqc/*_trimmed -q -i qc_trimmed_samples -o fastqc/multiqc
 		# Generate initial summary file
 		python3 libraries/miscellaneous/generate_summary.py -c {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA} -t {REF_TRANSCRIPTOME}
 		# Analyze proteins using TIGRFAM DB
