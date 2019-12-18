@@ -1,16 +1,16 @@
 # -----------------------------
 # Title: run-SCORE.sh
 # Author: Silver A. Wolf
-# Last Modified: Fr, 06.12.2019
-# Version: 0.0.1
+# Last Modified: Fr, 13.12.2019
+# Version: 0.0.2
 # -----------------------------
 
-# Run script for the Snakemake file
+# Run script for SCORE
 # Contains basic settings for running the Snakefile
-# The first given argument is the number of cores Snakemake will be able to use
-# Default number of cores used is 4
-# How to run: ./SCORE.sh <#cores>
+# First given argument is the number of cores Snakemake will be able to use
 # Will automatically empty previous result-files in order to ensure no collisions
+# Default number of cores: 4
+# How to run: ./run-SCORE.sh <#cores>
 
 ./libraries/miscellaneous/empty_results.sh full
 

@@ -1,16 +1,17 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 14.11.2019
-# Version: 0.2.0
+# Last Modified: Mo, 16.12.2019
+# Version: 0.2.1
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
-# It will need to be heavily adapted for any new data
+# It will need to be heavily adapted for any new data and is used to test new plots
 
 # Libraries
 
 library("ggplot2")
+library("limma")
 library("pheatmap")
 library("reshape2")
 library("viridis")
@@ -800,6 +801,63 @@ ggplot(final_summary_V1_V2_output[final_summary_V1_V2_output$logFC > 0, ], aes(x
   geom_hline(yintercept = 0, color = "black", size = 0.6)
 
 ggsave("cloud11.png", width = 15, height = 10)
+
+# NEW IMAGES DECEMBER
+
+colfunc <- colorRampPalette(c("#1BB6E4", "#02131A"))
+col1 <- colfunc(9)
+col2 <- "black"
+colfunc <- colorRampPalette(c("#1B1B00", "#FDFE00"))
+col3 <- colfunc(9)
+colours_new_new <- c(col1, col2, col3)
+
+temp_df_3 <- data.frame(Z_6122 = final_summary_V1_V2_output$logFC[final_summary_V1_V2_output$Groups == "Z_6122"],
+                       Z_5974 = final_summary_V1_V2_output$logFC[final_summary_V1_V2_output$Groups == "Z_5974"],
+                       gene_number = final_summary_V1_V2_output$gene_number[final_summary_V1_V2_output$Groups == "Z_5974"])
+
+#temp_df_3 <- temp_df_3[order(rowsum(abs(tmp_df_3$Z_5974), abs(tmp_df_3$Z_6122))), ]
+#tmp_df_new <- tmp_df_new[as.integer(rownames(tmp_df_new)) < 10, ]
+
+test <- pheatmap(temp_df_3[, c("Z_6122", "Z_5974")],
+                 cluster_cols = FALSE,
+                 cluster_rows = FALSE,
+                 annotation_row = gene_number,
+                 show_rownames = FALSE,
+                 #fontsize_row = 9,
+                 #fontsize_col = 9,
+                 #cellheight = 10,
+                 #cellwidth = 20,
+                 #border_color = "black",
+                 #gaps_row = c(6, 10, 15, 16, 21, 28, 30, 36, 41, 42, 47, 64, 67),
+                 #main = "Z_6122",
+                 scale = "none",
+                 breaks = seq(-4.5, 4.5, 0.5),
+                 color = colours_new_new,
+                 file = "alt_pheatmap.png")
+
+down <- temp_df_3[1:2]
+up <- temp_df_3[1:2]
+
+down[down$Z_6122 > 0, 1] <- 0
+down[down$Z_5974 > 0, 2] <- 0
+down[down$Z_6122 < 0, 1] <- 1
+down[down$Z_5974 < 0, 2] <- 1
+
+up[up$Z_6122 > 0, 1] <- 1
+up[up$Z_5974 > 0, 2] <- 1
+up[up$Z_6122 < 0, 1] <- 0
+up[up$Z_5974 < 0, 2] <- 0
+
+v1 <- vennCounts(down)
+v2 <- vennCounts(up)
+
+png(filename = "alt_venn_diagram_downregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(v1, circle.col = c("red", "blue"))
+dev.off()
+
+png(filename = "alt_venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(v2, circle.col = c("red", "blue"))
+dev.off()
 
 # Exporting
 

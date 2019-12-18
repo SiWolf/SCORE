@@ -12,7 +12,6 @@ ref_annotation_file: references/REF.gff
 ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag
 ref_genome: references/REF.fasta
-ref_transcriptome: references/REF.ffn
 genescf_go_db: ecocyc
 genescf_kegg_db: ecg
 # -----------------
@@ -33,8 +32,10 @@ ref_index: REF_INDEX
 ref_tigrfam_library: references/tigrfam/TIGRFAMs_15.0_HMM.LIB
 ref_tigrfam_links: references/tigrfam/TIGRFAMS_ROLE_LINK
 ref_tigrfam_roles: references/tigrfam/TIGR_ROLE_NAMES
+ref_transcriptome: references/REF.ffn
 # SCORE
 score_benchmarking: FALSE
+score_generate_transcriptome: TRUE
 score_low_expression_count: 10
 score_merge_plots: TRUE
 score_strict_mode: TRUE

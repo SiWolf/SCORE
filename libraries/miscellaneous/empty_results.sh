@@ -1,8 +1,8 @@
 # -------------------------------
 # Title: empty_results.sh
 # Author: Silver A. Wolf
-# Last Modified: Thur, 12.12.2019
-# Version: 0.0.2
+# Last Modified: Wed, 18.12.2019
+# Version: 0.0.3
 # -------------------------------
 
 # Script for deleting existing SCORE results
@@ -64,7 +64,9 @@ fi
 
 rm -r benchmarking*
 cd ../
+rm tmp.db
 rm log.txt
+rm references/*.fai
 rm references/*.tmp
 
 # Fair mode

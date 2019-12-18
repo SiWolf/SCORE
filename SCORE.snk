@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 13.12.2019
-# Version: 0.8.7
+# Last Modified: Wed, 18.12.2019
+# Version: 0.8.8
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -22,6 +22,7 @@ configfile: "config.yaml"
 # Global parameters
 ENABLE_BENCHMARKING = config["score_benchmarking"]
 EXPERIMENT_NAME = config["analysis_name"]
+GENERATE_TRANSCRIPTOME = config["score_generate_transcriptome"]
 METADATA = config["metadata_file"]
 MERGE_PLOTS_AND_PDF = config["score_merge_plots"]
 PARAM_DEG_GENERAL = config["param_threshold"]
@@ -188,14 +189,19 @@ def read_tsv(tsv_filename):
 				samples_dic[line[0]] = line[1]
 	return(samples_dic)
 
-# Rename transcripts in the reference transcriptome for later analysis
-# Checks for user-specified ID in headers of fasta entries
-# Iff these cannot be found: Removes spaces in the headers as an alternative
-# Also performs duplicate check and filters duplicated IDs (keeps first entry with specific ID)
-os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
-REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
+# Option to generate transcriptome from reference genome
+# Or to use own reference transcriptome
+if GENERATE_TRANSCRIPTOME == "TRUE":
+	os.system("python3 libraries/miscellaneous/generate_transcriptome.py -a " + REF_ANNOTATION_FEATURE_ID + " -f " + REF_FASTA + " -g " + REF_ANNOTATION + " -i " + REF_ANNOTATION_GENE_ID + " -t " + REF_TRANSCRIPTOME)
+else:
+	# Rename transcripts in the reference transcriptome for later analysis
+	# Checks for user-specified ID in headers of fasta entries
+	# Iff these cannot be found: Removes spaces in the headers as an alternative
+	# Also performs duplicate check and filters duplicated IDs (keeps first entry with specific ID)
+	os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
+	REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
 
-# gzip raw reads in case some of them where not previously compressed
+# gzip raw reads in case some of them were not previously compressed
 os.system("gzip raw/*.fastq")
 
 # Samples

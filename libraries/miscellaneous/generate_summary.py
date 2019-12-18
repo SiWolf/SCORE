@@ -1,30 +1,15 @@
 # -------------------------------
 # Title: generate_summary.py
 # Author: Silver A. Wolf
-# Last Modified: Wed, 11.12.2019
-# Version: 0.1.4
+# Last Modified: Wed, 18.12.2019
+# Version: 0.1.5
 # -------------------------------
 
 # Imports
 from Bio.Seq import Seq
 import argparse
 import csv
-
-def fasta_wrapper(sequence):
-	sequence = sequence.strip()
-	sequence_count = 0
-	sequence_length = len(sequence)
-	new_sequence = ""
-	new_sequence_count = 0
-	for base in sequence:
-		sequence_count += 1
-		if (new_sequence_count == 59) and (sequence_length - sequence_count > 0):
-			new_sequence = new_sequence + base + "\n"
-			new_sequence_count = 0
-		else:
-			new_sequence = new_sequence + base
-			new_sequence_count += 1
-	return(new_sequence)
+import fasta_wrapper
 
 def create_summary_file(genetic_code, metadata_file, ffn_file):
 	conditions = []
@@ -119,7 +104,7 @@ def create_summary_file(genetic_code, metadata_file, ffn_file):
 					nucleotide_sequence_biopython = Seq(nucleotide_sequence)
 					aa_sequence = str(nucleotide_sequence_biopython.translate(table = genetic_code))
 
-					gene_edit = fasta_wrapper(nucleotide_sequence)
+					gene_edit = fasta_wrapper.fasta_wrapper(nucleotide_sequence, 60)
 
 					if deg == "-1":
 						genes_downregulated.write("> " + id + "\n" + gene_edit + "\n")
@@ -128,7 +113,7 @@ def create_summary_file(genetic_code, metadata_file, ffn_file):
 					else:
 						genes_neutral.write("> " + id + "\n" + gene_edit + "\n")
 
-					protein_edit = fasta_wrapper(aa_sequence)
+					protein_edit = fasta_wrapper.fasta_wrapper(aa_sequence, 60)
 
 					proteins.write("> " + id + "\n" + protein_edit + "\n")
 

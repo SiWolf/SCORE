@@ -35,7 +35,7 @@ Then run the installation script:
 ## 2. Usage
 
 **Requirements:**
-* Adapter-Trimmed NGS Reads (.fastq or .fastq.gz)
+* Adapter-Trimmed RNA-Seq Reads (.fastq or .fastq.gz)
 * Reference Annotation File (.gff)
 * Reference Genome (.fasta)
 * Reference Transcriptome (.fasta)
