@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Wed, 18.12.2019
-# Version: 0.8.8
+# Last Modified: Thur, 19.12.2019
+# Version: 0.8.9
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -93,8 +93,8 @@ def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 	counts_extended = open(count_file.split(".csv")[0] + "_extended.csv", "w")
 	with open(count_file) as count_values:
 		for count_line in csv.reader(count_values, delimiter = ","):
-			gene = ""
 			id = count_line[0]
+			gene = ""
 			product = ""
 			if id == "":
 				counts_extended.write("ID,gene name,product," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
@@ -189,9 +189,34 @@ def read_tsv(tsv_filename):
 				samples_dic[line[0]] = line[1]
 	return(samples_dic)
 
+def verfify_id_combination(ANNOT, gff, ID):
+	errors = FALSE
+	ID_list = []
+	# First checks for duplicate entries with ANNOT/ID pair
+	with open(gff) as gff_file:
+		for line in csv.reader(gff_file, delimiter = "\t"):
+			if line[0][0] != "#":
+				if line[2] == ANNOT:
+					current_id = line[8].split(ID + "=")[1].split(";")[0].strip()
+					if current_id in ID_list:
+						errors = TRUE
+						print("Error - Duplicate ID - " + current_id)
+						break
+					else:
+						ID_list.append(current_id)
+	return(errors)
+
+# Verify wether the selected features and ids are unique
+# If not, error
+initial_check = verfify_id_combination(REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION, REF_ANNOTATION_GENE_ID)
+if initial_check == FALSE:
+	print("Fatal error while parsing the gff file. Please select a unique annotation feature/ID combination in the gff file.")
+	break
+
 # Option to generate transcriptome from reference genome
 # Or to use own reference transcriptome
 if GENERATE_TRANSCRIPTOME == "TRUE":
+	os.system("rm " + REF_TRANSCRIPTOME)
 	os.system("python3 libraries/miscellaneous/generate_transcriptome.py -a " + REF_ANNOTATION_FEATURE_ID + " -f " + REF_FASTA + " -g " + REF_ANNOTATION + " -i " + REF_ANNOTATION_GENE_ID + " -t " + REF_TRANSCRIPTOME)
 else:
 	# Rename transcripts in the reference transcriptome for later analysis

@@ -1,31 +1,16 @@
 # --------------------------------
 # Title: generate_transcriptome.py
 # Author: Silver A. Wolf
-# Last Modified: Wed, 18.12.2019
-# Version: 0.0.2
+# Last Modified: Thur, 19.12.2019
+# Version: 0.0.3
 # --------------------------------
 
 import argparse
-import csv
 import fasta_wrapper
 import gffutils
 import pyfaidx
 
 def generate_transcriptome(ANNOT, fasta, gff, ID, ffn):
-	errors = FALSE
-	ID_list = []
-	# First checks for duplicate entries with ANNOT/ID pair
-	with open(gff) as gff_file:
-		for line in csv.reader(gff_file, delimiter = "\t"):
-			if line[0][0] != "#":
-				if line[2] == ANNOT:
-					current_id = line[8].split(ID + "=")[1].split(";")[0].strip()
-					if current_id in ID_list:
-						errors = TRUE
-						print("Error - Duplicate ID - " + current_id)
-					else:
-						ID_list.append(current_id)
-
 	db = gffutils.create_db(gff, "tmp.db", merge_strategy = "create_unique")
 	fasta = pyfaidx.Fasta(fasta)
 	results = open(ffn, "w")
