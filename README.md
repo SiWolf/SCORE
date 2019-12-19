@@ -39,9 +39,8 @@ Then run the installation script:
 * Adapter-Trimmed RNA-Seq Reads (.fastq or .fastq.gz)
 * Reference Annotation File (.gff)
 * Reference Genome (.fasta)
-* Reference Transcriptome (.fasta)
 
-Place input reads into the [raw/](https://github.com/SiWolf/SCORE/tree/master/raw) directory and the reference files into [references/](https://github.com/SiWolf/SCORE/tree/master/references).
+Place input reads into the [raw/](https://github.com/SiWolf/SCORE/tree/master/raw) directory and reference files into [references/](https://github.com/SiWolf/SCORE/tree/master/references).
 
 Set parameters in the following files:
 * [config.yaml](https://github.com/SiWolf/SCORE/blob/master/config.yaml)
