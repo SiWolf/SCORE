@@ -1,8 +1,8 @@
 # --------------------------------
 # Title: generate_transcriptome.py
 # Author: Silver A. Wolf
-# Last Modified: Thur, 19.12.2019
-# Version: 0.0.3
+# Last Modified: Fr, 20.12.2019
+# Version: 0.0.4
 # --------------------------------
 
 import argparse
@@ -11,7 +11,7 @@ import gffutils
 import pyfaidx
 
 def generate_transcriptome(ANNOT, fasta, gff, ID, ffn):
-	db = gffutils.create_db(gff, "tmp.db", merge_strategy = "create_unique")
+	db = gffutils.create_db(gff, "tmp.db", merge_strategy = "create_unique", force = True)
 	fasta = pyfaidx.Fasta(fasta)
 	results = open(ffn, "w")
 
