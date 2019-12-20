@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 16.12.2019
-# Version: 0.2.1
+# Last Modified: Fr, 20.12.2019
+# Version: 0.2.2
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -815,10 +815,12 @@ temp_df_3 <- data.frame(Z_6122 = final_summary_V1_V2_output$logFC[final_summary_
                        Z_5974 = final_summary_V1_V2_output$logFC[final_summary_V1_V2_output$Groups == "Z_5974"],
                        gene_number = final_summary_V1_V2_output$gene_number[final_summary_V1_V2_output$Groups == "Z_5974"])
 
+colnames(temp_df_3) <- c("6122", "5974")
+
 #temp_df_3 <- temp_df_3[order(rowsum(abs(tmp_df_3$Z_5974), abs(tmp_df_3$Z_6122))), ]
 #tmp_df_new <- tmp_df_new[as.integer(rownames(tmp_df_new)) < 10, ]
 
-test <- pheatmap(temp_df_3[, c("Z_6122", "Z_5974")],
+test_1 <- pheatmap(temp_df_3[, c("6122", "5974")],
                  cluster_cols = FALSE,
                  cluster_rows = FALSE,
                  annotation_row = gene_number,
@@ -829,11 +831,13 @@ test <- pheatmap(temp_df_3[, c("Z_6122", "Z_5974")],
                  #cellwidth = 20,
                  #border_color = "black",
                  #gaps_row = c(6, 10, 15, 16, 21, 28, 30, 36, 41, 42, 47, 64, 67),
-                 #main = "Z_6122",
+                 main = "Heatmap of all DEGs",
                  scale = "none",
                  breaks = seq(-4.5, 4.5, 0.5),
                  color = colours_new_new,
-                 file = "alt_pheatmap.png")
+                 file = "pheatmap_dark_all_genes.png")
+
+colnames(temp_df_3) <- c("Z_6122", "Z_5974", "gene_number")
 
 down <- temp_df_3[1:2]
 up <- temp_df_3[1:2]
@@ -851,13 +855,34 @@ up[up$Z_5974 < 0, 2] <- 0
 v1 <- vennCounts(down)
 v2 <- vennCounts(up)
 
-png(filename = "alt_venn_diagram_downregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+png(filename = "venn_diagram_downregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
 vennDiagram(v1, circle.col = c("red", "blue"))
 dev.off()
 
-png(filename = "alt_venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+png(filename = "venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
 vennDiagram(v2, circle.col = c("red", "blue"))
 dev.off()
+
+colnames(temp_df_3) <- c("6122", "5974", "gene_number")
+
+temp_df_3_filtered <- temp_df_3[abs(temp_df_3$"6122") > 1 | abs(temp_df_3$"5974") > 1, ]
+
+test_2 <- pheatmap(temp_df_3_filtered[, c("6122", "5974")],
+                 cluster_cols = FALSE,
+                 cluster_rows = FALSE,
+                 annotation_row = gene_number,
+                 show_rownames = FALSE,
+                 #fontsize_row = 9,
+                 #fontsize_col = 9,
+                 #cellheight = 10,
+                 #cellwidth = 20,
+                 #border_color = "black",
+                 #gaps_row = c(6, 10, 15, 16, 21, 28, 30, 36, 41, 42, 47, 64, 67),
+                 main = "Heatmap of filtered DEGs",
+                 scale = "none",
+                 breaks = seq(-4.5, 4.5, 0.5),
+                 color = colours_new_new,
+                 file = "pheatmap_dark_filtered_genes.png")
 
 # Exporting
 
