@@ -15,6 +15,7 @@
 # Imports
 import csv
 import os
+import sys
 
 # Specifying the config file
 configfile: "config.yaml"
@@ -190,7 +191,7 @@ def read_tsv(tsv_filename):
 	return(samples_dic)
 
 def verfify_id_combination(ANNOT, gff, ID):
-	errors = FALSE
+	errors = False
 	ID_list = []
 	# First checks for duplicate entries with ANNOT/ID pair
 	with open(gff) as gff_file:
@@ -199,7 +200,7 @@ def verfify_id_combination(ANNOT, gff, ID):
 				if line[2] == ANNOT:
 					current_id = line[8].split(ID + "=")[1].split(";")[0].strip()
 					if current_id in ID_list:
-						errors = TRUE
+						errors = True
 						print("Error - Duplicate ID - " + current_id)
 						break
 					else:
@@ -209,13 +210,13 @@ def verfify_id_combination(ANNOT, gff, ID):
 # Verify wether the selected features and ids are unique
 # If not, error
 initial_check = verfify_id_combination(REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION, REF_ANNOTATION_GENE_ID)
-if initial_check == FALSE:
+if initial_check == True:
 	print("Fatal error while parsing the gff file. Please select a unique annotation feature/ID combination in the gff file.")
-	break
+	sys.exit()
 
 # Option to generate transcriptome from reference genome
 # Or to use own reference transcriptome
-if GENERATE_TRANSCRIPTOME == "TRUE":
+if GENERATE_TRANSCRIPTOME == True:
 	os.system("rm " + REF_TRANSCRIPTOME)
 	os.system("python3 libraries/miscellaneous/generate_transcriptome.py -a " + REF_ANNOTATION_FEATURE_ID + " -f " + REF_FASTA + " -g " + REF_ANNOTATION + " -i " + REF_ANNOTATION_GENE_ID + " -t " + REF_TRANSCRIPTOME)
 else:
