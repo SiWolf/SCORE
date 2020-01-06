@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 13.12.2019
-# Version: 0.7.4
+# Last Modified: Mo, 06.01.2020
+# Version: 0.7.5
 # --------------------------------------------
 
 # Installers
@@ -637,7 +637,10 @@ if (benchmark_mode == FALSE){
   simulation_table_updated <- simulation_table
   simulation_table_updated$foldchange.1 <- DE_list
   simulation_table_updated <- simulation_table_updated[1:2]
-  colnames(simulation_table_updated) <- c("IDs", "DE")
+  
+  colnames(simulation_table_updated) <- c("ID", "DE")
+  rownames(simulation_table_updated) <- c()
+  simulation_table_updated <- simulation_table_updated[order(simulation_table_updated$ID), ]
   
   gene_names <- filtered_gene_names
   rownames(filtered_gene_counts) <- filtered_gene_names
