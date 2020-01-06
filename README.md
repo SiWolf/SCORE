@@ -3,6 +3,8 @@
 # SCORE
 >Smart Consensus Of RNA Expression pipelines
 
+[![SCORE Workflow](https://github.com/SiWolf/SCORE/blob/master/workflow.png)]
+
 ### Table of Contents
 
 1. [Setup](#1-setup)
