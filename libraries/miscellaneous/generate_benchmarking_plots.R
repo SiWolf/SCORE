@@ -229,10 +229,20 @@ box()
 legend(1, 0.85, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 0.8, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1, ncol = 2)
 dev.off()
 
-# Average Accuracy
+# Averages
 average_data_frame = data.frame(Tools = tools, Av_ACC = rowMeans(data_frame_accuracy[2:i]), Av_DEG = rowMeans(data_frame_degs[2:i]), Av_FDR = rowMeans(data_frame_fdr[2:i]), Av_FNR = rowMeans(data_frame_fnr[2:i]), Av_FNS = rowMeans(data_frame_fns[2:i]), Av_FPR = rowMeans(data_frame_fpr[2:i]), Av_PRE = rowMeans(data_frame_pre[2:i]), Av_TNR = rowMeans(data_frame_tnr[2:i]), Av_TNS = rowMeans(data_frame_tns[2:i]), Av_TPR = rowMeans(data_frame_tpr[2:i]), Av_TPS = rowMeans(data_frame_tps[2:i]))
+
+# Accuray
 png(filename = "benchmarking_diagram_av_acc.png", width = 20, height = 20, units = "cm", res = 600)
 plot(average_data_frame$Av_ACC, type = "o", lty = 1, pch = 15, col = "blue", axes = FALSE, xlab = "Tools", ylab = "Av_Acc", lwd = 2.5)
+axis(1, 1:7, lab = tools)
+axis(2)
+box()
+dev.off()
+
+# Precision
+png(filename = "benchmarking_diagram_av_pre.png", width = 20, height = 20, units = "cm", res = 600)
+plot(average_data_frame$Av_PRE, type = "o", lty = 1, pch = 15, col = "red", axes = FALSE, xlab = "Tools", ylab = "Av_Pre", lwd = 2.5)
 axis(1, 1:7, lab = tools)
 axis(2)
 box()
