@@ -1,38 +1,41 @@
 # --------------------------------------------
 # Title: generate_benchmarking_plots.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 13.12.2019
-# Version: 0.0.4
+# Last Modified: Thue, 07.01.2020
+# Version: 0.0.5
 # --------------------------------------------
 
 # Visualize DEG prediction accuracy
-# Uses R standard libraries
+# Uses mostly standard R librarys
+# TO-DO: Visualize averages?
 
-i = 1
-setwd("deg/")
-folders <- list.files(path = ".", pattern = "B[0-9]*")
-tools <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth", "SCORE")
+#library("PRROC")
 
 # Data preprocessing
+setwd("deg/")
+folders <- list.files(path = ".", pattern = "B[0-9]*")
+i = 1
+tools <- c("baySeq", "DESeq2", "edgeR", "limma", "NOISeq", "sleuth", "SCORE")
+
 for (f in folders) {
   assign(paste("data_", i, sep = ""), read.csv(file = paste(f, "/deg_summary.csv", sep = ""), header = TRUE, sep = ","))
   i = i + 1
 }
 
-data_frame_accuracy = data.frame(data_1$X, data_1$ACC, data_2$ACC, data_3$ACC, data_4$ACC, data_5$ACC, data_6$ACC, data_7$ACC, data_8$ACC)
-data_frame_degs = data.frame(data_1$X, data_1$DEGs, data_2$DEGs, data_3$DEGs, data_4$DEGs, data_5$DEGs, data_6$DEGs, data_7$DEGs, data_8$DEGs)
-data_frame_fns = data.frame(data_1$X, data_1$FN, data_2$FN, data_3$FN, data_4$FN, data_5$FN, data_6$FN, data_7$FN, data_8$FN)
-data_frame_fps = data.frame(data_1$X, data_1$FP, data_2$FP, data_3$FP, data_4$FP, data_5$FP, data_6$FP, data_7$FP, data_8$FP)
-data_frame_tns = data.frame(data_1$X, data_1$TN, data_2$TN, data_3$TN, data_4$TN, data_5$TN, data_6$TN, data_7$TN, data_8$TN)
-data_frame_tps = data.frame(data_1$X, data_1$TP, data_2$TP, data_3$TP, data_4$TP, data_5$TP, data_6$TP, data_7$TP, data_8$TP)
-data_frame_tpr = data.frame(data_1$X, data_1$TPR, data_2$TPR, data_3$TPR, data_4$TPR, data_5$TPR, data_6$TPR, data_7$TPR, data_8$TPR)
-data_frame_tnr = data.frame(data_1$X, data_1$TNR, data_2$TNR, data_3$TNR, data_4$TNR, data_5$TNR, data_6$TNR, data_7$TNR, data_8$TNR)
-data_frame_fdr = data.frame(data_1$X, data_1$FDR, data_2$FDR, data_3$FDR, data_4$FDR, data_5$FDR, data_6$FDR, data_7$FDR, data_8$FDR)
-data_frame_fpr = data.frame(data_1$X, data_1$FPR, data_2$FPR, data_3$FPR, data_4$FPR, data_5$FPR, data_6$FPR, data_7$FPR, data_8$FPR)
-data_frame_fnr = data.frame(data_1$X, data_1$FNR, data_2$FNR, data_3$FNR, data_4$FNR, data_5$FNR, data_6$FNR, data_7$FNR, data_8$FNR)
-data_frame_pre = data.frame(data_1$X, data_1$PRE, data_2$PRE, data_3$PRE, data_4$PRE, data_5$PRE, data_6$PRE, data_7$PRE, data_8$PRE)
+data_frame_accuracy = data.frame(data_1$X, data_1$ACC, data_2$ACC, data_3$ACC, data_4$ACC, data_5$ACC, data_6$ACC, data_7$ACC, data_8$ACC, data_9$ACC, data_10$ACC)
+data_frame_degs = data.frame(data_1$X, data_1$DEGs, data_2$DEGs, data_3$DEGs, data_4$DEGs, data_5$DEGs, data_6$DEGs, data_7$DEGs, data_8$DEGs, data_9$DEGs, data_10$DEGs)
+data_frame_fns = data.frame(data_1$X, data_1$FN, data_2$FN, data_3$FN, data_4$FN, data_5$FN, data_6$FN, data_7$FN, data_8$FN, data_9$FN, data_10$FN)
+data_frame_fps = data.frame(data_1$X, data_1$FP, data_2$FP, data_3$FP, data_4$FP, data_5$FP, data_6$FP, data_7$FP, data_8$FP, data_9$FP, data_10$FP)
+data_frame_tns = data.frame(data_1$X, data_1$TN, data_2$TN, data_3$TN, data_4$TN, data_5$TN, data_6$TN, data_7$TN, data_8$TN, data_9$TN, data_10$TN)
+data_frame_tps = data.frame(data_1$X, data_1$TP, data_2$TP, data_3$TP, data_4$TP, data_5$TP, data_6$TP, data_7$TP, data_8$TP, data_9$TP, data_10$TP)
+data_frame_tpr = data.frame(data_1$X, data_1$TPR, data_2$TPR, data_3$TPR, data_4$TPR, data_5$TPR, data_6$TPR, data_7$TPR, data_8$TPR, data_9$TPR, data_10$TPR)
+data_frame_tnr = data.frame(data_1$X, data_1$TNR, data_2$TNR, data_3$TNR, data_4$TNR, data_5$TNR, data_6$TNR, data_7$TNR, data_8$TNR, data_9$TNR, data_10$TNR)
+data_frame_fdr = data.frame(data_1$X, data_1$FDR, data_2$FDR, data_3$FDR, data_4$FDR, data_5$FDR, data_6$FDR, data_7$FDR, data_8$FDR, data_9$FDR, data_10$FDR)
+data_frame_fpr = data.frame(data_1$X, data_1$FPR, data_2$FPR, data_3$FPR, data_4$FPR, data_5$FPR, data_6$FPR, data_7$FPR, data_8$FPR, data_9$FPR, data_10$FPR)
+data_frame_fnr = data.frame(data_1$X, data_1$FNR, data_2$FNR, data_3$FNR, data_4$FNR, data_5$FNR, data_6$FNR, data_7$FNR, data_8$FNR, data_9$FNR, data_10$FNR)
+data_frame_pre = data.frame(data_1$X, data_1$PRE, data_2$PRE, data_3$PRE, data_4$PRE, data_5$PRE, data_6$PRE, data_7$PRE, data_8$PRE, data_9$PRE, data_10$PRE)
 
-# TO-DO: Visualize averages?
+# First 8 Simulations
 
 # Accuracy
 png(filename = "benchmarking_diagram_acc.png", width = 20, height = 20, units = "cm", res = 600)
@@ -225,3 +228,30 @@ lines(data_8$PRE, type = "o", lty = 1, pch = 18, col = "yellow", lwd = 2.5)
 box()
 legend(1, 0.85, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 0.8, col = c("blue", "red", "green", "orange", "grey", "black", "cyan", "yellow"), pch = 15:18, lty = 1, ncol = 2)
 dev.off()
+
+# Average Accuracy
+average_data_frame = data.frame(Tools = tools, Av_ACC = rowMeans(data_frame_accuracy[2:i]), Av_DEG = rowMeans(data_frame_degs[2:i]), Av_FDR = rowMeans(data_frame_fdr[2:i]), Av_FNR = rowMeans(data_frame_fnr[2:i]), Av_FNS = rowMeans(data_frame_fns[2:i]), Av_FPR = rowMeans(data_frame_fpr[2:i]), Av_PRE = rowMeans(data_frame_pre[2:i]), Av_TNR = rowMeans(data_frame_tnr[2:i]), Av_TNS = rowMeans(data_frame_tns[2:i]), Av_TPR = rowMeans(data_frame_tpr[2:i]), Av_TPS = rowMeans(data_frame_tps[2:i]))
+png(filename = "benchmarking_diagram_av_acc.png", width = 20, height = 20, units = "cm", res = 600)
+plot(average_data_frame$Av_ACC, type = "o", lty = 1, pch = 15, col = "blue", axes = FALSE, xlab = "Tools", ylab = "Av_Acc", lwd = 2.5)
+axis(1, 1:7, lab = tools)
+axis(2)
+box()
+dev.off()
+
+# ROC Curve
+#bayseq_tpr <- unlist(data_frame_tpr[1, 2:9])
+#bayseq_fpr <- unlist(data_frame_fpr[1, 2:9])
+#noiseq_tpr <- unlist(data_frame_tpr[5, 2:9])
+#noiseq_fpr <- unlist(data_frame_fpr[5, 2:9])
+
+#bayseq_pr <- pr.curve(bayseq_fpr, bayseq_tpr, curve = TRUE)
+#bayseq_roc <- roc.curve(bayseq_fpr, bayseq_tpr, curve = TRUE)
+
+#noiseq_pr <- pr.curve(noiseq_fpr, noiseq_tpr, curve = TRUE)
+#noiseq_roc <- roc.curve(noiseq_fpr, noiseq_tpr, curve = TRUE)
+
+#plot(bayseq_pr, color = "red", auc.main = FALSE)
+#plot(noiseq_pr, color = "green", add = TRUE)
+
+#plot(bayseq_roc, color = "red", auc.main = FALSE)
+#plot(noiseq_roc, color = "green", add = TRUE)

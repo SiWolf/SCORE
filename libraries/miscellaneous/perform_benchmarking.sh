@@ -1,14 +1,12 @@
 # --------------------------------
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
-# Last Modified: Thur, 12.12.2019
-# Version: 0.0.7
+# Last Modified: Thue, 07.01.2020
+# Version: 0.0.8
 # --------------------------------
 
 # Script for benchmarking SCORE
-# TO-DO: Split script into data generation and evaluation?
-# Goal: Simulate 1x, analyze 20x
-# Before: Simulate: 8x, analyze, 1x
+# Goal: 10x simulate, 10x analyze, 1x evaluate
 
 # Global Variables
 BENCHMARK_MODE="TRUE"
@@ -22,6 +20,7 @@ REF_GFF="references/REF.gff"
 REF_FEATURE="gene"
 REF_ID="locus_tag"
 REF_TRANSCRIPTOME="references/REF.ffn"
+SETTINGS="14"
 STRICT_MODE="TRUE"
 SCORE_THRESHOLD="0.5"
 THREADS="4"
@@ -34,92 +33,165 @@ WEIGHT_LIMMA="1.0"
 WEIGHT_NOISEQ="1.0"
 WEIGHT_SLEUTH="1.0"
 
+# Load settings
+if [ $SETTINGS -eq 1 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="4"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="FALSE"
+	READ_LENGTH="100"
+fi
+
+if [ $SETTINGS -eq 2 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="4"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
+if [ $SETTINGS -eq 3 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="4"
+	DEGS_PER_GROUP="250"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
+if [ $SETTINGS -eq 4 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="4"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="50"
+fi
+
+if [ $SETTINGS -eq 5 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="4"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="150"
+fi
+
+if [ $SETTINGS -eq 6 ]
+then
+	COVERAGE="30"
+	DEG_FOLD_CHANGE="4"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
+if [ $SETTINGS -eq 7 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
+if [ $SETTINGS -eq 8 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="6"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
+if [ $BENCHMARK -eq 9 ]
+then
+	COVERAGE="10"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="25"
+	RANDOMIZED="FALSE"
+	READ_LENGTH="100"
+fi
+
+if [ $BENCHMARK -eq 10 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="25"
+	RANDOMIZED="FALSE"
+	READ_LENGTH="100"
+fi
+
+if [ $BENCHMARK -eq 11 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="FALSE"
+	READ_LENGTH="50"
+fi
+
+if [ $BENCHMARK -eq 12 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="FALSE"
+	READ_LENGTH="150"
+fi
+
+if [ $BENCHMARK -eq 13 ]
+then
+	COVERAGE="10"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="25"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
+if [ $BENCHMARK -eq 14 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="25"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
+if [ $BENCHMARK -eq 15 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="50"
+fi
+
+if [ $BENCHMARK -eq 16 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="50"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="150"
+fi
+
 # Preprocessing
 cd ../../
 ./libraries/miscellaneous/empty_results.sh full
 
-# 8 Simulation Rounds
-for BENCHMARK in {1..8}
+# 10 Simulation Rounds
+for BENCHMARK in {1..10}
 do
 	python3 libraries/miscellaneous/fetch_transcript_lengths.py -a $REF_GFF -f $REF_FEATURE -i $REF_ID
 	python3 libraries/miscellaneous/preprocess_transcriptome.py -f $REF_TRANSCRIPTOME -i $REF_ID
 
 	# Simulate RNA-Seq data with different parameters
-	if [ $BENCHMARK -eq 1 ]
-	then
-		COVERAGE="20"
-		DEG_FOLD_CHANGE="4"
-		DEGS_PER_GROUP="50"
-		RANDOMIZED="FALSE"
-		READ_LENGTH="100"
-	fi
-
-	if [ $BENCHMARK -eq 2 ]
-	then
-		COVERAGE="20"
-		DEG_FOLD_CHANGE="4"
-		DEGS_PER_GROUP="50"
-		RANDOMIZED="TRUE"
-		READ_LENGTH="100"
-	fi
-
-	if [ $BENCHMARK -eq 3 ]
-	then
-		COVERAGE="20"
-		DEG_FOLD_CHANGE="4"
-		DEGS_PER_GROUP="250"
-		RANDOMIZED="TRUE"
-		READ_LENGTH="100"
-	fi
-
-	if [ $BENCHMARK -eq 4 ]
-	then
-		COVERAGE="20"
-		DEG_FOLD_CHANGE="4"
-		DEGS_PER_GROUP="50"
-		RANDOMIZED="TRUE"
-		READ_LENGTH="50"
-	fi
-
-	if [ $BENCHMARK -eq 5 ]
-	then
-		COVERAGE="20"
-		DEG_FOLD_CHANGE="4"
-		DEGS_PER_GROUP="50"
-		RANDOMIZED="TRUE"
-		READ_LENGTH="150"
-	fi
-
-	if [ $BENCHMARK -eq 6 ]
-	then
-		COVERAGE="30"
-		DEG_FOLD_CHANGE="4"
-		DEGS_PER_GROUP="50"
-		RANDOMIZED="TRUE"
-		READ_LENGTH="100"
-	fi
-
-	if [ $BENCHMARK -eq 7 ]
-	then
-		COVERAGE="20"
-		DEG_FOLD_CHANGE="2"
-		DEGS_PER_GROUP="50"
-		RANDOMIZED="TRUE"
-		READ_LENGTH="100"
-	fi
-
-	if [ $BENCHMARK -eq 8 ]
-	then
-		COVERAGE="20"
-		DEG_FOLD_CHANGE="6"
-		DEGS_PER_GROUP="50"
-		RANDOMIZED="TRUE"
-		READ_LENGTH="100"
-	fi
-
 	Rscript libraries/miscellaneous/generate_rna_seq_data.R $REF_TRANSCRIPTOME.tmp $COVERAGE $DEG_FOLD_CHANGE $DEGS_PER_GROUP $RANDOMIZED $READ_LENGTH
 
-	# Kallisto Quantification
+	# Kallisto quantification
 	source activate score_map_env
 	kallisto index -i $INDEX.idx $REF_TRANSCRIPTOME.tmp
 
@@ -147,5 +219,5 @@ do
 	./libraries/miscellaneous/empty_results.sh full B$BENCHMARK
 done
 
-# Visualization
+# Evaluation and Visualization
 Rscript libraries/miscellaneous/generate_benchmarking_plots.R
