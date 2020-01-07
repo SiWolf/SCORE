@@ -6,7 +6,7 @@
 # --------------------------------------------
 
 # Visualize DEG prediction accuracy
-# Uses mostly standard R librarys
+# Uses mostly standard R libraries
 # TO-DO: Visualize averages?
 
 #library("PRROC")

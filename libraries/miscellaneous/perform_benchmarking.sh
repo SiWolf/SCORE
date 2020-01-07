@@ -20,7 +20,7 @@ REF_GFF="references/REF.gff"
 REF_FEATURE="gene"
 REF_ID="locus_tag"
 REF_TRANSCRIPTOME="references/REF.ffn"
-SETTINGS="14"
+SETTING="14"
 STRICT_MODE="TRUE"
 SCORE_THRESHOLD="0.5"
 THREADS="4"
@@ -34,7 +34,7 @@ WEIGHT_NOISEQ="1.0"
 WEIGHT_SLEUTH="1.0"
 
 # Load settings
-if [ $SETTINGS -eq 1 ]
+if [ $SETTING -eq 1 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="4"
@@ -43,7 +43,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $SETTINGS -eq 2 ]
+if [ $SETTING -eq 2 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="4"
@@ -52,7 +52,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $SETTINGS -eq 3 ]
+if [ $SETTING -eq 3 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="4"
@@ -61,7 +61,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $SETTINGS -eq 4 ]
+if [ $SETTING -eq 4 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="4"
@@ -70,7 +70,7 @@ then
 	READ_LENGTH="50"
 fi
 
-if [ $SETTINGS -eq 5 ]
+if [ $SETTING -eq 5 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="4"
@@ -79,7 +79,7 @@ then
 	READ_LENGTH="150"
 fi
 
-if [ $SETTINGS -eq 6 ]
+if [ $SETTING -eq 6 ]
 then
 	COVERAGE="30"
 	DEG_FOLD_CHANGE="4"
@@ -88,7 +88,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $SETTINGS -eq 7 ]
+if [ $SETTING -eq 7 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="2"
@@ -97,7 +97,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $SETTINGS -eq 8 ]
+if [ $SETTING -eq 8 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="6"
@@ -106,7 +106,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $BENCHMARK -eq 9 ]
+if [ $SETTING -eq 9 ]
 then
 	COVERAGE="10"
 	DEG_FOLD_CHANGE="2"
@@ -115,7 +115,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $BENCHMARK -eq 10 ]
+if [ $SETTING -eq 10 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="2"
@@ -124,7 +124,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $BENCHMARK -eq 11 ]
+if [ $SETTING -eq 11 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="2"
@@ -133,7 +133,7 @@ then
 	READ_LENGTH="50"
 fi
 
-if [ $BENCHMARK -eq 12 ]
+if [ $SETTING -eq 12 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="2"
@@ -142,7 +142,7 @@ then
 	READ_LENGTH="150"
 fi
 
-if [ $BENCHMARK -eq 13 ]
+if [ $SETTING -eq 13 ]
 then
 	COVERAGE="10"
 	DEG_FOLD_CHANGE="2"
@@ -151,7 +151,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $BENCHMARK -eq 14 ]
+if [ $SETTING -eq 14 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="2"
@@ -160,7 +160,7 @@ then
 	READ_LENGTH="100"
 fi
 
-if [ $BENCHMARK -eq 15 ]
+if [ $SETTING -eq 15 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="2"
@@ -169,7 +169,7 @@ then
 	READ_LENGTH="50"
 fi
 
-if [ $BENCHMARK -eq 16 ]
+if [ $SETTING -eq 16 ]
 then
 	COVERAGE="20"
 	DEG_FOLD_CHANGE="2"
