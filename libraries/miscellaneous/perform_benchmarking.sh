@@ -1,12 +1,12 @@
 # --------------------------------
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
-# Last Modified: Thue, 07.01.2020
-# Version: 0.0.8
+# Last Modified: Wed, 08.01.2020
+# Version: 0.0.9
 # --------------------------------
 
 # Script for benchmarking SCORE
-# Goal: 10x simulate, 10x analyze, 1x evaluate
+# Goal: 100x simulate, 100x analyze, 1x evaluate
 
 # Global Variables
 BENCHMARK_MODE="TRUE"
@@ -178,12 +178,21 @@ then
 	READ_LENGTH="150"
 fi
 
+if [ $SETTING -eq 17 ]
+then
+	COVERAGE="20"
+	DEG_FOLD_CHANGE="2"
+	DEGS_PER_GROUP="200"
+	RANDOMIZED="TRUE"
+	READ_LENGTH="100"
+fi
+
 # Preprocessing
 cd ../../
 ./libraries/miscellaneous/empty_results.sh full
 
-# 10 Simulation Rounds
-for BENCHMARK in {1..10}
+# 100 Simulation Rounds
+for BENCHMARK in {1..100}
 do
 	python3 libraries/miscellaneous/fetch_transcript_lengths.py -a $REF_GFF -f $REF_FEATURE -i $REF_ID
 	python3 libraries/miscellaneous/preprocess_transcriptome.py -f $REF_TRANSCRIPTOME -i $REF_ID
