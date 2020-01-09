@@ -17,7 +17,7 @@ dependencies:
   - bioconductor-genefilter=1.68.0=r36hc99cbb1_0
   - bioconductor-geneplotter=1.64.0=r36_0
   - bioconductor-genomeinfodb=1.22.0=r36_0
-  - bioconductor-genomeinfodbdata=1.2.2=r36_0
+  - bioconductor-genomeinfodbdata=1.2.1=r36_1
   - bioconductor-genomicranges=1.38.0=r36h516909a_0
   - bioconductor-iranges=2.20.0=r36h516909a_0
   - bioconductor-limma=3.42.0=r36h516909a_0
