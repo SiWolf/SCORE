@@ -338,6 +338,7 @@ dev.off()
 
 # Visualize Averages
 average_data_frame = data.frame(Tools = tools, Av_ACC = rowMeans(data_frame_accuracy[2:i]), Av_DEGs = rowMeans(data_frame_degs[2:i]), Av_FDR = rowMeans(data_frame_fdr[2:i]), Av_FNR = rowMeans(data_frame_fnr[2:i]), Av_FNs = rowMeans(data_frame_fns[2:i]), Av_FPR = rowMeans(data_frame_fpr[2:i]), Av_FPs = rowMeans(data_frame_fps[2:i]), Av_PRE = rowMeans(data_frame_pre[2:i]), Av_TNR = rowMeans(data_frame_tnr[2:i]), Av_TNs = rowMeans(data_frame_tns[2:i]), Av_TPR = rowMeans(data_frame_tpr[2:i]), Av_TPs = rowMeans(data_frame_tps[2:i]))
+write.csv(average_data_frame, file = "benchmarking_av_stats.csv")
 
 # Accuray
 png(filename = "benchmarking_diagram_av_acc.png", width = 20, height = 20, units = "cm", res = 600)
