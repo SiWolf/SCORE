@@ -1,11 +1,11 @@
 # ------------------------------
-# Title: fetch_dependencies.py
+# Title: install.sh
 # Author: Silver A. Wolf
-# Last Modified: Wed, 04.12.2019
-# Version: 0.0.1
+# Last Modified: Fr, 10.01.2020
+# Version: 0.0.2
 # ------------------------------
 
-# Script for downloading SCORE dependencies
+# Script for installing SCORE
 
 # Download dependencies
 wget ftp://ftp.jcvi.org/pub/data/TIGRFAMs/TIGRFAMs_15.0_HMM.LIB.gz -P references/tigrfam/
