@@ -17,7 +17,7 @@
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 **Dependencies:**
-* [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html) (< 4.5.13)
+* [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html)
 * [gffutils](http://daler.github.io/gffutils/installation.html)
 * [Python 3](https://www.python.org/)
 * [Snakemake](https://snakemake.readthedocs.io/en/stable/) (< 4.6.0)
@@ -68,11 +68,20 @@ Yes, it is possible to either edit the Snakefile itself (not recommended) or usi
 
 **Snakemake is unable to activate the included environments - what can I do?**
 
-This is a known issue and as of August 2019 this has not been resolved from the Snakemake developers. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using), please install Conda version 4.5.13 ("conda install -n base conda=4.5.13") and modify your .bashrc (add line: export PATH="/full/path/to/miniconda/bin:$PATH") in order to ensure compability with Snakemake.
+You are possibly using a new version of Conda (> 4.5.13). Conda has underwent several syntax updates since August 2019, resulting in incompatibility with certain Snakemake versions. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using#comment-50657352), please install Conda version 4.5.13 and modify your .bashrc in order to ensure compability with Snakemake.
+
+```
+# Add the following line to your .bashrc file
+# Restart your terminal afterwards
+export PATH="/full/path/to/miniconda3/bin:$PATH"
+
+# Install the required conda version
+conda install -n base conda=4.5.13
+```
 
 **Snakemake outputs an error stating that not all output, log and benchmarking files contain the same wildcards? What does this mean?**
 
-Starting with Snakemake version 5 and above, the syntax for dynamic rules has been [updated](https://bitbucket.org/snakemake/snakemake/issues/955/problem-with-wildcard-and-dynamic-syntax). Please use Snakemake version 4.6.0 for running SCORE.
+Starting with Snakemake version 5 and above, the syntax for dynamic rules has been [updated](https://bitbucket.org/snakemake/snakemake/issues/955/problem-with-wildcard-and-dynamic-syntax#comment-49569434). Please use Snakemake version 4.6.0 for running SCORE.
 
 **How do I cite SCORE?**
 
