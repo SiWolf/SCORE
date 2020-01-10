@@ -1,8 +1,8 @@
 # --------------------------------
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
-# Last Modified: Wed, 08.01.2020
-# Version: 0.0.9
+# Last Modified: Fr, 10.01.2020
+# Version: 0.1.0
 # --------------------------------
 
 # Script for benchmarking SCORE
@@ -26,12 +26,12 @@ SCORE_THRESHOLD="0.5"
 THREADS="4"
 THRESHOLD="0.05"
 TOTAL_GENES="5000"
-WEIGHT_BAYSEQ="1.0"
-WEIGHT_DESEQ2="1.0"
-WEIGHT_EDGER="1.0"
-WEIGHT_LIMMA="1.0"
-WEIGHT_NOISEQ="1.0"
-WEIGHT_SLEUTH="1.0"
+WEIGHT_BAYSEQ="0.5"
+WEIGHT_DESEQ2="1.5"
+WEIGHT_EDGER="0.5"
+WEIGHT_LIMMA="1.5"
+WEIGHT_NOISEQ="0.5"
+WEIGHT_SLEUTH="1.5"
 
 # Load settings
 if [ $SETTING -eq 1 ]

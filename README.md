@@ -27,7 +27,7 @@ Download and extract the latest stable release of SCORE from [here](https://gith
 * [Graphviz](https://www.graphviz.org/) (DAG visualization)
 * [Sequanix](https://github.com/sequana/sequana/) (GUI)
 
-Please ensure that the latest versions of the dependencies mentioned above are installed on your system.
+Please ensure that the latest versions of the dependencies listed above are installed on your system.
 
 Then run the installation script:
 

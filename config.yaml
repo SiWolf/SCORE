@@ -41,23 +41,23 @@ score_merge_plots: TRUE
 score_strict_mode: TRUE
 score_threshold: 0.5
 # WEIGHTS - DEFAULT - MAJORITY VOTE
-weight_bayseq: 1.0
-weight_deseq2: 1.0
-weight_edger: 1.0
-weight_limma: 1.0
-weight_noiseq: 1.0
-weight_sleuth: 1.0
-# WEIGHTS - DEFAULT - STABLE
-# weight_bayseq: 0.5
-# weight_deseq2: 1.5
+# weight_bayseq: 1.0
+# weight_deseq2: 1.0
 # weight_edger: 1.0
 # weight_limma: 1.0
-# weight_noiseq: 1.5
-# weight_sleuth: 0.5
+# weight_noiseq: 1.0
+# weight_sleuth: 1.0
+# WEIGHTS - DEFAULT - STABLE
+weight_bayseq: 0.5
+weight_deseq2: 1.5
+weight_edger: 0.5
+weight_limma: 1.5
+weight_noiseq: 0.5
+weight_sleuth: 1.5
 # WEIGHTS - DEFAULT - EXPERIMENTAL
 # weight_bayseq: 0.5
 # weight_deseq2: 1.0
-# weight_edger: 0.75
-# weight_limma: 0.75
-# weight_noiseq: 2.5
-# weight_sleuth: 0.5
+# weight_edger: 0.5
+# weight_limma: 1.0
+# weight_noiseq: 0.5
+# weight_sleuth: 2.5
