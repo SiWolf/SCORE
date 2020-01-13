@@ -479,8 +479,7 @@ smart_consensus <- function(b, w, s, t){
 # TO-DO: Prioritize overlapping 49 genes with all tools
 # TO-DO: Then rank rest of genes according to overlaps
 # TO-DO: What is the difference between the 88 and the 18 groups of genes detected by single tools?
-visualization <- function(binary_table, merge_separate_images){
-  number_of_sets = 6
+visualization <- function(binary_table, merge_separate_images, number_of_sets){
   if (merge_separate_images == FALSE){
     # Venn diagrams
     png(filename = "deg_analysis_venn_diagram_01.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
@@ -499,7 +498,8 @@ visualization <- function(binary_table, merge_separate_images){
     dev.off()
     
     # UpSetR images
-    png(filename = "deg_analysis_upsetR_diagram.png", width = 20, height = 20, units = "cm", res = 600)
+    #png(filename = "deg_analysis_upsetR_diagram.png", width = 20, height = 20, units = "cm", res = 600)
+    svg(file = "deg_analysis_upsetR_diagram.svg")
     upset(binary_table, nsets = number_of_sets, mainbar.y.label = "DEG Intersections", sets.x.label = "DEGs Per Tool", order.by = "freq")
     dev.off()
 
@@ -678,7 +678,13 @@ time_sleuth <- Sys.time()
 results = export_results(results_bayseq, results_deseq2, results_edger, results_limma, results_noiseq, results_sleuth, filtered_gene_names)
 results_binary = probabilities_to_binaries(threshold_general)
 results_consensus = smart_consensus(results_binary, weights, strict_mode, threshold_majority_vote)
-visualization(results_binary, merge_images)
+
+# In order to include SCORE into the visualization:
+# Increase the number of sets from 6 to 7
+# Also include the following line
+#results_binary$SCORE <- as.integer(rownames(results_binary) %in% rownames(results_consensus))
+
+visualization(results_binary, merge_images, 6)
 
 deg_frame <- c(sum(results_binary$baySeq), sum(results_binary$DESeq2), sum(results_binary$edgeR), sum(results_binary$limma), sum(results_binary$NOISeq), sum(results_binary$sleuth), nrow(results_consensus))
 time_frame <- c(difftime(time_bayseq, time_start, units = "secs"), difftime(time_deseq2, time_bayseq, units = "secs"), difftime(time_edger, time_deseq2, units = "secs"), difftime(time_limma, time_edger, units = "secs"), difftime(time_noiseq, time_limma, units = "secs"), difftime(time_sleuth, time_noiseq, units = "secs"), " ")
