@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 06.01.2020
-# Version: 0.7.5
+# Last Modified: Mo, 13.01.2020
+# Version: 0.7.6
 # --------------------------------------------
 
 # Installers
@@ -546,12 +546,12 @@ if (is.na(argument_1)){
   argument_3 = TRUE
   argument_4 = 0.05
   argument_5 = 10
-  argument_6 = 1.0
-  argument_7 = 1.0
-  argument_8 = 1.0
-  argument_9 = 1.0
-  argument_10 = 1.0
-  argument_11 = 1.0
+  argument_6 = 0.5
+  argument_7 = 1.5
+  argument_8 = 0.5
+  argument_9 = 1.5
+  argument_10 = 0.5
+  argument_11 = 1.5
   argument_12 = FALSE
   argument_13 = TRUE
   argument_14 = TRUE

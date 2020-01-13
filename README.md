@@ -68,7 +68,7 @@ Yes, it is possible to either edit the Snakefile itself (not recommended) or usi
 
 **Snakemake is unable to activate the included environments - what can I do?**
 
-You are possibly using a new version of Conda (> 4.5.13). Conda has underwent several syntax updates since August 2019, resulting in incompatibility with certain Snakemake versions. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using#comment-50657352), please install Conda version 4.5.13 and modify your .bashrc in order to ensure compability with Snakemake.
+You are possibly using an incompatible version of Conda (> 4.5.13). Conda has underwent several syntax updates since August 2019, resulting in incompatibility with certain Snakemake versions. Following the advice mentioned [here](https://bitbucket.org/snakemake/snakemake/issues/1115/cannot-activate-conda-enironment-using#comment-50657352), please install Conda version 4.5.13 and modify your .bashrc in order to ensure compability with Snakemake.
 
 ```
 # Add the following line to your .bashrc file
