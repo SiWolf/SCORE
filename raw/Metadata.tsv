@@ -1,6 +1,7 @@
 @ SampleName	Condition
 @ Please ensure that all files mentioned below are located within the raw/ directory	
 @ The following conditions shall be referred to as condition 1 (first condition) and condition 2 (second condition) in the results files	
+@ SCORE currently supports directly comparing 2 conditions (a 3 biological replicates)	
 SRA3199337	Wildtype
 SRA3199338	Wildtype
 SRA3199339	Wildtype
