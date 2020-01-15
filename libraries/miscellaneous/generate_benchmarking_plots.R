@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_benchmarking_plots.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 13.01.2020
-# Version: 0.0.8
+# Last Modified: Wed, 15.01.2020
+# Version: 0.0.9
 # --------------------------------------------
 
 # Visualize DEG prediction accuracy
@@ -101,6 +101,16 @@ data_frame_pre = data.frame(data_1$X, data_1$PRE, data_2$PRE, data_3$PRE, data_4
                             data_71$PRE, data_72$PRE, data_73$PRE, data_74$PRE, data_75$PRE, data_76$PRE, data_77$PRE, data_78$PRE, data_79$PRE, data_80$PRE,
                             data_81$PRE, data_82$PRE, data_83$PRE, data_84$PRE, data_85$PRE, data_86$PRE, data_87$PRE, data_88$PRE, data_89$PRE, data_90$PRE,
                             data_91$PRE, data_92$PRE, data_93$PRE, data_94$PRE, data_95$PRE, data_96$PRE, data_97$PRE, data_98$PRE, data_99$PRE, data_100$PRE)
+data_frame_run = data.frame(data_1$X, data_1$Runtimes, data_2$Runtimes, data_3$Runtimes, data_4$Runtimes, data_5$Runtimes, data_6$Runtimes, data_7$Runtimes, data_8$Runtimes, data_9$Runtimes, data_10$Runtimes,
+                            data_11$Runtimes, data_12$Runtimes, data_13$Runtimes, data_14$Runtimes, data_15$Runtimes, data_16$Runtimes, data_17$Runtimes, data_18$Runtimes, data_19$Runtimes, data_20$Runtimes,
+                            data_21$Runtimes, data_22$Runtimes, data_23$Runtimes, data_24$Runtimes, data_25$Runtimes, data_26$Runtimes, data_27$Runtimes, data_28$Runtimes, data_29$Runtimes, data_30$Runtimes,
+                            data_31$Runtimes, data_32$Runtimes, data_33$Runtimes, data_34$Runtimes, data_35$Runtimes, data_36$Runtimes, data_37$Runtimes, data_38$Runtimes, data_39$Runtimes, data_40$Runtimes,
+                            data_41$Runtimes, data_42$Runtimes, data_43$Runtimes, data_44$Runtimes, data_45$Runtimes, data_46$Runtimes, data_47$Runtimes, data_48$Runtimes, data_49$Runtimes, data_50$Runtimes,
+                            data_51$Runtimes, data_52$Runtimes, data_53$Runtimes, data_54$Runtimes, data_55$Runtimes, data_56$Runtimes, data_57$Runtimes, data_58$Runtimes, data_59$Runtimes, data_60$Runtimes,
+                            data_61$Runtimes, data_62$Runtimes, data_63$Runtimes, data_64$Runtimes, data_65$Runtimes, data_66$Runtimes, data_67$Runtimes, data_68$Runtimes, data_69$Runtimes, data_70$Runtimes,
+                            data_71$Runtimes, data_72$Runtimes, data_73$Runtimes, data_74$Runtimes, data_75$Runtimes, data_76$Runtimes, data_77$Runtimes, data_78$Runtimes, data_79$Runtimes, data_80$Runtimes,
+                            data_81$Runtimes, data_82$Runtimes, data_83$Runtimes, data_84$Runtimes, data_85$Runtimes, data_86$Runtimes, data_87$Runtimes, data_88$Runtimes, data_89$Runtimes, data_90$Runtimes,
+                            data_91$Runtimes, data_92$Runtimes, data_93$Runtimes, data_94$Runtimes, data_95$Runtimes, data_96$Runtimes, data_97$Runtimes, data_98$Runtimes, data_99$Runtimes, data_100$Runtimes)
 data_frame_tnr = data.frame(data_1$X, data_1$TNR, data_2$TNR, data_3$TNR, data_4$TNR, data_5$TNR, data_6$TNR, data_7$TNR, data_8$TNR, data_9$TNR, data_10$TNR,
                             data_11$TNR, data_12$TNR, data_13$TNR, data_14$TNR, data_15$TNR, data_16$TNR, data_17$TNR, data_18$TNR, data_19$TNR, data_20$TNR,
                             data_21$TNR, data_22$TNR, data_23$TNR, data_24$TNR, data_25$TNR, data_26$TNR, data_27$TNR, data_28$TNR, data_29$TNR, data_30$TNR,
@@ -337,7 +347,7 @@ legend(1, 485, c("1", "2", "3", "4", "5", "6", "7", "8"), cex = 0.8, col = c("bl
 dev.off()
 
 # Visualize Averages
-average_data_frame = data.frame(Tools = tools, Av_ACC = rowMeans(data_frame_accuracy[2:i]), Av_DEGs = rowMeans(data_frame_degs[2:i]), Av_FDR = rowMeans(data_frame_fdr[2:i]), Av_FNR = rowMeans(data_frame_fnr[2:i]), Av_FNs = rowMeans(data_frame_fns[2:i]), Av_FPR = rowMeans(data_frame_fpr[2:i]), Av_FPs = rowMeans(data_frame_fps[2:i]), Av_PRE = rowMeans(data_frame_pre[2:i]), Av_TNR = rowMeans(data_frame_tnr[2:i]), Av_TNs = rowMeans(data_frame_tns[2:i]), Av_TPR = rowMeans(data_frame_tpr[2:i]), Av_TPs = rowMeans(data_frame_tps[2:i]))
+average_data_frame = data.frame(Tools = tools, Av_ACC = rowMeans(data_frame_accuracy[2:i]), Av_DEGs = rowMeans(data_frame_degs[2:i]), Av_FDR = rowMeans(data_frame_fdr[2:i]), Av_FNR = rowMeans(data_frame_fnr[2:i]), Av_FNs = rowMeans(data_frame_fns[2:i]), Av_FPR = rowMeans(data_frame_fpr[2:i]), Av_FPs = rowMeans(data_frame_fps[2:i]), Av_PRE = rowMeans(data_frame_pre[2:i]), Av_RUN = rowMeans(data_frame_run[2:i]), Av_TNR = rowMeans(data_frame_tnr[2:i]), Av_TNs = rowMeans(data_frame_tns[2:i]), Av_TPR = rowMeans(data_frame_tpr[2:i]), Av_TPs = rowMeans(data_frame_tps[2:i]))
 write.csv(average_data_frame, file = "benchmarking_av_stats.csv", row.names = FALSE)
 
 # Accuray
