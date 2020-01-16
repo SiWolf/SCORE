@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 20.12.2019
-# Version: 0.2.2
+# Last Modified: Thur, 16.01.2020
+# Version: 0.2.3
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -883,6 +883,30 @@ test_2 <- pheatmap(temp_df_3_filtered[, c("6122", "5974")],
                  breaks = seq(-4.5, 4.5, 0.5),
                  color = colours_new_new,
                  file = "pheatmap_dark_filtered_genes.png")
+
+# New GeneSCF visualization
+
+data <- read.delim("genescf_data.tsv", header = TRUE)
+data <- data[order(data$P.value),]
+size <- length(data[,1])
+data[,"Rank_in_order"] <- c(seq(1:length(data[,1])))
+data <- data[,cbind("Rank_in_order","Process.name","percentage.","P.value")]
+colnames(data) <- c("Rank_in_order","process","genes","Pvalue")
+data <- data[1:20,]
+newdata <- cbind(gsub( "~.*$", "", data[,"process"]),data[,"Rank_in_order"])
+colnames(newdata) <- c("IDs","Rank_in_order")
+png("new_enrichment_plot.png", width = 1000, height = 700)
+ggplot(data, aes(x = Rank_in_order, y = -log10(Pvalue), size = genes, label = newdata[,"IDs"], fill = paste0(data[,"Rank_in_order"], ":", strtrim(data[,"process"], 35), "...")), guide = FALSE)+
+  geom_point(colour = "#2E2E2E", shape = 21)+ 
+  scale_size_area(max_size = 5)+ 
+  labs(fill = "Rank:Process (Top 20)")+
+  scale_x_continuous(name = "Rank in order", limits = c(0,21))+
+  scale_y_continuous(name = "-log10(Pvalue)", limits = c(1.1,12))+
+  #scale_size_continuous(range=c(1, 15))+
+  geom_text(size = 5, color = "#2E2E2E", hjust = -0.1, vjust = 0, angle = 45)+
+  geom_hline(yintercept = 1.3)+
+  theme(text = element_text(size = 14))
+dev.off()
 
 # Exporting
 
