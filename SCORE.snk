@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Thur, 19.12.2019
-# Version: 0.8.9
+# Last Modified: Fr, 24.01.2020
+# Version: 0.9.0
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -369,6 +369,7 @@ rule counting:
 # -----------------------------------
 # Ungapped: Bowtie2 (2.3.5)
 # Pseudo-Alignment: Kallisto (0.46.1)
+# (Experimental) Gapped: HISAT2 (2.1.0)
 # -----------------------------------
 # Generates reference index for each genome
 # Bowtie2 allows up to 2 mismatches (default)
@@ -390,6 +391,8 @@ rule mapping:
 		"""
 		bowtie2-build --quiet {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 		bowtie2 -q --phred33 -p {threads} --no-unal --quiet -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
+		#hisat2-build -p {threads} -q {REF_FASTA} {REF_INDEX}_{wildcards.sample}
+		#hisat2 -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -p {threads} -S {output}
 		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
 		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} {input[0]} {input[1]}
 		rm {REF_INDEX}_{wildcards.sample}*
