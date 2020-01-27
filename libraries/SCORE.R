@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 13.01.2020
-# Version: 0.7.6
+# Last Modified: Mo, 27.01.2020
+# Version: 0.7.7
 # --------------------------------------------
 
 # Installers
@@ -329,7 +329,7 @@ run_deseq2 <- function(list_of_gene_names, sample_counts, sample_conditions){
   # This will not work with low-count genes and should be silenced in these cases
   vsd <- vst(dds, blind = FALSE)
   pca <- plotPCA(vsd, intgroup = c("sample_conditions"), ntop = length(list_of_gene_names), returnData = TRUE)
-  pca_gg_plot <- ggplot(pca, aes(x = PC1, y = PC2, colour = sample_conditions)) + geom_point()
+  pca_gg_plot <- ggplot(pca, aes(x = PC1, y = PC2, colour = sample_conditions)) + geom_point() + theme(plot.title = element_text(hjust = 0.5)) + ggtitle("Principal Component Analysis (PCA)")
   print(pca_gg_plot)
   
   return(resdata)
