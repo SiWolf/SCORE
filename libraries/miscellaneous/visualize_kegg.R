@@ -34,7 +34,7 @@ visualize_genescf <- function(KEGG_data, GO_data){
     tmp_data <- tmp_data[1:20, ]
     newdata <- cbind(gsub( "~.*$", "", tmp_data[, "Process"]), tmp_data[, "Rank"])
     colnames(newdata) <- c("IDs", "Rank")
-    png(paste("deg/pathway_analysis_", name, "/enrichment_plot.png", sep = ""), width = 1000, height = 700)
+    png(paste("deg/pathway_analysis_", name, "/enrichment_plot.png", sep = ""), width = 1200, height = 800)
     plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = newdata[, "IDs"], fill = paste0(tmp_data[, "Rank"], ":", strtrim(tmp_data[, "Process"], 35), "...")), guide = FALSE) +
       geom_point(colour = "#2E2E2E", shape = 21) +
       scale_size_area(max_size = 5) +
@@ -73,7 +73,7 @@ visualize_pathview <- function(d1, d2, d3, d4){
   
   pathways <- sub("~.*", "", d3$Process.name)
   
-  pv <- pathview(gene.data = fc, species = d4, pathway.id = pathways, kegg.dir = "deg/pathway_analysis_KEGG/")
+  pv <- pathview(gene.data = fc, species = d4, pathway.id = pathways, kegg.dir = "deg/pathway_analysis_KEGG/", min.nnodes = 0)
 }
 
 # Main
