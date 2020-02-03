@@ -34,7 +34,7 @@ visualize_genescf <- function(KEGG_data, GO_data){
     tmp_data <- tmp_data[1:20, ]
     newdata <- cbind(gsub( "~.*$", "", tmp_data[, "Process"]), tmp_data[, "Rank"])
     colnames(newdata) <- c("IDs", "Rank")
-    png(paste("deg/pathway_analysis_", name, "/enrichment_plot.png", sep = ""), width = 1200, height = 800)
+    png(paste("../../pathway_analysis_", name, "/enrichment_plot.png", sep = ""), width = 1200, height = 800)
     plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = newdata[, "IDs"], fill = paste0(tmp_data[, "Rank"], ":", strtrim(tmp_data[, "Process"], 35), "...")), guide = FALSE) +
       geom_point(colour = "#2E2E2E", shape = 21) +
       scale_size_area(max_size = 5) +
@@ -87,10 +87,13 @@ if (is.na(argument_1)) {
   argument_1 = "rno"
 }
 
-data_1 <- read.delim(file = "deg/summary.tsv", header = TRUE)
-data_2 <- read.delim(file = "deg/pathway_analysis_KEGG/deg_gene_symbols_user_mapped.list", header = FALSE)
-data_3 <- read.delim(file = "deg/pathway_analysis_KEGG/deg_gene_symbols_KEGG_rno_functional_classification.tsv", header = TRUE)
-data_4 <- read.delim(file = "deg/pathway_analysis_GO/deg_gene_symbols_GO_all_rgd_functional_classification.tsv", header = TRUE)
+dir.create("deg/pathway_analysis_KEGG/pathview/")
+setwd("deg/pathway_analysis_KEGG/pathview/")
+
+data_1 <- read.delim(file = "../../summary.tsv", header = TRUE)
+data_2 <- read.delim(file = "../deg_gene_symbols_user_mapped.list", header = FALSE)
+data_3 <- read.delim(file = "../deg_gene_symbols_KEGG_rno_functional_classification.tsv", header = TRUE)
+data_4 <- read.delim(file = "../../pathway_analysis_GO/deg_gene_symbols_GO_all_rgd_functional_classification.tsv", header = TRUE)
 
 kegg_species = argument_1
 
