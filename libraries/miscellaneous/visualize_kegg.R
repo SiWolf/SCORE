@@ -1,8 +1,8 @@
 # -----------------------------
 # Title: visualize_kegg.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 31.01.2020
-# Version: 0.0.1
+# Last Modified: Mo, 03.02.2020
+# Version: 0.0.2
 # -----------------------------
 
 # Installers
@@ -73,7 +73,10 @@ visualize_pathview <- function(d1, d2, d3, d4){
   
   pathways <- sub("~.*", "", d3$Process.name)
   
-  pv <- pathview(gene.data = fc, species = d4, pathway.id = pathways, kegg.dir = "deg/pathway_analysis_KEGG/", min.nnodes = 0)
+  # Go through pathways in a loop since this is more stable than parsing the full pathway list
+  for (pathway in pathways) {
+    pv <- pathview(gene.data = fc, species = d4, pathway.id = pathway, min.nnodes = 0)
+  }
 }
 
 # Main
