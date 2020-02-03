@@ -73,9 +73,9 @@ visualize_pathview <- function(d1, d2, d3, d4){
   
   pathways <- sub("~.*", "", d3$Process.name)
   
-  # Go through pathways in a loop since this is more stable than parsing the full pathway list
+  # Go through pathways in a loop (try) since this is more stable than parsing the full pathway list
   for (pathway in pathways) {
-    pv <- pathview(gene.data = fc, species = d4, pathway.id = pathway, min.nnodes = 0)
+    pv <- try(pathview(gene.data = fc, species = d4, pathway.id = pathway, min.nnodes = 0))
   }
 }
 
