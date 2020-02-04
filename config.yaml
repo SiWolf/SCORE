@@ -13,7 +13,7 @@ ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag
 ref_genome: references/REF.fasta
 genescf_go_db: ecocyc
-genescf_kegg_db: ecg
+genescf_kegg_db: eco
 # -----------------
 # ADVANCED SETTINGS
 # -----------------

@@ -1,8 +1,8 @@
 # -----------------------------
 # Title: visualize_kegg.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 03.02.2020
-# Version: 0.0.2
+# Last Modified: Thue, 04.02.2020
+# Version: 0.0.3
 # -----------------------------
 
 # Installers
@@ -35,10 +35,13 @@ visualize_genescf <- function(KEGG_data, GO_data){
     newdata <- cbind(gsub( "~.*$", "", tmp_data[, "Process"]), tmp_data[, "Rank"])
     colnames(newdata) <- c("IDs", "Rank")
     png(paste("../../pathway_analysis_", name, "/enrichment_plot.png", sep = ""), width = 1200, height = 800)
-    plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = newdata[, "IDs"], fill = paste0(tmp_data[, "Rank"], ":", strtrim(tmp_data[, "Process"], 35), "...")), guide = FALSE) +
+    # In case we find a zero p-value, we replace it by its larger neighbor and shrink it by an arbitrary value for better visualization
+    tmp_data$Pval[tmp_data$Pval == 0] <- min(tmp_data$Pval[tmp_data$Pval > 0]) * 0.05
+    fill_data = paste0("[", sprintf("%02d", as.numeric(tmp_data$Rank)), "]\t", tmp_data[, "Process"])
+    plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = newdata[, "IDs"], fill = fill_data, guide = FALSE)) +
       geom_point(colour = "#2E2E2E", shape = 21) +
       scale_size_area(max_size = 5) +
-      labs(fill = "Rank:Process (Top 20)", title = paste("Top 20 ", name, " Hits", sep = "")) +
+      labs(fill = "[Rank] Process (Top 20)", title = paste("Top 20 ", name, " Hits", sep = "")) +
       scale_x_continuous(name = "Rank", limits = c(0, 22)) +
       scale_y_continuous(name = "-log10(Pval)", limits = c(1.1, max(-log10(tmp_data$Pval)) + 1)) +
       #scale_size_continuous(range=c(1, 15)) +
@@ -52,7 +55,7 @@ visualize_genescf <- function(KEGG_data, GO_data){
 
 # Visualize KEGG pathways using pathview
 visualize_pathview <- function(d1, d2, d3, d4){
-  DEGs <- d1[d1$DE..SCORE....1..Mock...Input..1..Mock...Input. != 0, ]
+  DEGs <- d1[d1[5] != 0, ]
   
   c <- 1
   fc <- c()
@@ -82,20 +85,23 @@ visualize_pathview <- function(d1, d2, d3, d4){
 # Main
 args <- commandArgs(TRUE)
 argument_1 = args[1]
+argument_2 = args[2]
 
 if (is.na(argument_1)) {
-  argument_1 = "rno"
+  argument_1 = "ecocyc"
+  argument_2 = "ecg"
 }
+
+go_species = argument_1
+kegg_species = argument_2
 
 dir.create("deg/pathway_analysis_KEGG/pathview/")
 setwd("deg/pathway_analysis_KEGG/pathview/")
 
 data_1 <- read.delim(file = "../../summary.tsv", header = TRUE)
 data_2 <- read.delim(file = "../deg_gene_symbols_user_mapped.list", header = FALSE)
-data_3 <- read.delim(file = "../deg_gene_symbols_KEGG_rno_functional_classification.tsv", header = TRUE)
-data_4 <- read.delim(file = "../../pathway_analysis_GO/deg_gene_symbols_GO_all_rgd_functional_classification.tsv", header = TRUE)
-
-kegg_species = argument_1
+data_3 <- read.delim(file = paste("../deg_gene_symbols_KEGG_", kegg_species, "_functional_classification.tsv", sep = ""), header = TRUE)
+data_4 <- read.delim(file = paste("../../pathway_analysis_GO/deg_gene_symbols_GO_all_", go_species, "_functional_classification.tsv", sep = ""), header = TRUE)
 
 visualize_genescf(data_3, data_4)
 visualize_pathview(data_1, data_2, data_3, kegg_species)

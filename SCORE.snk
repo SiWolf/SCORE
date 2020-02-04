@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE
 # Author: Silver A. Wolf
-# Last Modified: Fr, 31.01.2020
-# Version: 0.9.1
+# Last Modified: Thue, 04.02.2020
+# Version: 0.9.2
 # Usage:
 #		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -272,7 +272,7 @@ rule DEG_postprocessing:
 		cp deg/summary.tsv deg/summary_alt.tsv
 		sed -i 's/\./,/g' deg/summary_alt.tsv
 		# Generate additional images using pathview
-		Rscript libraries/miscellaneous/visualize_kegg.R {PARAM_GENESCF_KEGG_DB}
+		Rscript libraries/miscellaneous/visualize_kegg.R {PARAM_GENESCF_GO_DB} {PARAM_GENESCF_KEGG_DB}
 		# Move all results files into output dir
 		./libraries/miscellaneous/empty_results.sh fair {EXPERIMENT_NAME}
 		"""
