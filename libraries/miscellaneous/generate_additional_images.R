@@ -921,9 +921,10 @@ m4[is.na(m4)] <- 0
 pheatmap(m4[3:6],
          cluster_cols = TRUE,
          cluster_rows = TRUE,
-         show_rownames = FALSE,
+         file = "pheatmap_degs.png",
          main = "Heatmap of filtered DEGs",
          scale = "none",
+         show_rownames = FALSE,
          labels_col = c("Input", "WT", "dXCL", "UV"),
          labels_row = m4$Gene
          )
@@ -941,8 +942,13 @@ m4_up[m4_up < 0 ] <- 0
 v3 <- vennCounts(m4_down)
 v4 <- vennCounts(m4_up)
 
+png(filename = "venn_diagram_downregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
 vennDiagram(v3, circle.col = c("red", "blue", "green", "grey"), main = "Downregulated Genes", names = c("Input", "WT", "dXCL", "UV"))
+dev.off()
+
+png(filename = "venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
 vennDiagram(v4, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = c("Input", "WT", "dXCL", "UV"))
+dev.off()
 
 # Exporting
 
