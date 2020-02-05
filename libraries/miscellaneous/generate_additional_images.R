@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 31.01.2020
-# Version: 0.2.4
+# Last Modified: Fr, 05.02.2020
+# Version: 0.2.5
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -884,6 +884,65 @@ test_2 <- pheatmap(temp_df_3_filtered[, c("6122", "5974")],
                  breaks = seq(-4.5, 4.5, 0.5),
                  color = colours_new_new,
                  file = "pheatmap_dark_filtered_genes.png")
+
+# NEW IMAGES FEBRUARY
+
+setwd("../../deg/")
+R1 <- read.csv(file = "R01-2020-01-30-18-42-ecd9d/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R2 <- read.csv(file = "R02-2020-01-31-20-24-4a096/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R3 <- read.csv(file = "R03-2020-02-01-20-48-c2356/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R4 <- read.csv(file = "R04-2020-02-02-18-52-d31c7/summary.tsv", header = TRUE, sep = "\t", quote = "")
+
+R1_DE <- R1[R1$DE..SCORE....1..Mock...Input..1..Mock...Input. != 0 & abs(R1$log2FC) > 3, ]
+R2_DE <- R2[R2$DE..SCORE....1..Mock...WT..1..Mock...WT. != 0 & abs(R2$log2FC) > 3, ]
+R3_DE <- R3[R3$DE..SCORE....1..Mock...dXCL1..1..Mock...dXCL1. != 0 & abs(R3$log2FC) > 3, ]
+R4_DE <- R4[R4$DE..SCORE....1..Mock...UV..1..Mock...UV. != 0 & abs(R4$log2FC) > 3, ]
+
+# Ignore R1 since we do not focus on that
+DEGs <- unique(c(as.character(R2_DE$ID), as.character(R3_DE$ID), as.character(R4_DE$ID)))
+
+f1 <- R1[R1$ID %in% DEGs, ]
+f2 <- R2[R2$ID %in% DEGs, ]
+f3 <- R3[R3$ID %in% DEGs, ]
+f4 <- R4[R4$ID %in% DEGs, ]
+
+d1 <- data.frame(ID = f1$ID, Gene = f1$gene.name, log2FC = f1$log2FC, DE = f1$DE..SCORE....1..Mock...Input..1..Mock...Input., TPM = f1$Presence.Absence..Input.)
+d2 <- data.frame(ID = f2$ID, Gene = f2$gene.name, log2FC = f2$log2FC, DE = f2$DE..SCORE....1..Mock...WT..1..Mock...WT., TPM = f2$Presence.Absence..WT.)
+d3 <- data.frame(ID = f3$ID, Gene = f3$gene.name, log2FC = f3$log2FC, DE = f3$DE..SCORE....1..Mock...dXCL1..1..Mock...dXCL1., TPM = f3$Presence.Absence..dXCL1.)
+d4 <- data.frame(ID = f4$ID, Gene = f4$gene.name, log2FC = f4$log2FC, DE = f4$DE..SCORE....1..Mock...UV..1..Mock...UV., TPM = f4$Presence.Absence..UV.)
+
+m1 <- merge(d1, d2, by = "ID", all = TRUE)
+m2 <- merge(d3, d4, by = "ID", all = TRUE)
+m3 <- merge(m1, m2, by = "ID", all = TRUE)
+
+m4 <- data.frame(ID = m3$ID, Gene = m3$Gene.x.y, log2FC_R1 = m3$log2FC.x.x, log2FC_R2 = m3$log2FC.y.x, log2FC_R3 = m3$log2FC.x.y, log2FC_R4 = m3$log2FC.y.y, DE_R1 = m3$DE.x.x, DE_R2 = m3$DE.y.x, DE_R3 = m3$DE.x.y, DE_R4 = m3$DE.y.y, TPM_R1 = m3$TPM.x.x, TPM_R2 = m3$TPM.y.x, TPM_R3 = m3$TPM.x.y, TPM_R4 = m3$TPM.y.y)
+m4[is.na(m4)] <- 0
+
+pheatmap(m4[3:6],
+         cluster_cols = TRUE,
+         cluster_rows = TRUE,
+         show_rownames = FALSE,
+         main = "Heatmap of filtered DEGs",
+         scale = "none",
+         labels_col = c("Input", "WT", "dXCL", "UV"),
+         labels_row = m4$Gene
+         )
+
+m4_down <- m4
+m4_up <- m4
+
+m4_down <- m4_down[7:10]
+m4_down[m4_down > 0 ] <- 0
+m4_down[m4_down < 0 ] <- 1
+
+m4_up <- m4_up[7:10]
+m4_up[m4_up < 0 ] <- 0
+
+v3 <- vennCounts(m4_down)
+v4 <- vennCounts(m4_up)
+
+vennDiagram(v3, circle.col = c("red", "blue", "green", "grey"), main = "Downregulated Genes", names = c("Input", "WT", "dXCL", "UV"))
+vennDiagram(v4, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = c("Input", "WT", "dXCL", "UV"))
 
 # Exporting
 
