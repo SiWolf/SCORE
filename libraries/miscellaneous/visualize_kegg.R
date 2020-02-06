@@ -1,8 +1,8 @@
 # -----------------------------
 # Title: visualize_kegg.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 04.02.2020
-# Version: 0.0.3
+# Last Modified: Thur, 06.02.2020
+# Version: 0.0.4
 # -----------------------------
 
 # Installers
@@ -78,7 +78,7 @@ visualize_pathview <- function(d1, d2, d3, d4){
   
   # Go through pathways in a loop (try) since this is more stable than parsing the full pathway list
   for (pathway in pathways) {
-    pv <- try(pathview(gene.data = fc, species = d4, pathway.id = pathway, min.nnodes = 0))
+    pv <- try(pathview(gene.data = fc, species = d4, pathway.id = pathway, min.nnodes = 0, gene.idtype = "KEGG"))
   }
 }
 
@@ -89,7 +89,7 @@ argument_2 = args[2]
 
 if (is.na(argument_1)) {
   argument_1 = "ecocyc"
-  argument_2 = "ecg"
+  argument_2 = "eco"
 }
 
 go_species = argument_1
