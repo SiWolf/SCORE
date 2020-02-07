@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 05.02.2020
-# Version: 0.2.5
+# Last Modified: Fr, 07.02.2020
+# Version: 0.2.6
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -949,6 +949,10 @@ dev.off()
 png(filename = "venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
 vennDiagram(v4, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = c("Input", "WT", "dXCL", "UV"))
 dev.off()
+
+# Print overlap of all experiments
+m4$Gene[as.integer(rownames(m4_down[m4_down$DE_R1 > 0 & m4_down$DE_R2 > 0 & m4_down$DE_R3 > 0 & m4_down$DE_R4 > 0, ]))]
+m4$Gene[as.integer(rownames(m4_up[m4_up$DE_R1 > 0 & m4_up$DE_R2 > 0 & m4_up$DE_R3 > 0 & m4_up$DE_R4 > 0, ]))]
 
 # Exporting
 
