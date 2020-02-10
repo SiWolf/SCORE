@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 07.02.2020
-# Version: 0.2.6
+# Last Modified: Mo, 10.02.2020
+# Version: 0.2.7
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -918,6 +918,8 @@ m3 <- merge(m1, m2, by = "ID", all = TRUE)
 m4 <- data.frame(ID = m3$ID, Gene = m3$Gene.x.y, log2FC_R1 = m3$log2FC.x.x, log2FC_R2 = m3$log2FC.y.x, log2FC_R3 = m3$log2FC.x.y, log2FC_R4 = m3$log2FC.y.y, DE_R1 = m3$DE.x.x, DE_R2 = m3$DE.y.x, DE_R3 = m3$DE.x.y, DE_R4 = m3$DE.y.y, TPM_R1 = m3$TPM.x.x, TPM_R2 = m3$TPM.y.x, TPM_R3 = m3$TPM.x.y, TPM_R4 = m3$TPM.y.y)
 m4[is.na(m4)] <- 0
 
+names <- c("Not Cultivated", "RCMV-E wt", expression(paste("RCMV-E ", Delta, "vXCL1", sep = "")), "UV")
+
 pheatmap(m4[3:6],
          cluster_cols = TRUE,
          cluster_rows = TRUE,
@@ -925,7 +927,29 @@ pheatmap(m4[3:6],
          main = "Heatmap of filtered DEGs",
          scale = "none",
          show_rownames = FALSE,
-         labels_col = c("Input", "WT", "dXCL", "UV"),
+         labels_col = names,
+         labels_row = m4$Gene
+         )
+
+pheatmap(m4[4:6],
+         cluster_cols = TRUE,
+         cluster_rows = TRUE,
+         file = "pheatmap_degs_filtered_01.png",
+         main = "Heatmap of filtered DEGs",
+         scale = "none",
+         show_rownames = FALSE,
+         labels_col = names[-1],
+         labels_row = m4$Gene
+         )
+
+pheatmap(m4[3],
+         cluster_cols = FALSE,
+         cluster_rows = TRUE,
+         file = "pheatmap_degs_filtered_02.png",
+         main = "Heatmap of filtered DEGs",
+         scale = "none",
+         show_rownames = FALSE,
+         labels_col = names[1],
          labels_row = m4$Gene
          )
 
@@ -943,11 +967,11 @@ v3 <- vennCounts(m4_down)
 v4 <- vennCounts(m4_up)
 
 png(filename = "venn_diagram_downregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
-vennDiagram(v3, circle.col = c("red", "blue", "green", "grey"), main = "Downregulated Genes", names = c("Input", "WT", "dXCL", "UV"))
+vennDiagram(v3, circle.col = c("red", "blue", "green", "grey"), main = "Downregulated Genes", names = names, cex = 1.1)
 dev.off()
 
 png(filename = "venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
-vennDiagram(v4, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = c("Input", "WT", "dXCL", "UV"))
+vennDiagram(v4, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = names, cex = 1.1)
 dev.off()
 
 # Print overlap of all experiments
