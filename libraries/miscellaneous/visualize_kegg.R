@@ -1,8 +1,8 @@
 # -----------------------------
 # Title: visualize_kegg.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 06.02.2020
-# Version: 0.0.4
+# Last Modified: Mo, 10.02.2020
+# Version: 0.0.5
 # -----------------------------
 
 # Installers
@@ -34,7 +34,7 @@ visualize_genescf <- function(KEGG_data, GO_data){
     tmp_data <- tmp_data[1:20, ]
     newdata <- cbind(gsub( "~.*$", "", tmp_data[, "Process"]), tmp_data[, "Rank"])
     colnames(newdata) <- c("IDs", "Rank")
-    png(paste("../../pathway_analysis_", name, "/enrichment_plot.png", sep = ""), width = 1200, height = 800)
+    png(paste("../../pathway_analysis_", name, "/enrichment_plot_", name, ".png", sep = ""), width = 1200, height = 800)
     # In case we find a zero p-value, we replace it by its larger neighbor and shrink it by an arbitrary value for better visualization
     tmp_data$Pval[tmp_data$Pval == 0] <- min(tmp_data$Pval[tmp_data$Pval > 0]) * 0.05
     fill_data = paste0("[", sprintf("%02d", as.numeric(tmp_data$Rank)), "]\t", tmp_data[, "Process"])
