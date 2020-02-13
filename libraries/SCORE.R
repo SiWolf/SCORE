@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 27.01.2020
-# Version: 0.7.7
+# Last Modified: Thur, 13.02.2020
+# Version: 0.7.8
 # --------------------------------------------
 
 # Installers
@@ -574,7 +574,7 @@ merge_images = as.logical(argument_3)
 noiseq_biological_mode = as.logical(argument_14)
 strict_mode = as.logical(argument_13)
 threshold_general = as.numeric(argument_4)
-threshold_expression_count = argument_5
+threshold_expression_count = as.numeric(argument_5)
 threshold_majority_vote = as.numeric(argument_15)
 
 pdf("deg_analysis_graphs.pdf", paper = "a4")
