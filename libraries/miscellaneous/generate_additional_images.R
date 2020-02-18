@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 10.02.2020
-# Version: 0.2.7
+# Last Modified: Thur, 13.02.2020
+# Version: 0.2.8
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -974,9 +974,109 @@ png(filename = "venn_diagram_upregulated.png", width = 30, height = 30, units = 
 vennDiagram(v4, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = names, cex = 1.1)
 dev.off()
 
-# Print overlap of all experiments
+# Print overlap of experiments
 m4$Gene[as.integer(rownames(m4_down[m4_down$DE_R1 > 0 & m4_down$DE_R2 > 0 & m4_down$DE_R3 > 0 & m4_down$DE_R4 > 0, ]))]
 m4$Gene[as.integer(rownames(m4_up[m4_up$DE_R1 > 0 & m4_up$DE_R2 > 0 & m4_up$DE_R3 > 0 & m4_up$DE_R4 > 0, ]))]
+
+r1_specific_down <- m4[rownames(m4_down[m4_down$DE_R1 > 0 & m4_down$DE_R2 == 0 & m4_down$DE_R3 == 0 & m4_down$DE_R4 == 0, ]), ]
+r1_specific_up <- m4[rownames(m4_up[m4_up$DE_R1 > 0 & m4_up$DE_R2 == 0 & m4_up$DE_R3 == 0 & m4_up$DE_R4 == 0, ]), ]
+r1_degs <- rbind(r1_specific_down, r1_specific_up)
+
+r2_specific_down <- m4[rownames(m4_down[m4_down$DE_R1 == 0 & m4_down$DE_R2 > 0 & m4_down$DE_R3 == 0 & m4_down$DE_R4 == 0, ]), ]
+r2_specific_up <- m4[rownames(m4_up[m4_up$DE_R1 == 0 & m4_up$DE_R2 > 0 & m4_up$DE_R3 == 0 & m4_up$DE_R4 == 0, ]), ]
+r2_degs <- rbind(r2_specific_down, r2_specific_up)
+
+r3_specific_down <- m4[rownames(m4_down[m4_down$DE_R1 == 0 & m4_down$DE_R2 == 0 & m4_down$DE_R3 > 0 & m4_down$DE_R4 == 0, ]), ]
+r3_specific_up <- m4[rownames(m4_up[m4_up$DE_R1 == 0 & m4_up$DE_R2 == 0 & m4_up$DE_R3 > 0 & m4_up$DE_R4 == 0, ]), ]
+r3_degs <- rbind(r3_specific_down, r3_specific_up)
+
+r4_specific_down <- m4[rownames(m4_down[m4_down$DE_R1 == 0 & m4_down$DE_R2 == 0 & m4_down$DE_R3 == 0 & m4_down$DE_R4 > 0, ]), ]
+r4_specific_up <- m4[rownames(m4_up[m4_up$DE_R1 == 0 & m4_up$DE_R2 == 0 & m4_up$DE_R3 == 0 & m4_up$DE_R4 > 0, ]), ]
+r4_degs <- rbind(r4_specific_down, r4_specific_up)
+
+# R05
+
+R5 <- read.csv(file = "R05-2020-02-07-11-18-270e8/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R5_DE <- R5[R5$DE..SCORE....1..WT...dXCL..1..WT...dXCL. != 0 & abs(R5$log2FC) > 0, ]
+
+pheatmap(R5_DE$log2FC,
+         border_color = "black",
+         cellheight = 10,
+         cellwidth = 20,
+         cluster_cols = FALSE,
+         cluster_rows = TRUE,
+         file = "pheatmap_r5.png",
+         fontsize_col = 5,
+         fontsize_row = 5,
+         main = "Heatmap (R5)",
+         show_rownames = TRUE,
+         labels_col = names[3],
+         labels_row = R5$gene.name
+)
+
+# Visualization of genes of interest
+genes_of_interest <- data.frame(Gene = c("Ccl2", "Ccl6", "Ccl17", "Ccr7", "Cd40", "Cd80", "Cd86", "Akt1", "Akt2", "Akt3", "Mapk3", "Pik3ca"),
+                                Group = c(rep("Chemokines", 4), rep("Maturation Markers", 3), rep("Migration Markers", 5)))
+genes_of_interest <- genes_of_interest[order(genes_of_interest$Gene), ]
+
+R1_GOI <- R1[R1$gene.name %in% genes_of_interest$Gene, ]
+R2_GOI <- R2[R2$gene.name %in% genes_of_interest$Gene, ]
+R3_GOI <- R3[R3$gene.name %in% genes_of_interest$Gene, ]
+R4_GOI <- R4[R4$gene.name %in% genes_of_interest$Gene, ]
+
+R1_GOI <- R1_GOI[order(R1_GOI$gene.name), ]
+R2_GOI <- R2_GOI[order(R2_GOI$gene.name), ]
+R3_GOI <- R3_GOI[order(R3_GOI$gene.name), ]
+R4_GOI <- R4_GOI[order(R4_GOI$gene.name), ]
+
+df_GOI <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC)
+df_GOI <- df_GOI[order(df_GOI$Group), ]
+rownames(df_GOI) <- seq(1:12)
+
+mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
+mybreaks <- c(seq(min(df_GOI[4:6]), 0, length.out = 25),
+              seq(max(df_GOI[4:6])/50, max(df_GOI[4:6]), length.out = 25)
+              )
+
+pheatmap(df_GOI[4:6],
+         annotation_row = df_GOI[2],
+         border_color = "black",
+         #breaks = mybreaks,
+         cellheight = 50,
+         cellwidth = 100,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         #color = mycolor,
+         file = "pheatmap_genes_of_interest_c1.png",
+         fontsize_col = 10,
+         fontsize_row = 10,
+         #gaps_row = c(4, 7),
+         main = "Heatmap of genes of interest",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names[-1],
+         labels_row = df_GOI$Gene
+)
+
+pheatmap(df_GOI[4:6],
+         annotation_row = df_GOI[2],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 50,
+         cellwidth = 100,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_c2.png",
+         fontsize_col = 10,
+         fontsize_row = 10,
+         #gaps_row = c(4, 7),
+         main = "Heatmap of genes of interest",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names[-1],
+         labels_row = df_GOI$Gene
+)
 
 # Exporting
 

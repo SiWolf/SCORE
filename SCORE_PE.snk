@@ -1,0 +1,455 @@
+# ---------------------------------------------------------------------------
+# Title: SCORE_PE.snk
+# Author: Silver A. Wolf
+# Last Modified: Mo, 17.02.2020
+# Version: 0.9.3
+# Usage:
+#		time snakemake -s "SCORE_PE.snk" -j {max_amount_of_threads} --use-conda
+# Additional options:
+#		sequanix
+#       snakemake -s "SCORE_PE.snk" -n
+#       snakemake -s "SCORE_PE.snk" --config {parameter}={value}
+#       snakemake -s "SCORE_PE.snk" --forceall --dag | dot -Tsvg > dag.svg
+# ---------------------------------------------------------------------------
+
+# Imports
+import csv
+import os
+import sys
+
+# Specifying the config file
+configfile: "config.yaml"
+
+# Global parameters
+ENABLE_BENCHMARKING = config["score_benchmarking"]
+EXPERIMENT_NAME = config["analysis_name"]
+GENERATE_TRANSCRIPTOME = config["score_generate_transcriptome"]
+METADATA = config["metadata_file"]
+MERGE_PLOTS_AND_PDF = config["score_merge_plots"]
+PARAM_DEG_GENERAL = config["param_threshold"]
+PARAM_DEG_LOW_EXPRESSED = config["score_low_expression_count"]
+PARAM_DEG_NOISEQ_BIO_MODE = config["noiseq_biological_replicates"]
+PARAM_DEG_SCORE_THRESHOLD = config["score_threshold"]
+PARAM_DEG_STRICT_MODE = config["score_strict_mode"]
+PARAM_DEG_WEIGHT_BAYSEQ = config["weight_bayseq"]
+PARAM_DEG_WEIGHT_DESEQ2 = config["weight_deseq2"]
+PARAM_DEG_WEIGHT_EDGER = config["weight_edger"]
+PARAM_DEG_WEIGHT_LIMMA = config["weight_limma"]
+PARAM_DEG_WEIGHT_NOISEQ = config["weight_noiseq"]
+PARAM_DEG_WEIGHT_SLEUTH = config["weight_sleuth"]
+PARAM_FLEXBAR_LENGTH = config["flexbar_min_length"]
+PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
+PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
+PARAM_GENESCF_GO_DB = config["genescf_go_db"]
+PARAM_GENESCF_KEGG_DB = config["genescf_kegg_db"]
+PARAM_GENESCF_TOTAL_GENES_SPECIES = config["param_total_genes"]
+PARAM_KALLISTO_BOOTSTRAP = config["kallisto_bootstrap"]
+PARAM_KALLISTO_READ_DEVIATION = config["kallisto_length_deviation"]
+PARAM_KALLISTO_READ_LENGTH = config["kallisto_read_length"]
+PARAM_NCBI_GENETIC_CODE_TABLE = config["ncbi_genetic_code_table"]
+PARAM_ORGANISM = config["genescf_organism"]
+PATH_GENESCF = config["genescf_path"]
+REF_ANNOTATION = config["ref_annotation_file"]
+REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature"]
+REF_ANNOTATION_GENE_ID = config["ref_annotation_identifier"]
+REF_FASTA = config["ref_genome"]
+REF_GO_FILE = config["ref_go_obo"]
+REF_INDEX = config["ref_index"]
+REF_TIGRFAM_DB = config["ref_tigrfam_library"]
+REF_TIGRFAM_LINKS = config["ref_tigrfam_links"]
+REF_TIGRFAM_NAMES = config["ref_tigrfam_roles"]
+REF_TRANSCRIPTOME = config["ref_transcriptome"]
+
+# Functions
+def create_presence_absence_matrix():
+	presence_absence_matrix = open("deg/filtered_gene_counts_presence_absence_matrix.csv", "w")
+	with open("deg/filtered_gene_counts_raw_extended.csv") as raw_counts_table:
+		for raw_counts_line in csv.reader(raw_counts_table, delimiter = ","):
+			id = raw_counts_line[0]
+			gene = raw_counts_line[1]
+			product = raw_counts_line[2]
+			counts_sample_1 = raw_counts_line[3]
+			counts_sample_2 = raw_counts_line[4]
+			counts_sample_3 = raw_counts_line[5]
+			counts_sample_4 = raw_counts_line[6]
+			counts_sample_5 = raw_counts_line[7]
+			counts_sample_6 = raw_counts_line[8]
+			if id == "ID":
+				presence_absence_matrix.write("ID,gene name,product," + counts_sample_1 + "," + counts_sample_2 + "," + counts_sample_3 + "," + counts_sample_4 + "," + counts_sample_5 + "," + counts_sample_6 + "\n")
+			else:
+				if float(counts_sample_1) > 0:
+					counts_sample_1 = "1"
+				if float(counts_sample_2) > 0:
+					counts_sample_2 = "1"
+				if float(counts_sample_3) > 0:
+					counts_sample_3 = "1"
+				if float(counts_sample_4) > 0:
+					counts_sample_4 = "1"
+				if float(counts_sample_5) > 0:
+					counts_sample_5 = "1"
+				if float(counts_sample_6) > 0:
+					counts_sample_6 = "1"
+				presence_absence_matrix.write(id + "," + gene + "," + product + "," + counts_sample_1 + "," + counts_sample_2 + "," + counts_sample_3 + "," + counts_sample_4 + "," + counts_sample_5 + "," + counts_sample_6 + "\n")
+	presence_absence_matrix.close()
+
+def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
+	count_file = "deg/" + count_file
+	counts_extended = open(count_file.split(".csv")[0] + "_extended.csv", "w")
+	with open(count_file) as count_values:
+		for count_line in csv.reader(count_values, delimiter = ","):
+			id = count_line[0]
+			gene = ""
+			product = ""
+			if id == "":
+				counts_extended.write("ID,gene name,product," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
+			else:
+				with open(gff_file) as gff_annotation:
+					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
+						if gff_line[0][0] != "#":
+							if len(gff_line) > 8 and gff_line[2] == annotation_feature:
+								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
+								if id == current_id:
+									product = fetch_gene_product(id, gff_line[8], gff_file)
+									if gff_line[8].split("ID=")[1].count("gene=") > 0:
+										gene = gff_line[8].split("gene=")[1].split(";")[0]
+									break
+				counts_extended.write(id + "," + gene + "," + product + "," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
+	counts_extended.close()
+
+def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
+	consensus_extended = open("deg/consensus_diffexpr_results_extended.csv", "w")
+	with open("deg/consensus_diffexpr_results.csv") as consensus_results:
+		for consensus_line in csv.reader(consensus_results, delimiter = ","):
+			direction = ""
+			fold_change = ""
+			gene = ""
+			id = consensus_line[0]
+			product = ""
+			if id == "":
+				consensus_extended.write("ID,gene name,product," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + ",ordering,log2FC\n")
+			else:
+				with open(gff_file) as gff_annotation:
+					for gff_line in csv.reader(gff_annotation, delimiter = "\t"):
+						if gff_line[0][0] != "#":
+							if len(gff_line) > 8 and gff_line[2] == annotation_feature:
+								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
+								if id == current_id:
+									product = fetch_gene_product(id, gff_line[8], gff_file)
+									if gff_line[8].split("ID=")[1].count("gene=") > 0:
+										gene = gff_line[8].split("gene=")[1].split(";")[0]
+									break
+				with open("deg/diffexpr_results_bayseq.csv") as bayseq_results:
+					for bayseq_line in csv.reader(bayseq_results, delimiter = ","):
+						if id == bayseq_line[0] or id == bayseq_line[1]:
+							direction = bayseq_line[8]
+							break
+				with open("deg/diffexpr_results_limma.csv") as limma_results:
+					for limma_line in csv.reader(limma_results, delimiter = ","):
+						if id == limma_line[0]:
+							fold_change = limma_line[1]
+							break
+				consensus_extended.write(id + "," + gene + "," + product + "," + consensus_line[1] + "," + consensus_line[2] + "," + consensus_line[3] + "," + consensus_line[4] + "," + consensus_line[5] + "," + consensus_line[6] + "," + direction + "," + fold_change + "\n")
+	consensus_extended.close()
+
+# Extract a gene product from the current GFF line
+# If not found search for an alternative in the entire GFF file
+# Last option: replace with an empty string
+def fetch_gene_product(id, line, file):
+	product = ""
+	if "product=" in line:
+		product = line.split("product=")[1].split(";")[0]
+	else:
+		with open(file) as annotation_file:
+			for annotation_line in csv.reader(annotation_file, delimiter = "\t"):
+				merged_line = "".join(annotation_line)
+				if id in merged_line and "product=" in merged_line:
+					product = annotation_line[8].split("product=")[1].split(";")[0]
+					break
+	# Clean up some of the annotations
+	product = product.replace("%2C ", " ")
+	product = product.replace("%3B ", " ")
+	product = product.replace("%2C", "-")
+	product = product.replace("%3B", "-")
+	return(product)
+
+def fetch_gene_symbols(new_file):
+	list_of_gene_symbols = open(new_file, "w")
+	with open("deg/consensus_diffexpr_results_extended.csv") as consensus_list:
+		for line in csv.reader(consensus_list, delimiter = ","):
+			if line[1] != "":
+				gene_variant_01 = line[1].split("_")[0]
+				gene_variant_02 = line[1].split("-")[0]
+				if len(gene_variant_01) > len(gene_variant_02):
+					list_of_gene_symbols.write(gene_variant_02 + "\n")
+				else:
+					list_of_gene_symbols.write(gene_variant_01 + "\n")
+	list_of_gene_symbols.close()
+
+def read_tsv(tsv_filename):
+	samples_dic = {}
+	with open(tsv_filename) as tsv:
+		for line in csv.reader(tsv, delimiter = "\t"):
+			if line[0][0] != "@":
+				samples_dic[line[0]] = line[1]
+	return(samples_dic)
+
+def verfify_id_combination(ANNOT, gff, ID):
+	errors = False
+	ID_list = []
+	# First checks for duplicate entries with ANNOT/ID pair
+	with open(gff) as gff_file:
+		for line in csv.reader(gff_file, delimiter = "\t"):
+			if line[0][0] != "#":
+				if line[2] == ANNOT:
+					current_id = line[8].split(ID + "=")[1].split(";")[0].strip()
+					if current_id in ID_list:
+						errors = True
+						print("Error - Duplicate ID - " + current_id)
+						break
+					else:
+						ID_list.append(current_id)
+	return(errors)
+
+# Verify wether the selected features and ids are unique
+# If not, error
+initial_check = verfify_id_combination(REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION, REF_ANNOTATION_GENE_ID)
+if initial_check == True:
+	print("Fatal error while parsing the gff file. Please select a unique annotation feature/ID combination in the gff file.")
+	sys.exit()
+
+# Option to generate transcriptome from reference genome
+# Or to use own reference transcriptome
+if GENERATE_TRANSCRIPTOME == True:
+	os.system("rm " + REF_TRANSCRIPTOME)
+	os.system("python3 libraries/miscellaneous/generate_transcriptome.py -a " + REF_ANNOTATION_FEATURE_ID + " -f " + REF_FASTA + " -g " + REF_ANNOTATION + " -i " + REF_ANNOTATION_GENE_ID + " -t " + REF_TRANSCRIPTOME)
+else:
+	# Rename transcripts in the reference transcriptome for later analysis
+	# Checks for user-specified ID in headers of fasta entries
+	# Iff these cannot be found: Removes spaces in the headers as an alternative
+	# Also performs duplicate check and filters duplicated IDs (keeps first entry with specific ID)
+	os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
+	REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
+
+# gzip raw reads in case some of them were not previously compressed
+os.system("gzip raw/*.fastq")
+
+# Samples
+SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
+SAMPLES = SAMPLES_AND_CONDITIONS.keys()
+
+# Summarizing
+# ----------------------------------------
+# Merging QC Reports: MultiQC (1.8)
+# Pathway Visualization: pathview (1.20.0)
+# Translation: Biopython (1.74)
+# TIGRFAM Classification: Hmmer (3.2.1)
+# ----------------------------------------
+rule DEG_postprocessing:
+	input:
+		"deg/pathway_analysis_GO",
+		"deg/pathway_analysis_KEGG"
+	conda:
+		"libraries/env/score_summary_environment.yml"
+	shell:
+		"""
+		# Summarizing QC reports
+		multiqc fastqc/*_raw -q -i qc_raw_samples -o fastqc/multiqc
+		multiqc fastqc/*_trimmed -q -i qc_trimmed_samples -o fastqc/multiqc
+		# Generate initial summary file
+		python3 libraries/miscellaneous/generate_summary.py -c {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA} -t {REF_TRANSCRIPTOME}
+		# Analyze proteins using TIGRFAM DB
+		hmmpress -f {REF_TIGRFAM_DB}
+		hmmscan -o deg/hmmer_log.txt --domtblout deg/hmmer_output.txt {REF_TIGRFAM_DB} deg/proteins.fasta
+		# Merge summary file with TIGRFAM results
+		python3 libraries/miscellaneous/merge_tigrfam_results.py -l {REF_TIGRFAM_LINKS} -r {REF_TIGRFAM_NAMES}
+		# Rename additional output files and remove temp files
+		rm deg/consensus_diffexpr_results.csv
+		mv deg/consensus_diffexpr_results_extended.csv deg/consensus_diffexpr_results.csv
+		rm deg/filtered_gene_counts_raw.csv
+		mv deg/filtered_gene_counts_raw_extended.csv deg/filtered_gene_counts_raw.csv
+		rm deg/filtered_gene_counts_tpm.csv
+		mv deg/filtered_gene_counts_tpm_extended.csv deg/filtered_gene_counts_tpm.csv
+		rm deg/summary.tsv
+		mv deg/summary_extended.tsv deg/summary.tsv
+		# Create alternative TSV file
+		cp deg/summary.tsv deg/summary_alt.tsv
+		sed -i 's/\./,/g' deg/summary_alt.tsv
+		# Generate additional images using pathview
+		Rscript libraries/miscellaneous/visualize_kegg.R {PARAM_GENESCF_GO_DB} {PARAM_GENESCF_KEGG_DB}
+		# Move all results files into output dir
+		./libraries/miscellaneous/empty_results.sh fair {EXPERIMENT_NAME}
+		"""
+
+# Pathway analysis: GeneSCF (1.1-p2)
+# Performs GO and KEGG overrepresentation analysis on the DEG list
+# TO-DO: Test different GO and KEGG dbs
+rule pathway_analysis:
+	input:
+		"deg/deg_gene_symbols"
+	output:
+		"deg/pathway_analysis_GO",
+		"deg/pathway_analysis_KEGG"
+	conda:
+		"libraries/env/score_deg_environment.yml"
+	shell:
+		"""
+		mkdir -p {output[0]}
+		mkdir -p {output[1]}
+		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[0]} -db=GO_all -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_GO_DB}
+		{PATH_GENESCF} -m=update -i={input} -t=sym -o={output[1]} -db=KEGG -p=yes -bg={PARAM_GENESCF_TOTAL_GENES_SPECIES} -org={PARAM_GENESCF_KEGG_DB}
+		# Update GeneSCF results using the GO DB reference file
+		python3 libraries/miscellaneous/genescf_update.py -d {PARAM_GENESCF_GO_DB} -o {REF_GO_FILE}
+		"""
+
+rule pathway_analysis_preprocessing:
+	input:
+		"deg/deg_analysis_graphs.pdf"
+	output:
+		"deg/deg_gene_symbols"
+	run:
+		# Fetching initial annotations
+		fetch_annotation_counts("filtered_gene_counts_raw.csv", REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
+		fetch_annotation_counts("filtered_gene_counts_tpm.csv", REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
+		fetch_annotation_diffexpr(REF_ANNOTATION, REF_ANNOTATION_FEATURE_ID, REF_ANNOTATION_GENE_ID)
+		# Create a list of gene symbols for the DEGs
+		fetch_gene_symbols(output[0])
+		# Generate the presence-absence matrix
+		create_presence_absence_matrix()
+
+# DEG Prediction (R-based):
+# baySeq (2.16.0)
+# DESeq2 (1.22.1)
+# edgeR (3.24.1)
+# limma (3.38.3)
+# NOISeq (2.26.0)
+# sleuth (0.30.0)
+# Other Packages:
+# ggplot2 (3.2.1)
+# libgfortran (3.0.0)
+# plyr (1.8.4)
+# rhdf5 (2.30.0)
+# stringr (1.4.0)
+# UpsetR (1.3.3)
+rule DEG_analysis:
+	input:
+		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
+	output:
+		"deg/deg_analysis_graphs.pdf"
+	conda:
+		"libraries/env/score_deg_environment.yml"
+	shell:
+		"""
+		# Fetch transcript lengths using another python script
+		python3 libraries/miscellaneous/fetch_transcript_lengths.py -a {REF_ANNOTATION} -f {REF_ANNOTATION_FEATURE_ID} -i {REF_ANNOTATION_GENE_ID}
+		# Idea: Rscript <folder>/SCORE.R <SAMPLES>
+		Rscript libraries/SCORE.R {METADATA} {PARAM_GENESCF_TOTAL_GENES_SPECIES} {MERGE_PLOTS_AND_PDF} {PARAM_DEG_GENERAL} {PARAM_DEG_LOW_EXPRESSED} {PARAM_DEG_WEIGHT_BAYSEQ} {PARAM_DEG_WEIGHT_DESEQ2} {PARAM_DEG_WEIGHT_EDGER} {PARAM_DEG_WEIGHT_LIMMA} {PARAM_DEG_WEIGHT_NOISEQ} {PARAM_DEG_WEIGHT_SLEUTH} {ENABLE_BENCHMARKING} {PARAM_DEG_STRICT_MODE} {PARAM_DEG_NOISEQ_BIO_MODE} {PARAM_DEG_SCORE_THRESHOLD} {REF_ANNOTATION_GENE_ID}
+		"""
+
+# Quantification of transcripts
+# -----------------------------------
+# Counting: featureCounts (1.6.4)
+# -----------------------------------
+# Counts mapped reads to genomic features
+# Essential for the quantification of Bowtie2 results
+# Discards multi-mapping reads by default
+# featureCounts is part of the subread package
+# -----------------------------------
+# TO-DO: Break iff 0 counts in total! (else: warning?)
+# -----------------------------------
+rule counting:
+	input:
+		"mapped/bowtie2/{sample}.sam"
+	output:
+		"mapped/bowtie2/featureCounts/{sample}/"
+	conda:
+		"libraries/env/score_count_environment.yml"
+	threads:
+		4
+	shell:
+		"""
+		featureCounts -T {threads} -a {REF_ANNOTATION} -o counts_{wildcards.sample} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}
+		mv counts_{wildcards.sample}* {output}
+		"""
+
+# Mapping
+# -----------------------------------
+# Ungapped: Bowtie2 (2.3.5)
+# Pseudo-Alignment: Kallisto (0.46.1)
+# Gapped: HISAT2 (2.1.0)
+# -----------------------------------
+# Generates reference index for each genome
+# Bowtie2 allows up to 2 mismatches (default)
+# After mapping, moves alignment reference index since it's not used anymore
+# -----------------------------------
+# TO-DO: Verify that mapping went well?
+# -----------------------------------
+rule mapping:
+	input:
+		"trimmed/{sample}_trimmed_1.fastq.gz",
+		"trimmed/{sample}_trimmed_2.fastq.gz"
+	output:
+		"mapped/bowtie2/{sample}.sam"
+	conda:
+		"libraries/env/score_map_environment.yml"
+	threads:
+		4
+	shell:
+		"""
+		if [ "{PARAM_ORGANISM}" = "prokaryote" ]
+		then
+				bowtie2-build --quiet {REF_FASTA} {REF_INDEX}_{wildcards.sample}
+				bowtie2 -q --phred33 -p {threads} --no-unal --quiet -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
+		else
+				hisat2-build -p {threads} -q {REF_FASTA} {REF_INDEX}_{wildcards.sample}
+				hisat2 -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -p {threads} -S {output}
+		fi
+		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
+		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} {input[0]} {input[1]}
+		rm {REF_INDEX}_{wildcards.sample}*
+		"""
+
+# Quality Control
+# -----------------------------------
+# Quality Assessment: FastQC (0.11.8)
+# Trimming: Flexbar (3.5.0)
+# -----------------------------------
+# TO-DO: Should not forget adapter trimming when using new data!
+# -----------------------------------
+rule quality_control_and_trimming:
+	input:
+		"raw/{sample}_1.fastq.gz",
+		"raw/{sample}_2.fastq.gz"
+	output:
+		"trimmed/{sample}_trimmed_1.fastq.gz",
+		"trimmed/{sample}_trimmed_2.fastq.gz"
+	conda:
+		"libraries/env/score_qc_environment.yml"
+	log:
+		"trimmed/logs/"
+	threads:
+		4
+	shell:
+		"""
+		# Initial FastQC
+		mkdir -p fastqc/{wildcards.sample}_raw/
+		fastqc {input} -o fastqc/{wildcards.sample}_raw/
+		# Trimming
+		flexbar -r {input[0]} -p {input[1]} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
+		mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/
+		mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/
+		mv {wildcards.sample}_trimmed.log {log}
+		mkdir -p fastqc/{wildcards.sample}_trimmed/
+		# Second FastQC
+		fastqc trimmed/{wildcards.sample}_trimmed_1.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
+		fastqc trimmed/{wildcards.sample}_trimmed_2.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
+		"""
+
+onstart:
+	print("\n Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
+	print(" Please ensure all input files are located within the raw/ folder and your parameters have been set accordingly.")
+
+onerror:
+	print("\n It seems like something went wrong. Please refer to the error messages listed above for additional information. \n")
+
+onsuccess:
+	print("\n SCORE finished successfully. \n")

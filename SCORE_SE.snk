@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------------------
-# Title: SCORE
+# Title: SCORE_SE.snk
 # Author: Silver A. Wolf
-# Last Modified: Thue, 04.02.2020
-# Version: 0.9.2
+# Last Modified: Mo, 17.02.2020
+# Version: 0.9.3
 # Usage:
-#		time snakemake -s "SCORE.snk" -j {max_amount_of_threads} --use-conda
+#		time snakemake -s "SCORE_SE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
 #		sequanix
-#       snakemake -s "SCORE.snk" -n
-#       snakemake -s "SCORE.snk" --config {parameter}={value}
-#       snakemake -s "SCORE.snk" --forceall --dag | dot -Tsvg > dag.svg
+#       snakemake -s "SCORE_SE.snk" -n
+#       snakemake -s "SCORE_SE.snk" --config {parameter}={value}
+#       snakemake -s "SCORE_SE.snk" --forceall --dag | dot -Tsvg > dag.svg
 # ---------------------------------------------------------------------------
 
 # Imports
@@ -44,7 +44,10 @@ PARAM_GENESCF_GO_DB = config["genescf_go_db"]
 PARAM_GENESCF_KEGG_DB = config["genescf_kegg_db"]
 PARAM_GENESCF_TOTAL_GENES_SPECIES = config["param_total_genes"]
 PARAM_KALLISTO_BOOTSTRAP = config["kallisto_bootstrap"]
+PARAM_KALLISTO_READ_DEVIATION = config["kallisto_length_deviation"]
+PARAM_KALLISTO_READ_LENGTH = config["kallisto_read_length"]
 PARAM_NCBI_GENETIC_CODE_TABLE = config["ncbi_genetic_code_table"]
+PARAM_ORGANISM = config["genescf_organism"]
 PATH_GENESCF = config["genescf_path"]
 REF_ANNOTATION = config["ref_annotation_file"]
 REF_ANNOTATION_FEATURE_ID = config["ref_annotation_feature"]
@@ -372,7 +375,7 @@ rule counting:
 # -----------------------------------
 # Ungapped: Bowtie2 (2.3.5)
 # Pseudo-Alignment: Kallisto (0.46.1)
-# (Experimental) Gapped: HISAT2 (2.1.0)
+# Gapped: HISAT2 (2.1.0)
 # -----------------------------------
 # Generates reference index for each genome
 # Bowtie2 allows up to 2 mismatches (default)
@@ -382,8 +385,7 @@ rule counting:
 # -----------------------------------
 rule mapping:
 	input:
-		"trimmed/{sample}_trimmed_1.fastq.gz",
-		"trimmed/{sample}_trimmed_2.fastq.gz"
+		"trimmed/{sample}_trimmed.fastq.gz"
 	output:
 		"mapped/bowtie2/{sample}.sam"
 	conda:
@@ -392,12 +394,16 @@ rule mapping:
 		4
 	shell:
 		"""
-		bowtie2-build --quiet {REF_FASTA} {REF_INDEX}_{wildcards.sample}
-		bowtie2 -q --phred33 -p {threads} --no-unal --quiet -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -S {output}
-		#hisat2-build -p {threads} -q {REF_FASTA} {REF_INDEX}_{wildcards.sample}
-		#hisat2 -x {REF_INDEX}_{wildcards.sample} -1 {input[0]} -2 {input[1]} -p {threads} -S {output}
+		if [ "{PARAM_ORGANISM}" = "prokaryote" ]
+		then
+				bowtie2-build --quiet {REF_FASTA} {REF_INDEX}_{wildcards.sample}
+				bowtie2 -q --phred33 -p {threads} --no-unal --quiet -x {REF_INDEX}_{wildcards.sample} -U {input} -S {output}
+		else
+				hisat2-build -p {threads} -q {REF_FASTA} {REF_INDEX}_{wildcards.sample}
+				hisat2 -x {REF_INDEX}_{wildcards.sample} -U {input} -p {threads} -S {output}
+		fi
 		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
-		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} {input[0]} {input[1]}
+		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} --single -l {PARAM_KALLISTO_READ_LENGTH} -s {PARAM_KALLISTO_READ_DEVIATION] {input}
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
@@ -410,11 +416,9 @@ rule mapping:
 # -----------------------------------
 rule quality_control_and_trimming:
 	input:
-		"raw/{sample}_1.fastq.gz",
-		"raw/{sample}_2.fastq.gz"
+		"raw/{sample}.fastq.gz"
 	output:
-		"trimmed/{sample}_trimmed_1.fastq.gz",
-		"trimmed/{sample}_trimmed_2.fastq.gz"
+		"trimmed/{sample}_trimmed.fastq.gz"
 	conda:
 		"libraries/env/score_qc_environment.yml"
 	log:
@@ -427,14 +431,12 @@ rule quality_control_and_trimming:
 		mkdir -p fastqc/{wildcards.sample}_raw/
 		fastqc {input} -o fastqc/{wildcards.sample}_raw/
 		# Trimming
-		flexbar -r {input[0]} -p {input[1]} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
-		mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/
-		mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/
+		flexbar -r {input} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
+		mv {wildcards.sample}_trimmed.fastq.gz trimmed/
 		mv {wildcards.sample}_trimmed.log {log}
 		mkdir -p fastqc/{wildcards.sample}_trimmed/
 		# Second FastQC
-		fastqc trimmed/{wildcards.sample}_trimmed_1.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
-		fastqc trimmed/{wildcards.sample}_trimmed_2.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
+		fastqc trimmed/{wildcards.sample}_trimmed.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
 		"""
 
 onstart:

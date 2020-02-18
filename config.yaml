@@ -12,6 +12,7 @@ ref_annotation_file: references/REF.gff
 ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag
 ref_genome: references/REF.fasta
+genescf_organism: prokaryota
 genescf_go_db: ecocyc
 genescf_kegg_db: eco
 # -----------------
@@ -23,6 +24,8 @@ flexbar_min_length: 20
 flexbar_min_qual: 20
 # MISCELLANEOUS
 kallisto_bootstrap: 100
+kallisto_length_deviation: 5
+kallisto_read_length: 150
 genescf_path: ./libraries/geneSCF/geneSCF
 ncbi_genetic_code_table: 11
 noiseq_biological_replicates: TRUE
