@@ -403,7 +403,7 @@ rule mapping:
 				hisat2 -x {REF_INDEX}_{wildcards.sample} -U {input} -p {threads} -S {output}
 		fi
 		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
-		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} --single -l {PARAM_KALLISTO_READ_LENGTH} -s {PARAM_KALLISTO_READ_DEVIATION] {input}
+		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} --single -l {PARAM_KALLISTO_READ_LENGTH} -s {PARAM_KALLISTO_READ_DEVIATION} {input}
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
 
