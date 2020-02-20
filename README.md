@@ -51,7 +51,7 @@ Set parameters in the following files:
 And run SCORE:
 
 ```
-./run-SCORE.sh <amount_of_threads>
+./run-SCORE.sh <amount_of_threads> <PE/SE>
 ```
 
 For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki).
@@ -64,7 +64,7 @@ Using the executable script mentioned above will automatically output the runtim
 
 **I can't edit the config file and I can't use Sequanix, is there another way of setting parameters?**
 
-Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE.snk" --config {parameter}={value}" to set a specified {parameter} to a {value}.
+Yes, it is possible to either edit the Snakefile itself (not recommended) or using the command "snakemake -s "SCORE_PE.snk" --config {parameter}={value}" to set a specified {parameter} to a {value}.
 
 **Snakemake is unable to activate the included environments - what can I do?**
 
