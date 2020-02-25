@@ -118,6 +118,7 @@ dependencies:
   - r-assertthat=0.2.1=r36h6115d3f_1
   - r-backports=1.1.5=r36hcdcec82_0
   - r-base=3.6.2=h3a67422_0
+  - r-biocmanager=1.30.10=r36h6115d3f_0
   - r-bit=1.1_15.1=r36hcdcec82_0
   - r-bit64=0.9_7=r36hcdcec82_1001
   - r-bitops=1.0_6=r36hcdcec82_1003
