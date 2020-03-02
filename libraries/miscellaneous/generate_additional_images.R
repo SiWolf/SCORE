@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 13.02.2020
-# Version: 0.2.8
+# Last Modified: Thue, 26.02.2020
+# Version: 0.3.0
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -888,28 +888,28 @@ test_2 <- pheatmap(temp_df_3_filtered[, c("6122", "5974")],
 # NEW IMAGES FEBRUARY
 
 setwd("../../deg/")
-R1 <- read.csv(file = "R01-2020-01-30-18-42-ecd9d/summary.tsv", header = TRUE, sep = "\t", quote = "")
-R2 <- read.csv(file = "R02-2020-01-31-20-24-4a096/summary.tsv", header = TRUE, sep = "\t", quote = "")
-R3 <- read.csv(file = "R03-2020-02-01-20-48-c2356/summary.tsv", header = TRUE, sep = "\t", quote = "")
-R4 <- read.csv(file = "R04-2020-02-02-18-52-d31c7/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R1 <- read.csv(file = "I1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R2 <- read.csv(file = "I2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R3 <- read.csv(file = "I3/summary.tsv", header = TRUE, sep = "\t", quote = "")
+R4 <- read.csv(file = "I4/summary.tsv", header = TRUE, sep = "\t", quote = "")
 
-R1_DE <- R1[R1$DE..SCORE....1..Mock...Input..1..Mock...Input. != 0 & abs(R1$log2FC) > 3, ]
-R2_DE <- R2[R2$DE..SCORE....1..Mock...WT..1..Mock...WT. != 0 & abs(R2$log2FC) > 3, ]
-R3_DE <- R3[R3$DE..SCORE....1..Mock...dXCL1..1..Mock...dXCL1. != 0 & abs(R3$log2FC) > 3, ]
-R4_DE <- R4[R4$DE..SCORE....1..Mock...UV..1..Mock...UV. != 0 & abs(R4$log2FC) > 3, ]
+R1_DE <- R1[R1$DE..SCORE....1..Input...Mock..1..Input...Mock. != 0 & abs(R1$log2FC) > 2, ]
+R2_DE <- R2[R2$DE..SCORE....1..Input...WT..1..Input...WT. != 0 & abs(R2$log2FC) > 2, ]
+R3_DE <- R3[R3$DE..SCORE....1..Input...dXCL1..1..Input...dXCL1. != 0 & abs(R3$log2FC) > 2, ]
+R4_DE <- R4[R4$DE..SCORE....1..Input...UV..1..Input...UV. != 0 & abs(R4$log2FC) > 2, ]
 
 # Ignore R1 since we do not focus on that
-DEGs <- unique(c(as.character(R2_DE$ID), as.character(R3_DE$ID), as.character(R4_DE$ID)))
+DEGs <- unique(c(as.character(R1_DE$ID), c(as.character(R2_DE$ID), as.character(R3_DE$ID), as.character(R4_DE$ID))))
 
 f1 <- R1[R1$ID %in% DEGs, ]
 f2 <- R2[R2$ID %in% DEGs, ]
 f3 <- R3[R3$ID %in% DEGs, ]
 f4 <- R4[R4$ID %in% DEGs, ]
 
-d1 <- data.frame(ID = f1$ID, Gene = f1$gene.name, log2FC = f1$log2FC, DE = f1$DE..SCORE....1..Mock...Input..1..Mock...Input., TPM = f1$Presence.Absence..Input.)
-d2 <- data.frame(ID = f2$ID, Gene = f2$gene.name, log2FC = f2$log2FC, DE = f2$DE..SCORE....1..Mock...WT..1..Mock...WT., TPM = f2$Presence.Absence..WT.)
-d3 <- data.frame(ID = f3$ID, Gene = f3$gene.name, log2FC = f3$log2FC, DE = f3$DE..SCORE....1..Mock...dXCL1..1..Mock...dXCL1., TPM = f3$Presence.Absence..dXCL1.)
-d4 <- data.frame(ID = f4$ID, Gene = f4$gene.name, log2FC = f4$log2FC, DE = f4$DE..SCORE....1..Mock...UV..1..Mock...UV., TPM = f4$Presence.Absence..UV.)
+d1 <- data.frame(ID = f1$ID, Gene = f1$gene.name, log2FC = f1$log2FC, DE = f1$DE..SCORE....1..Input...Mock..1..Input...Mock., TPM = f1$Presence.Absence..Input.)
+d2 <- data.frame(ID = f2$ID, Gene = f2$gene.name, log2FC = f2$log2FC, DE = f2$DE..SCORE....1..Input...WT..1..Input...WT., TPM = f2$Presence.Absence..WT.)
+d3 <- data.frame(ID = f3$ID, Gene = f3$gene.name, log2FC = f3$log2FC, DE = f3$DE..SCORE....1..Input...dXCL1..1..Input...dXCL1., TPM = f3$Presence.Absence..dXCL1.)
+d4 <- data.frame(ID = f4$ID, Gene = f4$gene.name, log2FC = f4$log2FC, DE = f4$DE..SCORE....1..Input...UV..1..Input...UV., TPM = f4$Presence.Absence..UV.)
 
 m1 <- merge(d1, d2, by = "ID", all = TRUE)
 m2 <- merge(d3, d4, by = "ID", all = TRUE)
@@ -918,7 +918,7 @@ m3 <- merge(m1, m2, by = "ID", all = TRUE)
 m4 <- data.frame(ID = m3$ID, Gene = m3$Gene.x.y, log2FC_R1 = m3$log2FC.x.x, log2FC_R2 = m3$log2FC.y.x, log2FC_R3 = m3$log2FC.x.y, log2FC_R4 = m3$log2FC.y.y, DE_R1 = m3$DE.x.x, DE_R2 = m3$DE.y.x, DE_R3 = m3$DE.x.y, DE_R4 = m3$DE.y.y, TPM_R1 = m3$TPM.x.x, TPM_R2 = m3$TPM.y.x, TPM_R3 = m3$TPM.x.y, TPM_R4 = m3$TPM.y.y)
 m4[is.na(m4)] <- 0
 
-names <- c("Not Cultivated", "RCMV-E wt", expression(paste("RCMV-E ", Delta, "vXCL1", sep = "")), "UV")
+names <- c("Mock", "RCMV-E wt", expression(paste("RCMV-E ", Delta, "vXCL1", sep = "")), "UV")
 
 pheatmap(m4[3:6],
          cluster_cols = TRUE,
@@ -1015,8 +1015,8 @@ pheatmap(R5_DE$log2FC,
 )
 
 # Visualization of genes of interest
-genes_of_interest <- data.frame(Gene = c("Ccl2", "Ccl6", "Ccl17", "Ccr7", "Cd40", "Cd80", "Cd86", "Akt1", "Akt2", "Akt3", "Mapk3", "Pik3ca"),
-                                Group = c(rep("Chemokines", 4), rep("Maturation Markers", 3), rep("Migration Markers", 5)))
+genes_of_interest <- data.frame(Gene = c("Cd80", "Cd86", "Cd40", "Ccr7", "Akt3", "Pik3ca", "Mapk3", "Myc", "Ccl2", "Ccl17", "Ccl6", "Rab27a", "Sec22b", "Tap1", "Tap2", "Tapbp", "Calr", "Pdia3", "Rac2", "Cybb", "Snap23"),
+                                Group = c(rep("Maturation Markers", 4), rep("Migration Markers", 4), rep("Chemokines", 3), rep("Antigen Presentation", 10)))
 genes_of_interest <- genes_of_interest[order(genes_of_interest$Gene), ]
 
 R1_GOI <- R1[R1$gene.name %in% genes_of_interest$Gene, ]
@@ -1029,16 +1029,16 @@ R2_GOI <- R2_GOI[order(R2_GOI$gene.name), ]
 R3_GOI <- R3_GOI[order(R3_GOI$gene.name), ]
 R4_GOI <- R4_GOI[order(R4_GOI$gene.name), ]
 
-df_GOI <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC)
+df_GOI <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC, TPM_R1 = R1_GOI$Mean.TPM..Mock., TPM_R2 = R2_GOI$Mean.TPM..WT., TPM_R3 = R3_GOI$Mean.TPM..dXCL1., TPM_R4 = R4_GOI$Mean.TPM..UV.)
 df_GOI <- df_GOI[order(df_GOI$Group), ]
-rownames(df_GOI) <- seq(1:12)
+rownames(df_GOI) <- seq(1:21)
 
 mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
 mybreaks <- c(seq(min(df_GOI[4:6]), 0, length.out = 25),
               seq(max(df_GOI[4:6])/50, max(df_GOI[4:6]), length.out = 25)
               )
 
-pheatmap(df_GOI[4:6],
+pheatmap(df_GOI[3:6],
          annotation_row = df_GOI[2],
          border_color = "black",
          #breaks = mybreaks,
@@ -1054,11 +1054,11 @@ pheatmap(df_GOI[4:6],
          main = "Heatmap of genes of interest",
          #scale = "row",
          show_rownames = TRUE,
-         labels_col = names[-1],
+         labels_col = names,
          labels_row = df_GOI$Gene
 )
 
-pheatmap(df_GOI[4:6],
+pheatmap(df_GOI[3:6],
          annotation_row = df_GOI[2],
          border_color = "black",
          breaks = mybreaks,
@@ -1074,9 +1074,31 @@ pheatmap(df_GOI[4:6],
          main = "Heatmap of genes of interest",
          #scale = "row",
          show_rownames = TRUE,
-         labels_col = names[-1],
+         labels_col = names,
          labels_row = df_GOI$Gene
 )
+
+TPM_Input = data.frame(, R2 = R2_GOI$Mean.TPM..Input., R3 = R3_GOI$Mean.TPM..Input., R4 = R4_GOI$Mean.TPM..Input.)
+
+df_GOI_TPM <- data.frame(Genes = rep(df_GOI$Gene, 5), TPM = c(R1_GOI$Mean.TPM..Input., df_GOI$TPM_R1, df_GOI$TPM_R2, df_GOI$TPM_R3, df_GOI$TPM_R4), Sample = c(rep("Input", 21), rep("Mock", 21), rep("RCMV-E wt", 21), rep("RCMV-E dvXCL1", 21), rep("UV", 21)))
+
+ggplot(data = df_GOI_TPM, aes(x = Genes, y = log(TPM+0.8, 10), fill = Sample)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = "black") +
+  scale_fill_manual(values = c("#ff7e00", "#000000", "#a0a0a2", "#606060", "#addfac")) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Expression of selected genes (RNA-Seq)", x = "Genes of interest")
+
+ggsave("bar_chart_01.png")
+
+ggplot(data = df_GOI_TPM, aes(x = Genes, y = TPM, fill = Sample)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = "black") +
+  scale_fill_manual(values = c("#ff7e00", "#000000", "#a0a0a2", "#606060", "#addfac")) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Expression of selected genes (RNA-Seq)", x = "Genes of interest")
+
+ggsave("bar_chart_02.png")
 
 # Exporting
 
