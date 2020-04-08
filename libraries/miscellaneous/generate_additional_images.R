@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 26.02.2020
-# Version: 0.3.0
+# Last Modified: Wed, 08.04.2020
+# Version: 0.3.2
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -11,10 +11,13 @@
 
 # Libraries
 
+library("dplyr")
 library("ggplot2")
 library("limma")
 library("pheatmap")
 library("reshape2")
+library("stringdist")
+library("stringr")
 library("viridis")
 
 # Variables
@@ -918,7 +921,7 @@ m3 <- merge(m1, m2, by = "ID", all = TRUE)
 m4 <- data.frame(ID = m3$ID, Gene = m3$Gene.x.y, log2FC_R1 = m3$log2FC.x.x, log2FC_R2 = m3$log2FC.y.x, log2FC_R3 = m3$log2FC.x.y, log2FC_R4 = m3$log2FC.y.y, DE_R1 = m3$DE.x.x, DE_R2 = m3$DE.y.x, DE_R3 = m3$DE.x.y, DE_R4 = m3$DE.y.y, TPM_R1 = m3$TPM.x.x, TPM_R2 = m3$TPM.y.x, TPM_R3 = m3$TPM.x.y, TPM_R4 = m3$TPM.y.y)
 m4[is.na(m4)] <- 0
 
-names <- c("Mock", "RCMV-E wt", expression(paste("RCMV-E ", Delta, "vXCL1", sep = "")), "UV")
+names <- c("Mock", "RCMV-E wt", expression(paste("RCMV-E ", Delta, italic("vxcl1"), sep = "")), "UV")
 
 pheatmap(m4[3:6],
          cluster_cols = TRUE,
@@ -928,30 +931,10 @@ pheatmap(m4[3:6],
          scale = "none",
          show_rownames = FALSE,
          labels_col = names,
-         labels_row = m4$Gene
-         )
-
-pheatmap(m4[4:6],
-         cluster_cols = TRUE,
-         cluster_rows = TRUE,
-         file = "pheatmap_degs_filtered_01.png",
-         main = "Heatmap of filtered DEGs",
-         scale = "none",
-         show_rownames = FALSE,
-         labels_col = names[-1],
-         labels_row = m4$Gene
-         )
-
-pheatmap(m4[3],
-         cluster_cols = FALSE,
-         cluster_rows = TRUE,
-         file = "pheatmap_degs_filtered_02.png",
-         main = "Heatmap of filtered DEGs",
-         scale = "none",
-         show_rownames = FALSE,
-         labels_col = names[1],
-         labels_row = m4$Gene
-         )
+         labels_row = m4$Gene,
+         cellheight = 0.25,
+         cellwidth = 50
+)
 
 m4_down <- m4
 m4_up <- m4
@@ -966,17 +949,17 @@ m4_up[m4_up < 0 ] <- 0
 v3 <- vennCounts(m4_down)
 v4 <- vennCounts(m4_up)
 
-png(filename = "venn_diagram_downregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
-vennDiagram(v3, circle.col = c("red", "blue", "green", "grey"), main = "Downregulated Genes", names = names, cex = 1.1)
+png(filename = "venn_diagram_downregulated.png", width = 25, height = 25, units = "cm", res = 500, pointsize = 20)
+vennDiagram(v3, circle.col = c("#0808AF", "#a00000", "#f2b77d", "#addfae"), main = "Downregulated Genes", names = names, cex = 1.1)
 dev.off()
 
-png(filename = "venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
-vennDiagram(v4, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = names, cex = 1.1)
+png(filename = "venn_diagram_upregulated.png", width = 25, height = 25, units = "cm", res = 500, pointsize = 20)
+vennDiagram(v4, circle.col = c("#0808AF", "#a00000", "#f2b77d", "#addfae"), main = "Upregulated Genes", names = names, cex = 1.1)
 dev.off()
 
 # Print overlap of experiments
-m4$Gene[as.integer(rownames(m4_down[m4_down$DE_R1 > 0 & m4_down$DE_R2 > 0 & m4_down$DE_R3 > 0 & m4_down$DE_R4 > 0, ]))]
-m4$Gene[as.integer(rownames(m4_up[m4_up$DE_R1 > 0 & m4_up$DE_R2 > 0 & m4_up$DE_R3 > 0 & m4_up$DE_R4 > 0, ]))]
+#m4$Gene[as.integer(rownames(m4_down[m4_down$DE_R1 > 0 & m4_down$DE_R2 > 0 & m4_down$DE_R3 > 0 & m4_down$DE_R4 > 0, ]))]
+#m4$Gene[as.integer(rownames(m4_up[m4_up$DE_R1 > 0 & m4_up$DE_R2 > 0 & m4_up$DE_R3 > 0 & m4_up$DE_R4 > 0, ]))]
 
 r1_specific_down <- m4[rownames(m4_down[m4_down$DE_R1 > 0 & m4_down$DE_R2 == 0 & m4_down$DE_R3 == 0 & m4_down$DE_R4 == 0, ]), ]
 r1_specific_up <- m4[rownames(m4_up[m4_up$DE_R1 > 0 & m4_up$DE_R2 == 0 & m4_up$DE_R3 == 0 & m4_up$DE_R4 == 0, ]), ]
@@ -996,27 +979,27 @@ r4_degs <- rbind(r4_specific_down, r4_specific_up)
 
 # R05
 
-R5 <- read.csv(file = "R05-2020-02-07-11-18-270e8/summary.tsv", header = TRUE, sep = "\t", quote = "")
-R5_DE <- R5[R5$DE..SCORE....1..WT...dXCL..1..WT...dXCL. != 0 & abs(R5$log2FC) > 0, ]
+#R5 <- read.csv(file = "R05-2020-02-07-11-18-270e8/summary.tsv", header = TRUE, sep = "\t", quote = "")
+#R5_DE <- R5[R5$DE..SCORE....1..WT...dXCL..1..WT...dXCL. != 0 & abs(R5$log2FC) > 0, ]
 
-pheatmap(R5_DE$log2FC,
-         border_color = "black",
-         cellheight = 10,
-         cellwidth = 20,
-         cluster_cols = FALSE,
-         cluster_rows = TRUE,
-         file = "pheatmap_r5.png",
-         fontsize_col = 5,
-         fontsize_row = 5,
-         main = "Heatmap (R5)",
-         show_rownames = TRUE,
-         labels_col = names[3],
-         labels_row = R5$gene.name
-)
+#pheatmap(R5_DE$log2FC,
+#         border_color = "black",
+#         cellheight = 10,
+#         cellwidth = 20,
+#         cluster_cols = FALSE,
+#         cluster_rows = TRUE,
+#         file = "pheatmap_r5.png",
+#         fontsize_col = 5,
+#         fontsize_row = 5,
+#         main = "Heatmap (R5)",
+#         show_rownames = TRUE,
+#         labels_col = names[3],
+#         labels_row = R5$gene.name
+#)
 
 # Visualization of genes of interest
-genes_of_interest <- data.frame(Gene = c("Cd80", "Cd86", "Cd40", "Ccr7", "Akt3", "Pik3ca", "Mapk3", "Myc", "Ccl2", "Ccl17", "Ccl6", "Rab27a", "Sec22b", "Tap1", "Tap2", "Tapbp", "Calr", "Pdia3", "Rac2", "Cybb", "Snap23"),
-                                Group = c(rep("Maturation Markers", 4), rep("Migration Markers", 4), rep("Chemokines", 3), rep("Antigen Presentation", 10)))
+genes_of_interest <- data.frame(Gene = c("Cd80", "Cd86", "Cd40", "Ccr7", "Akt3", "Pik3ca", "Mapk3", "Ccl2", "Ccl17", "Ccl6", "Rab27a", "Sec22b", "Tap1", "Tap2", "Tapbp", "Calr", "Pdia3", "Rac2", "Cybb", "Snap23"),
+                                Group = c(rep("Maturation Markers", 4), rep("Migration Markers", 3), rep("Chemokines", 3), rep("Antigen Presentation", 10)))
 genes_of_interest <- genes_of_interest[order(genes_of_interest$Gene), ]
 
 R1_GOI <- R1[R1$gene.name %in% genes_of_interest$Gene, ]
@@ -1031,45 +1014,47 @@ R4_GOI <- R4_GOI[order(R4_GOI$gene.name), ]
 
 df_GOI <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC, TPM_R1 = R1_GOI$Mean.TPM..Mock., TPM_R2 = R2_GOI$Mean.TPM..WT., TPM_R3 = R3_GOI$Mean.TPM..dXCL1., TPM_R4 = R4_GOI$Mean.TPM..UV.)
 df_GOI <- df_GOI[order(df_GOI$Group), ]
-rownames(df_GOI) <- seq(1:21)
+rownames(df_GOI) <- seq(1:nrow(genes_of_interest))
 
 mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
 mybreaks <- c(seq(min(df_GOI[4:6]), 0, length.out = 25),
               seq(max(df_GOI[4:6])/50, max(df_GOI[4:6]), length.out = 25)
-              )
-
-pheatmap(df_GOI[3:6],
-         annotation_row = df_GOI[2],
-         border_color = "black",
-         #breaks = mybreaks,
-         cellheight = 50,
-         cellwidth = 100,
-         cluster_cols = TRUE,
-         cluster_rows = FALSE,
-         #color = mycolor,
-         file = "pheatmap_genes_of_interest_c1.png",
-         fontsize_col = 10,
-         fontsize_row = 10,
-         #gaps_row = c(4, 7),
-         main = "Heatmap of genes of interest",
-         #scale = "row",
-         show_rownames = TRUE,
-         labels_col = names,
-         labels_row = df_GOI$Gene
 )
+
+#pheatmap(df_GOI[3:6],
+#         annotation_row = df_GOI[2],
+#         border_color = "black",
+#         #breaks = mybreaks,
+#         cellheight = 50,
+#         cellwidth = 100,
+#         cluster_cols = TRUE,
+#         cluster_rows = FALSE,
+#         #color = mycolor,
+#         file = "pheatmap_genes_of_interest_c1.png",
+#         fontsize_col = 10,
+#         fontsize_row = 10,
+#         #fontsize = 10,
+#         #gaps_row = c(4, 7),
+#         main = "Heatmap of genes of interest",
+#         #scale = "row",
+#         show_rownames = TRUE,
+#         labels_col = names,
+#         labels_row = df_GOI$Gene
+#)
 
 pheatmap(df_GOI[3:6],
          annotation_row = df_GOI[2],
          border_color = "black",
          breaks = mybreaks,
          cellheight = 50,
-         cellwidth = 100,
+         cellwidth = 50,
          cluster_cols = TRUE,
          cluster_rows = FALSE,
          color = mycolor,
-         file = "pheatmap_genes_of_interest_c2.png",
-         fontsize_col = 10,
-         fontsize_row = 10,
+         file = "pheatmap_genes_of_interest_c1.png",
+         fontsize_col = 15,
+         fontsize_row = 15,
+         fontsize = 12,
          #gaps_row = c(4, 7),
          main = "Heatmap of genes of interest",
          #scale = "row",
@@ -1078,31 +1063,994 @@ pheatmap(df_GOI[3:6],
          labels_row = df_GOI$Gene
 )
 
-TPM_Input = data.frame(, R2 = R2_GOI$Mean.TPM..Input., R3 = R3_GOI$Mean.TPM..Input., R4 = R4_GOI$Mean.TPM..Input.)
-
-df_GOI_TPM <- data.frame(Genes = rep(df_GOI$Gene, 5), TPM = c(R1_GOI$Mean.TPM..Input., df_GOI$TPM_R1, df_GOI$TPM_R2, df_GOI$TPM_R3, df_GOI$TPM_R4), Sample = c(rep("Input", 21), rep("Mock", 21), rep("RCMV-E wt", 21), rep("RCMV-E dvXCL1", 21), rep("UV", 21)))
+df_GOI_TPM <- data.frame(Genes = rep(df_GOI$Gene, 5), TPM = c(R1_GOI$Mean.TPM..Input., df_GOI$TPM_R1, df_GOI$TPM_R2, df_GOI$TPM_R3, df_GOI$TPM_R4), Sample = c(rep("Input", nrow(genes_of_interest)), rep("Mock", nrow(genes_of_interest)), rep("RCMV-E wt", nrow(genes_of_interest)), rep("RCMV-E dvxcl1", nrow(genes_of_interest)), rep("UV", nrow(genes_of_interest))))
 
 ggplot(data = df_GOI_TPM, aes(x = Genes, y = log(TPM+0.8, 10), fill = Sample)) +
   geom_bar(stat = "identity", position = position_dodge(), color = "black") +
-  scale_fill_manual(values = c("#ff7e00", "#000000", "#a0a0a2", "#606060", "#addfac")) +
+  scale_fill_manual(labels = c("Input", "Mock", bquote(paste("RCMV-E ", Delta, italic("vxcl1"))), "RCMV-E wt", "UV"), values = c("#ff7e00", "#010080", "#f2b77d", "#a00000", "#addfae")) +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) +
   labs(title = "Expression of selected genes (RNA-Seq)", x = "Genes of interest")
 
-ggsave("bar_chart_01.png")
+ggsave("bar_chart_01.png", width = 15, height = 5, dpi = 500)
 
-ggplot(data = df_GOI_TPM, aes(x = Genes, y = TPM, fill = Sample)) +
-  geom_bar(stat = "identity", position = position_dodge(), color = "black") +
-  scale_fill_manual(values = c("#ff7e00", "#000000", "#a0a0a2", "#606060", "#addfac")) +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = "Expression of selected genes (RNA-Seq)", x = "Genes of interest")
+#ggplot(data = df_GOI_TPM, aes(x = Genes, y = TPM, fill = Sample)) +
+#  geom_bar(stat = "identity", position = position_dodge(), color = "black") +
+#  scale_fill_manual(labels = c("Input", "Mock", bquote(paste("RCMV-E ", Delta, italic("vxcl1"))), "RCMV-E wt", "UV"), values = c("#ff7e00", "#010080", "#f2b77d", "#a00000", "#addfae")) +
+#  theme_minimal() +
+#  theme(plot.title = element_text(hjust = 0.5)) +
+#  labs(title = "Expression of selected genes (RNA-Seq)", x = "Genes of interest")
 
-ggsave("bar_chart_02.png")
+#ggsave("bar_chart_02.png", width = 15, height = 5, dpi = 500)
+
+# Visualization of pathway of interest
+pathway_of_interest_g1 = c("Xcl1", "Xcr1",
+                           "Ccl1", "Ccl2", "Ccl3", "Ccl4", "Ccl5", "Ccl6", "Ccl7",
+                           "Ccl17", "Ccl21", "Ccl22", "Ccl24", "Ccl28", "Ccr1",
+                           "Ccr1l1", "Ccr3", "Ccr4", "Ccr7", "Ccr8", "Ccr9", "Ccr10",
+                           "Cxcl1", "Cxcl2", "Cxcl9", "Cxcl16", "Cxcl17", "Cxcr2",
+                           "Cxcr3", "Cxcr4", "Cxcr5", "Pf4", "Ppbp",
+                           "Cx3cr1",
+                           "Csf2", "Csf2ra", "Csf2rb", "Il3ra", "Il13", "Il13ra1",
+                           "Clcf1", "Cntf", "Il6", "Il6r", "Il6st", "Il11", "Il12a", "Il12b", "Il12rb1",
+                           "Il23a", "Il23r", "Il27", "Il31", "Il31ra", "Lif", "Osm", "Osmr",
+                           "Ghr", "Lepr", "Prlr",
+                           "Il2", "Il2ra", "Il2rg", "Il4", "Il7r", "Il9",
+                           "Il9r", "Il15", "Il21", "Tslp",
+                           "Il10", "Il10ra", "Il10rb", "Il19", "Il20ra", "Il20rb", "Il22", "Il22ra1", "Il24", "Ifnl3",
+                           "Ifnar2", "Ifnb1", "Ifne", "Ifng", "Ifngr1", "Ifngr2",
+                           "Il1a", "Il1b", "Il18",
+                           "Il17a", "Il17c", "Il17d", "Il17f", "Il17ra", "Il17rb",
+                           "Csf1r"
+)
+
+pathway_of_interest_g2 = c(rep("Chemokines - C Subfamily", 2),
+                           rep("Chemokines - CC Subfamily", 20),
+                           rep("Chemokines - CXC Subfamily", 11),
+                           rep("Chemokines - CX3C Subfamily", 1),
+                           rep("Cytokines - Class I Helical - IL4-like", 6),
+                           rep("Cytokines - Class I Helical - IL6/12-like", 17),
+                           rep("Cytokines - Class I Helical - Prolactin Family", 3),
+                           rep("Cytokines - Class I Helical - Y-Chain Utilising", 10),
+                           rep("Cytokines - Class II Helical - IL10/28-like", 10),
+                           rep("Cytokines - Class II Helical - Interferon Family", 6),
+                           rep("Cytokines - IL1-like", 3),
+                           rep("Cytokines - IL17-like", 6),
+                           rep("Non-classified", 1)
+)
+
+R1[R1$gene.name %in% "Csf1r", 2]
+R2[R2$gene.name %in% "Csf1r", 2]
+R3[R3$gene.name %in% "Csf1r", 2]
+R4[R4$gene.name %in% "Csf1r", 2]
+
+genes_of_interest <- data.frame(Gene = pathway_of_interest_g1, Group = pathway_of_interest_g2)
+genes_of_interest <- genes_of_interest[order(genes_of_interest$Gene), ]
+
+R1_GOI <- R1[R1$gene.name %in% genes_of_interest$Gene, ]
+R2_GOI <- R2[R2$gene.name %in% genes_of_interest$Gene, ]
+R3_GOI <- R3[R3$gene.name %in% genes_of_interest$Gene, ]
+R4_GOI <- R4[R4$gene.name %in% genes_of_interest$Gene, ]
+
+R1_GOI <- R1_GOI[order(R1_GOI$gene.name), ]
+R2_GOI <- R2_GOI[order(R2_GOI$gene.name), ]
+R3_GOI <- R3_GOI[order(R3_GOI$gene.name), ]
+R4_GOI <- R4_GOI[order(R4_GOI$gene.name), ]
+
+# Check if genes are available in all results
+genes_of_interest[!(genes_of_interest$Gene %in% R1_GOI$gene.name), 1]
+genes_of_interest[!(genes_of_interest$Gene %in% R2_GOI$gene.name), 1]
+genes_of_interest[!(genes_of_interest$Gene %in% R3_GOI$gene.name), 1]
+genes_of_interest[!(genes_of_interest$Gene %in% R4_GOI$gene.name), 1]
+
+df_GOI <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC, TPM_R1 = R1_GOI$Mean.TPM..Mock., TPM_R2 = R2_GOI$Mean.TPM..WT., TPM_R3 = R3_GOI$Mean.TPM..dXCL1., TPM_R4 = R4_GOI$Mean.TPM..UV.)
+df_GOI <- df_GOI[order(df_GOI$Group), ]
+rownames(df_GOI) <- seq(1:nrow(genes_of_interest))
+
+mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
+mybreaks <- c(seq(min(df_GOI[4:6]), 0, length.out = 25),
+              seq(max(df_GOI[4:6])/50, max(df_GOI[4:6]), length.out = 25)
+)
+
+pheatmap(df_GOI[3:6],
+         annotation_row = df_GOI[2],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 30,
+         cellwidth = 50,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_c2.png",
+         fontsize_col = 15,
+         fontsize_row = 15,
+         fontsize = 12,
+         #gaps_row = c(4, 7),
+         main = "Heatmap of pathway of interest (rno04060)",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names,
+         labels_row = df_GOI$Gene
+)
+
+# NEW IMAGES MARCH
+
+setwd("../../deg/")
+BA1 <- read.csv(file = "BA1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+BA2 <- read.csv(file = "BA2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+BC1 <- read.csv(file = "BC1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+BC2 <- read.csv(file = "BC2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+
+DE_Up_BA1 <- BA1[BA1$DE..SCORE....1..O2...CO2..1..O2...CO2. == 1 & abs(BA1$log2FC) >= 2, ]
+DE_Up_BA2 <- BA2[BA2$DE..SCORE....1..O2...CO2..1..O2...CO2. == 1 & abs(BA2$log2FC) >= 2, ]
+DE_Up_BC1 <- BC1[BC1$DE..SCORE....1..O2...CO2..1..O2...CO2. == 1 & abs(BC1$log2FC) >= 2, ]
+DE_Up_BC2 <- BC2[BC2$DE..SCORE....1..O2...CO2..1..O2...CO2. == 1 & abs(BC2$log2FC) >= 2, ]
+
+DE_Down_BA1 <- BA1[BA1$DE..SCORE....1..O2...CO2..1..O2...CO2. == -1 & abs(BA1$log2FC) >= 2, ]
+DE_Down_BA2 <- BA2[BA2$DE..SCORE....1..O2...CO2..1..O2...CO2. == -1 & abs(BA2$log2FC) >= 2, ]
+DE_Down_BC1 <- BC1[BC1$DE..SCORE....1..O2...CO2..1..O2...CO2. == -1 & abs(BC1$log2FC) >= 2, ]
+DE_Down_BC2 <- BC2[BC2$DE..SCORE....1..O2...CO2..1..O2...CO2. == -1 & abs(BC2$log2FC) >= 2, ]
+
+M1 <- merge(DE_Up_BA1, DE_Up_BA2, by = "AA.sequence", all = TRUE)
+M2 <- merge(DE_Up_BC1, DE_Up_BC2, by = "AA.sequence", all = TRUE)
+M3 <- merge(M1, M2, by = "AA.sequence", all = TRUE)
+
+# Start with final merge here...
+
+B1 <- DE_Up_BA1
+B2 <- DE_Up_BA2
+B3 <- DE_Up_BC1
+B4 <- DE_Up_BC2
+
+Gene_Symbol_BA1 = c()
+Gene_Symbol_BA2 = c()
+Gene_Symbol_BC1 = c()
+Gene_Symbol_BC2 = c()
+ID_BA1 = c()
+ID_BA2 = c()
+ID_BC1 = c()
+ID_BC2 = c()
+log2FC_BA1 = c()
+log2FC_BA2 = c()
+log2FC_BC1 = c()
+log2FC_BC2 = c()
+TPM_BA1 = c()
+TPM_BA2 = c()
+TPM_BC1 = c()
+TPM_BC2 = c()
+DE_BA1 = c()
+DE_BA2 = c()
+DE_BC1 = c()
+DE_BC2 = c()
+
+# BA1
+
+i = 1
+for (id in B1$ID) {
+  t2 <- NA
+  t3 <- NA
+  t4 <- NA
+  B2_ID <- ""
+  B2_gene_name <- ""
+  B2_fc <- 0
+  B2_de <- 0
+  B2_tpm <- 0
+  B3_ID <- ""
+  B3_gene_name <- ""
+  B3_fc <- 0
+  B3_de <- 0
+  B3_tpm <- 0
+  B4_ID <- ""
+  B4_gene_name <- ""
+  B4_fc <- 0
+  B4_de <- 0
+  B4_tpm <- 0
+
+  B1_ID <- id
+  B1_gene_name <- as.character(B1[B1$ID == id, 2])
+  B1_fc <- B1[B1$ID == id, 4]
+  B1_de <- B1[B1$ID == id, 5]
+  B1_tpm <- B1[B1$ID == id, 15]
+  B1_NS <- B1[B1$ID == id, 20]
+  
+  t2 <- amatch(B1_NS, B2$nucleotide.sequence, maxDist = length(B1_NS)*0.1)
+  t3 <- amatch(B1_NS, B3$nucleotide.sequence, maxDist = length(B1_NS)*0.1)
+  t4 <- amatch(B1_NS, B4$nucleotide.sequence, maxDist = length(B1_NS)*0.1)
+  
+  if (is.na(t2) == FALSE) {
+    B2_ID <- as.character(B2[t2, 1])
+    B2_gene_name <- as.character(B2[t2, 2])
+    B2_fc <- B2[t2, 4]
+    B2_de <- B2[t2, 5]
+    B2_tpm <- B2[t2, 15]
+    B2 <- B2[-c(t2), ]
+  }
+
+  if (is.na(t3) == FALSE) {
+    B3_ID <- as.character(B3[t3, 1])
+    B3_gene_name <- as.character(B3[t3, 2])
+    B3_fc <- B3[t3, 4]
+    B3_de <- B3[t3, 5]
+    B3_tpm <- B3[t3, 15]
+    B3 <- B3[-c(t3), ]
+  }
+
+  if (is.na(t4) == FALSE) {
+    B4_ID <- as.character(B4[t4, 1])
+    B4_gene_name <- as.character(B4[t4, 2])
+    B4_fc <- B4[t4, 4]
+    B4_de <- B4[t4, 5]
+    B4_tpm <- B4[t4, 15]
+    B4 <- B4[-c(t4), ]
+  }
+  
+  Gene_Symbol_BA1[i] <- B1_gene_name
+  Gene_Symbol_BA2[i] <- B2_gene_name
+  Gene_Symbol_BC1[i] <- B3_gene_name
+  Gene_Symbol_BC2[i] <- B4_gene_name
+  ID_BA1[i] <- B1_ID
+  ID_BA2[i] <- B2_ID
+  ID_BC1[i] <- B3_ID
+  ID_BC2[i] <- B4_ID
+  log2FC_BA1[i] <- B1_fc
+  log2FC_BA2[i] <- B2_fc
+  log2FC_BC1[i] <- B3_fc
+  log2FC_BC2[i] <- B4_fc
+  TPM_BA1[i] <- B1_tpm
+  TPM_BA2[i] <- B2_tpm
+  TPM_BC1[i] <- B3_tpm
+  TPM_BC2[i] <- B4_tpm
+  DE_BA1[i] <- B1_de
+  DE_BA2[i] <- B2_de
+  DE_BC1[i] <- B3_de
+  DE_BC2[i] <- B4_de
+
+  i = i + 1
+}
+
+# BA2
+
+for (id in B2$ID) {
+  t3 <- NA
+  t4 <- NA
+  B1_ID <- ""
+  B1_gene_name <- ""
+  B1_fc <- 0
+  B1_de <- 0
+  B1_tpm <- 0
+  B3_ID <- ""
+  B3_gene_name <- ""
+  B3_fc <- 0
+  B3_de <- 0
+  B3_tpm <- 0
+  B4_ID <- ""
+  B4_gene_name <- ""
+  B4_fc <- 0
+  B4_de <- 0
+  B4_tpm <- 0
+  
+  B2_ID <- id
+  B2_gene_name <- as.character(B2[B2$ID == id, 2])
+  B2_fc <- B2[B2$ID == id, 4]
+  B2_de <- B2[B2$ID == id, 5]
+  B2_tpm <- B2[B2$ID == id, 15]
+  B2_NS <- B2[B2$ID == id, 20]
+  
+  t3 <- amatch(B2_NS, B3$nucleotide.sequence, maxDist = length(B2_NS)*0.1)
+  t4 <- amatch(B2_NS, B4$nucleotide.sequence, maxDist = length(B2_NS)*0.1)
+  
+  if (is.na(t3) == FALSE) {
+    B3_ID <- as.character(B3[t3, 1])
+    B3_gene_name <- as.character(B3[t3, 2])
+    B3_fc <- B3[t3, 4]
+    B3_de <- B3[t3, 5]
+    B3_tpm <- B3[t3, 15]
+    B3 <- B3[-c(t3), ]
+  }
+  
+  if (is.na(t4) == FALSE) {
+    B4_ID <- as.character(B4[t4, 1])
+    B4_gene_name <- as.character(B4[t4, 2])
+    B4_fc <- B4[t4, 4]
+    B4_de <- B4[t4, 5]
+    B4_tpm <- B4[t4, 15]
+    B4 <- B4[-c(t4), ]
+  }
+  
+  Gene_Symbol_BA1[i] <- B1_gene_name
+  Gene_Symbol_BA2[i] <- B2_gene_name
+  Gene_Symbol_BC1[i] <- B3_gene_name
+  Gene_Symbol_BC2[i] <- B4_gene_name
+  ID_BA1[i] <- B1_ID
+  ID_BA2[i] <- B2_ID
+  ID_BC1[i] <- B3_ID
+  ID_BC2[i] <- B4_ID
+  log2FC_BA1[i] <- B1_fc
+  log2FC_BA2[i] <- B2_fc
+  log2FC_BC1[i] <- B3_fc
+  log2FC_BC2[i] <- B4_fc
+  TPM_BA1[i] <- B1_tpm
+  TPM_BA2[i] <- B2_tpm
+  TPM_BC1[i] <- B3_tpm
+  TPM_BC2[i] <- B4_tpm
+  DE_BA1[i] <- B1_de
+  DE_BA2[i] <- B2_de
+  DE_BC1[i] <- B3_de
+  DE_BC2[i] <- B4_de
+  
+  i = i + 1
+}
+
+# BC1
+
+for (id in B3$ID) {
+  t4 <- NA
+  B1_ID <- ""
+  B1_gene_name <- ""
+  B1_fc <- 0
+  B1_de <- 0
+  B1_tpm <- 0
+  B2_ID <- ""
+  B2_gene_name <- ""
+  B2_fc <- 0
+  B2_de <- 0
+  B2_tpm <- 0
+  B4_ID <- ""
+  B4_gene_name <- ""
+  B4_fc <- 0
+  B4_de <- 0
+  B4_tpm <- 0
+  
+  B3_ID <- id
+  B3_gene_name <- as.character(B3[B3$ID == id, 2])
+  B3_fc <- B3[B3$ID == id, 4]
+  B3_de <- B3[B3$ID == id, 5]
+  B3_tpm <- B3[B3$ID == id, 15]
+  B3_NS <- B3[B3$ID == id, 20]
+  
+  t4 <- amatch(B3_NS, B4$nucleotide.sequence, maxDist = length(B3_NS)*0.1)
+  
+  if (is.na(t4) == FALSE) {
+    B4_ID <- as.character(B4[t4, 1])
+    B4_gene_name <- as.character(B4[t4, 2])
+    B4_fc <- B4[t4, 4]
+    B4_de <- B4[t4, 5]
+    B4_tpm <- B4[t4, 15]
+    B4 <- B4[-c(t4), ]
+  }
+  
+  Gene_Symbol_BA1[i] <- B1_gene_name
+  Gene_Symbol_BA2[i] <- B2_gene_name
+  Gene_Symbol_BC1[i] <- B3_gene_name
+  Gene_Symbol_BC2[i] <- B4_gene_name
+  ID_BA1[i] <- B1_ID
+  ID_BA2[i] <- B2_ID
+  ID_BC1[i] <- B3_ID
+  ID_BC2[i] <- B4_ID
+  log2FC_BA1[i] <- B1_fc
+  log2FC_BA2[i] <- B2_fc
+  log2FC_BC1[i] <- B3_fc
+  log2FC_BC2[i] <- B4_fc
+  TPM_BA1[i] <- B1_tpm
+  TPM_BA2[i] <- B2_tpm
+  TPM_BC1[i] <- B3_tpm
+  TPM_BC2[i] <- B4_tpm
+  DE_BA1[i] <- B1_de
+  DE_BA2[i] <- B2_de
+  DE_BC1[i] <- B3_de
+  DE_BC2[i] <- B4_de
+  
+  i = i + 1
+}
+
+# BC2
+
+for (id in B4$ID) {
+  B1_ID <- ""
+  B1_gene_name <- ""
+  B1_fc <- 0
+  B1_de <- 0
+  B1_tpm <- 0
+  B2_ID <- ""
+  B2_gene_name <- ""
+  B2_fc <- 0
+  B2_de <- 0
+  B2_tpm <- 0
+  B3_ID <- ""
+  B3_gene_name <- ""
+  B3_fc <- 0
+  B3_de <- 0
+  B3_tpm <- 0
+  
+  B4_ID <- id
+  B4_gene_name <- as.character(B4[B4$ID == id, 2])
+  B4_fc <- B4[B4$ID == id, 4]
+  B4_de <- B4[B4$ID == id, 5]
+  B4_tpm <- B4[B4$ID == id, 15]
+  B4_NS <- B4[B4$ID == id, 20]
+  
+  Gene_Symbol_BA1[i] <- B1_gene_name
+  Gene_Symbol_BA2[i] <- B2_gene_name
+  Gene_Symbol_BC1[i] <- B3_gene_name
+  Gene_Symbol_BC2[i] <- B4_gene_name
+  ID_BA1[i] <- B1_ID
+  ID_BA2[i] <- B2_ID
+  ID_BC1[i] <- B3_ID
+  ID_BC2[i] <- B4_ID
+  log2FC_BA1[i] <- B1_fc
+  log2FC_BA2[i] <- B2_fc
+  log2FC_BC1[i] <- B3_fc
+  log2FC_BC2[i] <- B4_fc
+  TPM_BA1[i] <- B1_tpm
+  TPM_BA2[i] <- B2_tpm
+  TPM_BC1[i] <- B3_tpm
+  TPM_BC2[i] <- B4_tpm
+  DE_BA1[i] <- B1_de
+  DE_BA2[i] <- B2_de
+  DE_BC1[i] <- B3_de
+  DE_BC2[i] <- B4_de
+  
+  i = i + 1
+}
+
+M5 <- data.frame(Gene_BA1 = Gene_Symbol_BA1, Gene_BA2 = Gene_Symbol_BA2, Gene_BC1 = Gene_Symbol_BC1, Gene_BC2 = Gene_Symbol_BC2)
+M5$Gene_BA1 <- ifelse(M5$Gene_BA1 == "", as.character(M5$Gene_BA2), as.character(M5$Gene_BA1))
+M5$Gene_BA1 <- ifelse(M5$Gene_BA1 == "", as.character(M5$Gene_BC2), as.character(M5$Gene_BA1))
+M5$Gene_BA1 <- ifelse(M5$Gene_BA1 == "", as.character(M5$Gene_BC1), as.character(M5$Gene_BA1))
+
+M5$Gene_BA1[211] <- "dnaN"
+M5$Gene_BA1[238] <- "nhaC"
+M5$Gene_BA1[245] <- "proS"
+M5$Gene_BA1[252] <- "opuD"
+M5$Gene_BA1[348] <- "ansA"
+M5$Gene_BA1[367] <- "ilvE"
+M5$Gene_BA1[369] <- "ilvB_1"
+M5$Gene_BA1[414] <- "abc-f"
+M5$Gene_BA1[423] <- "prsA_2"
+M5$Gene_BA1[431] <- "hisC"
+M5$Gene_BA1[456] <- "fsa"
+M5$Gene_BA1[476] <- "dhbF"
+M5$Gene_BA1[496] <- "fabG"
+M5$Gene_BA1[542] <- "tyrS"
+M5$Gene_BA1[545] <- "hpt"
+M5$Gene_BA1[616] <- "yidC"
+M5$Gene_BA1[623] <- "pagA"
+M5$Gene_BA1[629] <- "galU"
+M5$Gene_BA1[635] <- "hfq"
+
+M6 <- data.frame(BA1 = ID_BA1, BA2 = ID_BA2, BC1 = ID_BC1, BC2 = ID_BC2)
+M6$BA1 <- ifelse(M6$BA1 == "", as.character(M6$BA2), as.character(M6$BA1))
+M6$BA1 <- ifelse(M6$BA1 == "", as.character(M6$BC2), as.character(M6$BA1))
+M6$BA1 <- ifelse(M6$BA1 == "", as.character(M6$BC1), as.character(M6$BA1))
+
+M4_old <- data.frame(BA1_ID = ID_BA1, BA2_ID = ID_BA2, BC1_ID = ID_BC1, BC2_ID = ID_BC2,
+                     Gene = M5$Gene_BA1,
+                     log2FC_BA1 = log2FC_BA1, log2FC_BA2 = log2FC_BA2, log2FC_BC1 = log2FC_BC1, log2FC_BC2 = log2FC_BC2,
+                     TPM_BA1 = TPM_BA1, TPM_BA2 = TPM_BA2, TPM_BC1 = TPM_BC1, TPM_BC2 = TPM_BC2,
+                     DE_BA1 = DE_BA1, DE_BA2 = DE_BA2, DE_BC1 = DE_BC1, DE_BC2 = DE_BC2)
+
+M4 <- data.frame(ID = M6$BA1, Gene = M5$Gene_BA1,
+                 log2FC_BA1 = log2FC_BA1, log2FC_BA2 = log2FC_BA2, log2FC_BC1 = log2FC_BC1, log2FC_BC2 = log2FC_BC2,
+                 TPM_BA1 = TPM_BA1, TPM_BA2 = TPM_BA2, TPM_BC1 = TPM_BC1, TPM_BC2 = TPM_BC2,
+                 DE_BA1 = DE_BA1, DE_BA2 = DE_BA2, DE_BC1 = DE_BC1, DE_BC2 = DE_BC2)
+
+# Venn Diagram
+names_V5 <- c("Vollum", "Dobichau", "CA", "CI")
+V5 <- vennCounts(M4[,11:14])
+png(filename = "venn_diagram_upregulated.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(V5, circle.col = c("red", "blue", "green", "grey"), main = "Upregulated Genes", names = names_V5, cex = 1.1)
+dev.off()
+
+# Upregulated_BA_Ids
+Up_DEGs_BA <- M4_old[(M4_old$DE_BA1 == 1 & M4_old$DE_BA2 == 1) & (M4_old$DE_BC1 == 0 & M4_old$DE_BC2 == 0), ]
+Up_DEGs_BA_short <- data.frame(Up_DEGs_BA$BA1_ID, Up_DEGs_BA$BA2_ID)
+Up_DEGs_BA_short$Up_DEGs_BA.BA1_ID <- ifelse(Up_DEGs_BA_short$Up_DEGs_BA.BA1_ID == "", as.character(Up_DEGs_BA_short$Up_DEGs_BA.BA2_ID), as.character(Up_DEGs_BA_short$Up_DEGs_BA.BA1_ID))
+Up_DEGs_BA_ID <- Up_DEGs_BA_short$Up_DEGs_BA.BA1_ID
+
+# Upregulated_BC_Ids
+Up_DEGs_BC <- M4_old[(M4_old$DE_BA1 == 0 & M4_old$DE_BA2 == 0) & (M4_old$DE_BC1 == 1 & M4_old$DE_BC2 == 1), ]
+Up_DEGs_BC_short <- data.frame(Up_DEGs_BC$BC1_ID, Up_DEGs_BC$BC2_ID)
+Up_DEGs_BC_short$Up_DEGs_BC.BC1_ID <- ifelse(Up_DEGs_BC_short$Up_DEGs_BC.BC1_ID == "", as.character(Up_DEGs_BC_short$Up_DEGs_BC.BC2_ID), as.character(Up_DEGs_BC_short$Up_DEGs_BC.BC1_ID))
+Up_DEGs_BC_ID <- Up_DEGs_BC_short$Up_DEGs_BC.BC1_ID
+
+a1 <- BA1[BA1$ID %in% Up_DEGs_BA_ID | BA1$ID %in% Up_DEGs_BC_ID, ]
+a2 <- BA2[BA2$ID %in% Up_DEGs_BA_ID | BA2$ID %in% Up_DEGs_BC_ID, ]
+a3 <- BC1[BC1$ID %in% Up_DEGs_BC_ID | BC1$ID %in% Up_DEGs_BC_ID, ]
+a4 <- BC2[BC2$ID %in% Up_DEGs_BC_ID | BC2$ID %in% Up_DEGs_BC_ID, ]
+
+C1 <- BA1
+C2 <- BA2
+C3 <- BC1
+C4 <- BC2
+
+ID <- c()
+log2FC_BA1 <- c()
+log2FC_BA2 <- c()
+log2FC_BC1 <- c()
+log2FC_BC2 <- c()
+TPM_BA1_O2 <- c()
+TPM_BA1_CO2 <- c()
+TPM_BA2_O2 <- c()
+TPM_BA2_CO2 <- c()
+TPM_BC1_O2 <- c()
+TPM_BC1_CO2 <- c()
+TPM_BC2_O2 <- c()
+TPM_BC2_CO2 <- c()
+DE_BA1 <- c()
+DE_BA2 <- c()
+DE_BC1 <- c()
+DE_BC2 <- c()
+TIGRFAM_Main <- c()
+TIGRFAM_Sub <- c()
+
+i = 1
+for (seq in a1$nucleotide.sequence) {
+  b2 <- NA
+  b3 <- NA
+  b4 <- NA
+  B1_fc <- C1[C1$nucleotide.sequence == seq, 4]
+  B1_de <- C1[C1$nucleotide.sequence == seq, 5]
+  B1_tpm_o2 <- C1[C1$nucleotide.sequence == seq, 14]
+  B1_tpm_co2 <- C1[C1$nucleotide.sequence == seq, 15]
+  B2_fc <- NA
+  B2_de <- NA
+  B2_tpm_o2 <- NA
+  B2_tpm_co2 <- NA
+  B3_fc <- NA
+  B3_de <- NA
+  B3_tpm_o2 <- NA
+  B3_tpm_co2 <- NA
+  B4_fc <- NA
+  B4_de <- NA
+  B4_tpm_o2 <- NA
+  B4_tpm_co2 <- NA
+  ID[i] <- as.character(C1[C1$nucleotide.sequence == seq, 1])
+  TIGRFAM_Main[i] <- as.character(C1[C1$nucleotide.sequence == seq, 16])
+  TIGRFAM_Sub[i] <- as.character(C1[C1$nucleotide.sequence == seq, 17])
+
+  b2 <- amatch(seq, C2$nucleotide.sequence, maxDist = length(seq)*0.1)
+  b3 <- amatch(seq, C3$nucleotide.sequence, maxDist = length(seq)*0.1)
+  b4 <- amatch(seq, C4$nucleotide.sequence, maxDist = length(seq)*0.1)
+  
+  if (is.na(b2) == FALSE) {
+    B2_fc <- C2[b2, 4]
+    B2_de <- C2[b2, 5]
+    B2_tpm_o2 <- C2[b2, 14]
+    B2_tpm_co2 <- C2[b2, 15]
+    C2 <- C2[-c(b2), ]
+  }
+  
+  if (is.na(b3) == FALSE) {
+    B3_fc <- C3[b3, 4]
+    B3_de <- C3[b3, 5]
+    B3_tpm_o2 <- C3[b3, 14]
+    B3_tpm_co2 <- C3[b3, 15]
+    C3 <- C3[-c(b3), ]
+  }
+  
+  if (is.na(b4) == FALSE) {
+    B4_fc <- C4[b4, 4]
+    B4_de <- C4[b4, 5]
+    B4_tpm_o2 <- C4[b4, 14]
+    B4_tpm_co2 <- C4[b4, 15]
+    C4 <- C4[-c(b4), ]
+  }
+  
+  log2FC_BA1[i] <- B1_fc
+  log2FC_BA2[i] <- B2_fc
+  log2FC_BC1[i] <- B3_fc
+  log2FC_BC2[i] <- B4_fc
+  TPM_BA1_O2[i] <- B1_tpm_o2
+  TPM_BA1_CO2[i] <- B1_tpm_co2
+  TPM_BA2_O2[i] <- B2_tpm_o2
+  TPM_BA2_CO2[i] <- B2_tpm_co2
+  TPM_BC1_O2[i] <- B3_tpm_o2
+  TPM_BC1_CO2[i] <- B3_tpm_co2
+  TPM_BC2_O2[i] <- B4_tpm_o2
+  TPM_BC2_CO2[i] <- B4_tpm_co2
+  DE_BA1[i] <- B1_de
+  DE_BA2[i] <- B2_de
+  DE_BC1[i] <- B3_de
+  DE_BC2[i] <- B4_de
+  
+  i = i + 1
+}
+
+for (seq in a3$nucleotide.sequence) {
+  b1 <- NA
+  b2 <- NA
+  b4 <- NA
+  B1_fc <- NA
+  B1_de <- NA
+  B1_tpm_o2 <- NA
+  B1_tpm_co2 <- NA
+  B2_fc <- NA
+  B2_de <- NA
+  B2_tpm_o2 <- NA
+  B2_tpm_co2 <- NA
+  B3_fc <- C3[C3$nucleotide.sequence == seq, 4]
+  B3_de <- C3[C3$nucleotide.sequence == seq, 5]
+  B3_tpm_o2 <- C3[C3$nucleotide.sequence == seq, 14]
+  B3_tpm_co2 <- C3[C3$nucleotide.sequence == seq, 15]
+  B4_fc <- NA
+  B4_de <- NA
+  B4_tpm_o2 <- NA
+  B4_tpm_co2 <- NA
+  ID[i] <- as.character(C3[C3$nucleotide.sequence == seq, 1])
+  TIGRFAM_Main[i] <- as.character(C3[C3$nucleotide.sequence == seq, 16])
+  TIGRFAM_Sub[i] <- as.character(C3[C3$nucleotide.sequence == seq, 17])
+
+  b1 <- amatch(seq, C1$nucleotide.sequence, maxDist = length(seq)*0.1)
+  b2 <- amatch(seq, C2$nucleotide.sequence, maxDist = length(seq)*0.1)
+  b4 <- amatch(seq, C4$nucleotide.sequence, maxDist = length(seq)*0.1)
+  
+  if (is.na(b1) == FALSE) {
+    B1_fc <- C1[b1, 4]
+    B1_de <- C1[b1, 5]
+    B1_tpm_o2 <- C1[b1, 14]
+    B1_tpm_co2 <- C1[b1, 15]
+    C1 <- C1[-c(b1), ]
+  }
+  
+  if (is.na(b2) == FALSE) {
+    B2_fc <- C2[b2, 4]
+    B2_de <- C2[b2, 5]
+    B2_tpm_o2 <- C2[b2, 14]
+    B2_tpm_co2 <- C2[b2, 15]
+    C2 <- C2[-c(b2), ]
+  }
+  
+  if (is.na(b4) == FALSE) {
+    B4_fc <- C4[b4, 4]
+    B4_de <- C4[b4, 5]
+    B4_tpm_o2 <- C4[b4, 14]
+    B4_tpm_co2 <- C4[b4, 15]
+    C4 <- C4[-c(b4), ]
+  }
+  
+  log2FC_BA1[i] <- B1_fc
+  log2FC_BA2[i] <- B2_fc
+  log2FC_BC1[i] <- B3_fc
+  log2FC_BC2[i] <- B4_fc
+  TPM_BA1_O2[i] <- B1_tpm_o2
+  TPM_BA1_CO2[i] <- B1_tpm_co2
+  TPM_BA2_O2[i] <- B2_tpm_o2
+  TPM_BA2_CO2[i] <- B2_tpm_co2
+  TPM_BC1_O2[i] <- B3_tpm_o2
+  TPM_BC1_CO2[i] <- B3_tpm_co2
+  TPM_BC2_O2[i] <- B4_tpm_o2
+  TPM_BC2_CO2[i] <- B4_tpm_co2
+  DE_BA1[i] <- B1_de
+  DE_BA2[i] <- B2_de
+  DE_BC1[i] <- B3_de
+  DE_BC2[i] <- B4_de
+  
+  i = i + 1
+}
+
+M7 <- data.frame(ID = ID,
+                 log2FC_BA1 = log2FC_BA1, log2FC_BA2 = log2FC_BA2, log2FC_BC1 = log2FC_BC1, log2FC_BC2 = log2FC_BC2,
+                 TPM_BA1_O2 = TPM_BA1_O2, TPM_BA2_O2 = TPM_BA2_O2, TPM_BC1_O2 = TPM_BC1_O2, TPM_BC2_O2 = TPM_BC2_O2,
+                 TPM_BA1_CO2 = TPM_BA1_CO2, TPM_BA2_CO2 = TPM_BA2_CO2, TPM_BC1_CO2 = TPM_BC1_CO2, TPM_BC2_CO2 = TPM_BC2_CO2,
+                 DE_BA1 = DE_BA1, DE_BA2 = DE_BA2, DE_BC1 = DE_BC1, DE_BC2 = DE_BC2,
+                 TIGRFAM_Main = TIGRFAM_Main, TIGRFAM_Sub = TIGRFAM_Sub)
+
+# Pie Chart of Genes
+M8_S1_Full <- M7[1:28, ]
+M8_S2_Full <- M7[29:89, ]
+
+M8_S1 <- (M8_S1_Full[M8_S1_Full$TIGRFAM_Main != "" & M8_S1_Full$TIGRFAM_Main != "Unknown function", ])
+M8_S2 <- (M8_S2_Full[M8_S2_Full$TIGRFAM_Main != "" & M8_S2_Full$TIGRFAM_Main != "Unknown function", ])
+
+M8_S1_counts <- data.frame(table(M8_S1$TIGRFAM_Main))
+M8_S2_counts <- data.frame(table(M8_S2$TIGRFAM_Main))
+
+ggplot(M8_S1_counts, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity", colour = "black") +
+  coord_polar(theta = "y", start = 0) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  xlab("") +
+  ylab("") +
+  labs(fill = "TIGRFAM", title = "DEGs (G1)", subtitle = "TIGRFAM Groups")
+
+ggplot(M8_S2_counts, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity", colour = "black") +
+  coord_polar(theta = "y", start = 0) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  xlab("") +
+  ylab("") +
+  labs(fill = "TIGRFAM", title = "DEGs (G2)", subtitle = "TIGRFAM Groups")
+
+# Upregulated in all conditions
+Up_DEGs_All <- M4_old[M4_old$DE_BA1 == 1 & M4_old$DE_BA2 == 1 & M4_old$DE_BC1 == 1 & M4_old$DE_BC2 == 1, ]
+
+# Heatmap 1
+
+new_rownames <- M8_S1_Full$ID
+j = 1
+for (gene in a1$gene.name) {
+  if (gene != "") {
+    levels(new_rownames) <- c(levels(new_rownames), gene)
+    new_rownames[j] <- gene
+  }
+  j = j + 1
+}
+
+new_rownames <- droplevels(new_rownames)
+
+rownames(M8_S1_Full) <- new_rownames
+names <- c("Vollum", "Dobichau", "CA", "CI", "Vollum", "Dobichau", "CA", "CI")
+annotations <- data.frame(condition = c(rep("O2", 4), rep("CO2", 4)))
+rownames(annotations) <- colnames(M8_S1_Full[6:13])
+levels(M8_S1_Full$TIGRFAM_Main) <- c(levels(M8_S1_Full$TIGRFAM_Main), "Unknown function") 
+M8_S1_Full$TIGRFAM_Main[M8_S1_Full$TIGRFAM_Main == ""] <- "Unknown function"
+colnames(M8_S1_Full)[18] <- "TIGRFAM"
+my_colour = list(
+    condition = c(O2 = "chartreuse2", CO2 = "cornflowerblue"),
+    TIGRFAM = c("Biosynthesis of cofactors, prosthetic groups, and carriers" = "#2f4f4f",
+                "Cell envelope" = "#a0522d",
+                "Cellular processes" = "#228b22",
+                "Central intermediary metabolism" = "#4b0082",
+                "DNA metabolism" = "#ff0000",
+                "Energy metabolism" = "#ffff00",
+                "Fatty acid and phospholipid metabolism" = "#00ff00",
+                "Protein fate" = "#00ffff",
+                "Protein synthesis" = "#0000ff",
+                "Regulatory functions" = "#ff00ff",
+                "Transcription" = "#ff69b4",
+                "Transport and binding proteins" = "#6495ed",
+                "Unknown function" = "#eee8aa")
+)
+
+pheatmap(log(M8_S1_Full[6:13] + 1),
+         annotation_row = M8_S1_Full[18],
+         annotation_col = annotations,
+         annotation_colors = my_colour,
+         border_color = "black",
+         #breaks = mybreaks,
+         cellheight = 10,
+         cellwidth = 10,
+         cluster_cols = FALSE,
+         cluster_rows = TRUE,
+         color = rev(heat.colors(10)),
+         file = "pheatmap_genes_of_interest_g1.png",
+         fontsize_col = 8,
+         fontsize_row = 8,
+         #gaps_row = c(5, 9, 15, 30),
+         gaps_col = c(4),
+         main = "Heatmap of genes of interest (I)",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names
+         #labels_row = M8_S1_Full[1]
+)
+
+# Heatmap 2
+
+new_rownames <- M8_S2_Full$ID
+j = 1
+for (gene in a3$gene.name) {
+  if (gene != "") {
+    levels(new_rownames) <- c(levels(new_rownames), gene)
+    new_rownames[j] <- gene
+  }
+  j = j + 1
+}
+
+new_rownames <- droplevels(new_rownames)
+
+rownames(M8_S2_Full) <- new_rownames
+names <- c("Vollum", "Dobichau", "CA", "CI", "Vollum", "Dobichau", "CA", "CI")
+annotations <- data.frame(condition = c(rep("O2", 4), rep("CO2", 4)))
+rownames(annotations) <- colnames(M8_S2_Full[6:13])
+levels(M8_S2_Full$TIGRFAM_Main) <- c(levels(M8_S2_Full$TIGRFAM_Main), "Unknown function") 
+M8_S2_Full$TIGRFAM_Main[M8_S2_Full$TIGRFAM_Main == ""] <- "Unknown function"
+colnames(M8_S2_Full)[18] <- "TIGRFAM"
+my_colour = list(
+    condition = c(O2 = "chartreuse2", CO2 = "cornflowerblue"),
+    TIGRFAM = c("Biosynthesis of cofactors, prosthetic groups, and carriers" = "#2f4f4f",
+                "Cell envelope" = "#a0522d",
+                "Cellular processes" = "#228b22",
+                "Central intermediary metabolism" = "#4b0082",
+                "DNA metabolism" = "#ff0000",
+                "Energy metabolism" = "#ffff00",
+                "Fatty acid and phospholipid metabolism" = "#00ff00",
+                "Protein fate" = "#00ffff",
+                "Protein synthesis" = "#0000ff",
+                "Regulatory functions" = "#ff00ff",
+                "Transcription" = "#ff69b4",
+                "Transport and binding proteins" = "#6495ed",
+                "Unknown function" = "#eee8aa")
+)
+
+pheatmap(log(M8_S2_Full[6:13] + 1),
+         annotation_row = M8_S2_Full[18],
+         annotation_col = annotations,
+         annotation_colors = my_colour,
+         border_color = "black",
+         #breaks = mybreaks,
+         cellheight = 10,
+         cellwidth = 10,
+         cluster_cols = FALSE,
+         cluster_rows = TRUE,
+         color = rev(heat.colors(10)),
+         file = "pheatmap_genes_of_interest_g2.png",
+         fontsize_col = 8,
+         fontsize_row = 8,
+         #gaps_row = c(5, 9, 15, 30),
+         gaps_col = c(4),
+         main = "Heatmap of genes of interest (II)",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names
+         #labels_row = M8_S2_Full[1]
+)
+
+# Upregulated in single conditions
+TIGRFAM_new <- c()
+k = 1
+for (id in M4$ID) {
+  if (id %in% BA1$ID) {
+    TIGRFAM_new[k] <- as.character(BA1[BA1$ID == id, 16])
+  }
+  if (id %in% BA2$ID) {
+    TIGRFAM_new[k] <- as.character(BA2[BA2$ID == id, 16])
+  }
+  if (id %in% BC1$ID) {
+    TIGRFAM_new[k] <- as.character(BC1[BC1$ID == id, 16])
+  }
+  if (id %in% BC2$ID) {
+    TIGRFAM_new[k] <- as.character(BC2[BC2$ID == id, 16])
+  }
+  k = k + 1
+}
+
+TIGRFAM_new[TIGRFAM_new == ""] <- "Unknown function"
+
+M9 <- data.frame(M4, TIGRFAM = TIGRFAM_new)
+
+M9_BA1 <- M9[M9$DE_BA1 == 1 & M9$DE_BA2 == 0 & M9$DE_BC1 == 0 & M9$DE_BC2 == 0 & M9$TIGRFAM != "Unknown function" & M9$TIGRFAM != "Unclassified", ]
+M9_BA2 <- M9[M9$DE_BA1 == 0 & M9$DE_BA2 == 1 & M9$DE_BC1 == 0 & M9$DE_BC2 == 0 & M9$TIGRFAM != "Unknown function" & M9$TIGRFAM != "Unclassified", ]
+M9_BC1 <- M9[M9$DE_BA1 == 0 & M9$DE_BA2 == 0 & M9$DE_BC1 == 1 & M9$DE_BC2 == 0 & M9$TIGRFAM != "Unknown function" & M9$TIGRFAM != "Unclassified", ]
+M9_BC2 <- M9[M9$DE_BA1 == 0 & M9$DE_BA2 == 0 & M9$DE_BC1 == 0 & M9$DE_BC2 == 1 & M9$TIGRFAM != "Unknown function" & M9$TIGRFAM != "Unclassified", ]
+
+M9_BA1_counts <- data.frame(table(M9_BA1$TIGRFAM))
+M9_BA2_counts <- data.frame(table(M9_BA2$TIGRFAM))
+M9_BC1_counts <- data.frame(table(M9_BC1$TIGRFAM))
+M9_BC2_counts <- data.frame(table(M9_BC2$TIGRFAM))
+
+ggplot(M9_BA1_counts, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity", colour = "black") +
+  coord_polar(theta = "y", start = 0) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  xlab("") +
+  ylab("") +
+  labs(fill = "TIGRFAM", title = "DEGs (Vollum)", subtitle = "TIGRFAM Groups")
+
+ggplot(M9_BA2_counts, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity", colour = "black") +
+  coord_polar(theta = "y", start = 0) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  xlab("") +
+  ylab("") +
+  labs(fill = "TIGRFAM", title = "DEGs (Dobichau)", subtitle = "TIGRFAM Groups")
+
+ggplot(M9_BC1_counts, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity", colour = "black") +
+  coord_polar(theta = "y", start = 0) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  xlab("") +
+  ylab("") +
+  labs(fill = "TIGRFAM", title = "DEGs (CA)", subtitle = "TIGRFAM Groups")
+
+ggplot(M9_BC2_counts, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity", colour = "black") +
+  coord_polar(theta = "y", start = 0) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  xlab("") +
+  ylab("") +
+  labs(fill = "TIGRFAM", title = "DEGs (CI)", subtitle = "TIGRFAM Groups")
+
+# GeneSCF
+
+BA1_KEGG <- read.csv(file = "BA1/pathway_analysis_KEGG/deg_gene_symbols_KEGG_banv_functional_classification.tsv", header = TRUE, sep = "\t", quote = "")
+BA2_KEGG <- read.csv(file = "BA2/pathway_analysis_KEGG/deg_gene_symbols_KEGG_banv_functional_classification.tsv", header = TRUE, sep = "\t", quote = "")
+BC1_KEGG <- read.csv(file = "BC1/pathway_analysis_KEGG/deg_gene_symbols_KEGG_bal_functional_classification.tsv", header = TRUE, sep = "\t", quote = "")
+BC2_KEGG <- read.csv(file = "BC2/pathway_analysis_KEGG/deg_gene_symbols_KEGG_bal_functional_classification.tsv", header = TRUE, sep = "\t", quote = "")
+
+BA1_KEGG <- BA1_KEGG[BA1_KEGG$Benjamini.and.Hochberg..FDR. <= 0.05, ]
+BA2_KEGG <- BA2_KEGG[BA2_KEGG$Benjamini.and.Hochberg..FDR. <= 0.05, ]
+BC1_KEGG <- BC1_KEGG[BC1_KEGG$Benjamini.and.Hochberg..FDR. <= 0.05, ]
+BC2_KEGG <- BC2_KEGG[BC2_KEGG$Benjamini.and.Hochberg..FDR. <= 0.05, ]
+
+BA1_KEGG$Process.name <- paste("kegg", str_split_fixed(BA1_KEGG$Process.name, "banv", 2)[, 2], sep = "")
+BA2_KEGG$Process.name <- paste("kegg", str_split_fixed(BA2_KEGG$Process.name, "banv", 2)[, 2], sep = "")
+BC1_KEGG$Process.name <- paste("kegg", str_split_fixed(BC1_KEGG$Process.name, "bal", 2)[, 2], sep = "")
+BC2_KEGG$Process.name <- paste("kegg", str_split_fixed(BC2_KEGG$Process.name, "bal", 2)[, 2], sep = "")
+
+Group_All <- BA1_KEGG[BA1_KEGG$Process.name %in% BA2_KEGG$Process.name & BA1_KEGG$Process.name %in% BC1_KEGG$Process.name & BA1_KEGG$Process.name %in% BC2_KEGG$Process.name, ]
+Group_BA_Exclusive <- BA1_KEGG[BA1_KEGG$Process.name %in% BA2_KEGG$Process.name & !(BA1_KEGG$Process.name %in% BC1_KEGG$Process.name) & !(BA1_KEGG$Process.name %in% BC2_KEGG$Process.name), ]
+Group_BC_Exclusive <- BC2_KEGG[BC2_KEGG$Process.name %in% BC1_KEGG$Process.name & !(BC2_KEGG$Process.name %in% BA1_KEGG$Process.name) & !(BC2_KEGG$Process.name %in% BA2_KEGG$Process.name), ]
+BA1_Exclusive <- BA1_KEGG[!(BA1_KEGG$Process.name %in% BA2_KEGG$Process.name) & !(BA1_KEGG$Process.name %in% BC1_KEGG$Process.name) & !(BA1_KEGG$Process.name %in% BC2_KEGG$Process.name), ]
+BA2_Exclusive <- BA2_KEGG[!(BA2_KEGG$Process.name %in% BA1_KEGG$Process.name) & !(BA2_KEGG$Process.name %in% BC1_KEGG$Process.name) & !(BA2_KEGG$Process.name %in% BC2_KEGG$Process.name), ]
+BC1_Exclusive <- BC1_KEGG[!(BC1_KEGG$Process.name %in% BA1_KEGG$Process.name) & !(BC1_KEGG$Process.name %in% BA2_KEGG$Process.name) & !(BC1_KEGG$Process.name %in% BC2_KEGG$Process.name), ]
+BC2_Exclusive <- BC2_KEGG[!(BC2_KEGG$Process.name %in% BA1_KEGG$Process.name) & !(BC2_KEGG$Process.name %in% BA2_KEGG$Process.name) & !(BC2_KEGG$Process.name %in% BC1_KEGG$Process.name), ]
+
+tmp_data <- Group_All[order(Group_All$P.value), ]
+tmp_data[, "Rank_in_order"] <- c(seq(1:length(tmp_data[, 1])))
+tmp_data <- tmp_data[, cbind("Rank_in_order", "Process.name", "percentage.", "P.value")]
+colnames(tmp_data) <- c("Rank", "Process", "Genes", "Pval")
+tmp_data <- tmp_data[1:14, ]
+newdata <- cbind(gsub( "~.*$", "", tmp_data[, "Process"]), tmp_data[, "Rank"])
+colnames(newdata) <- c("IDs", "Rank")
+png("pathway_analysis_enrichment_plot_all.png", width = 1200, height = 800)
+tmp_data$Pval[tmp_data$Pval == 0] <- min(tmp_data$Pval[tmp_data$Pval > 0]) * 0.05
+fill_data = paste0("[", sprintf("%02d", as.numeric(tmp_data$Rank)), "]\t", tmp_data[, "Process"])
+plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = newdata[, "IDs"], fill = fill_data, guide = FALSE)) +
+  geom_point(colour = "#2E2E2E", shape = 21) +
+  scale_size_area(max_size = 5) +
+  labs(fill = "[Rank] Process", title = "Hits (All)") +
+  scale_x_continuous(name = "Rank", limits = c(0, 15)) +
+  scale_y_continuous(name = "-log10(Pval)", limits = c(1.1, max(-log10(tmp_data$Pval)) + 1)) +
+  geom_text(size = 5, color = "#2E2E2E", hjust = -0.1, vjust = 0, angle = 45) +
+  geom_hline(yintercept = 1.3) +
+  theme(text = element_text(size = 14), plot.title = element_text(hjust = 0.5))
+print(plot)
+dev.off()
+
+tmp_data <- Group_BA_Exclusive[order(Group_BA_Exclusive$P.value), ]
+tmp_data[, "Rank_in_order"] <- c(seq(1:length(tmp_data[, 1])))
+tmp_data <- tmp_data[, cbind("Rank_in_order", "Process.name", "percentage.", "P.value")]
+colnames(tmp_data) <- c("Rank", "Process", "Genes", "Pval")
+tmp_data <- tmp_data[1:19, ]
+newdata <- cbind(gsub( "~.*$", "", tmp_data[, "Process"]), tmp_data[, "Rank"])
+colnames(newdata) <- c("IDs", "Rank")
+png("pathway_analysis_enrichment_plot_BA.png", width = 1200, height = 800)
+tmp_data$Pval[tmp_data$Pval == 0] <- min(tmp_data$Pval[tmp_data$Pval > 0]) * 0.05
+fill_data = paste0("[", sprintf("%02d", as.numeric(tmp_data$Rank)), "]\t", tmp_data[, "Process"])
+plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = newdata[, "IDs"], fill = fill_data, guide = FALSE)) +
+  geom_point(colour = "#2E2E2E", shape = 21) +
+  scale_size_area(max_size = 5) +
+  labs(fill = "[Rank] Process", title = "Hits (BA)") +
+  scale_x_continuous(name = "Rank", limits = c(0, 22)) +
+  scale_y_continuous(name = "-log10(Pval)", limits = c(1.1, max(-log10(tmp_data$Pval)) + 1)) +
+  geom_text(size = 5, color = "#2E2E2E", hjust = -0.1, vjust = 0, angle = 45) +
+  geom_hline(yintercept = 1.3) +
+  theme(text = element_text(size = 14), plot.title = element_text(hjust = 0.5))
+print(plot)
+dev.off()
+
+tmp_data <- Group_BC_Exclusive[order(Group_BC_Exclusive$P.value), ]
+tmp_data[, "Rank_in_order"] <- c(seq(1:length(tmp_data[, 1])))
+tmp_data <- tmp_data[, cbind("Rank_in_order", "Process.name", "percentage.", "P.value")]
+colnames(tmp_data) <- c("Rank", "Process", "Genes", "Pval")
+tmp_data <- tmp_data[1:5, ]
+newdata <- cbind(gsub( "~.*$", "", tmp_data[, "Process"]), tmp_data[, "Rank"])
+colnames(newdata) <- c("IDs", "Rank")
+png("pathway_analysis_enrichment_plot_BC.png", width = 1200, height = 800)
+tmp_data$Pval[tmp_data$Pval == 0] <- min(tmp_data$Pval[tmp_data$Pval > 0]) * 0.05
+fill_data = paste0("[", sprintf("%02d", as.numeric(tmp_data$Rank)), "]\t", tmp_data[, "Process"])
+plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = newdata[, "IDs"], fill = fill_data, guide = FALSE)) +
+  geom_point(colour = "#2E2E2E", shape = 21) +
+  scale_size_area(max_size = 5) +
+  labs(fill = "[Rank] Process", title = "Hits (BC)") +
+  scale_x_continuous(name = "Rank", limits = c(0, 22)) +
+  scale_y_continuous(name = "-log10(Pval)", limits = c(1.1, max(-log10(tmp_data$Pval)) + 1)) +
+  geom_text(size = 5, color = "#2E2E2E", hjust = -0.1, vjust = 0, angle = 45) +
+  geom_hline(yintercept = 1.3) +
+  theme(text = element_text(size = 14), plot.title = element_text(hjust = 0.5))
+print(plot)
+dev.off()
 
 # Exporting
 
-if (export == TRUE){
+if (export == TRUE) {
   pheatmap(tpm_degs_ordered[4:9], cluster_cols = TRUE, cluster_rows = FALSE, annotation_row = tpm_degs_ordered[10],
            annotation_col = groups, annotation_colors = anno_colours, fontsize_row = 9, fontsize_col = 9,
            cellheight = 10, cellwidth = 20,

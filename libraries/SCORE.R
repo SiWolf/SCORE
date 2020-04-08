@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 13.02.2020
-# Version: 0.7.8
+# Last Modified: Wed, 08.04.2020
+# Version: 0.7.9
 # --------------------------------------------
 
 # Installers
@@ -116,18 +116,14 @@ calculate_statistics <- function(binaries, consensus){
 # Estimates TPM values from raw counts
 calculate_tpm <- function(transcript_counts){
   transcript_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
-  c = 0
   for (transcript in row.names(transcript_counts)){
     l = transcript_lengths[transcript_lengths$Transcript_ID == transcript, 2] / 1000
-    transcript_counts[c,] <- transcript_counts[c,] / l
-    c = c + 1
+    transcript_counts[row.names(transcript_counts) == transcript,] <- transcript_counts[row.names(transcript_counts) == transcript,] / l
   }
-  d = 1
   for (sample in colnames(transcript_counts)){
-    sum_column = sum(transcript_counts[,d])
+    sum_column = sum(transcript_counts[,colnames(transcript_counts) == sample])
     tpm_scaling_factor = sum_column / 1000000
-    transcript_counts[,d] <- transcript_counts[,d] / tpm_scaling_factor
-    d = d + 1
+    transcript_counts[,colnames(transcript_counts) == sample] <- transcript_counts[,colnames(transcript_counts) == sample] / tpm_scaling_factor
   }
   return(transcript_counts)
 }
@@ -542,7 +538,7 @@ argument_16 = args[16]
 # Example: RStudio
 if (is.na(argument_1)){
   argument_1 = "raw/Metadata.tsv"
-  argument_2 = 5000
+  argument_2 = 3000
   argument_3 = TRUE
   argument_4 = 0.05
   argument_5 = 10
