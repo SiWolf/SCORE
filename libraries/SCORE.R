@@ -114,9 +114,9 @@ calculate_statistics <- function(binaries, consensus){
 }
 
 # Estimates TPM values from raw counts
+# Default: extract kallisto TPM estimation
+# Benchmarking: computes rough TPM approximation
 calculate_tpm <- function(mode, transcript_counts, experiments){
-  # In Benchmarking mode do a rough approximation of TPMs
-  # For normal use extract the kallisto estimation
   if (mode == TRUE) {
     transcript_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
     for (transcript in row.names(transcript_counts)) {
@@ -146,6 +146,7 @@ calculate_tpm <- function(mode, transcript_counts, experiments){
   }
   return(transcript_counts)
 }
+
 # Reads the first counts-file in order to fetch a list of all gene symbols
 create_gene_list <- function(sample){
   sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
