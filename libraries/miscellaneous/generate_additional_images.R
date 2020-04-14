@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 08.04.2020
-# Version: 0.3.2
+# Last Modified: Thur, 09.04.2020
+# Version: 0.3.3
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -2047,6 +2047,55 @@ plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = n
   theme(text = element_text(size = 14), plot.title = element_text(hjust = 0.5))
 print(plot)
 dev.off()
+
+# NEW IMAGES APRIL
+
+setwd("../../deg/")
+C01 <- read.csv(file = "C01/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C02 <- read.csv(file = "C02/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C03 <- read.csv(file = "C03/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C04 <- read.csv(file = "C04/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C05 <- read.csv(file = "C05/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C06 <- read.csv(file = "C06/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C07 <- read.csv(file = "C07/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C08 <- read.csv(file = "C08/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C09 <- read.csv(file = "C09/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C10 <- read.csv(file = "C10/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C11 <- read.csv(file = "C11/summary.tsv", header = TRUE, sep = "\t", quote = "")
+C12 <- read.csv(file = "C12/summary.tsv", header = TRUE, sep = "\t", quote = "")
+
+mecA_locus_tag <- as.character(C01[C01$gene.name == "mecA", 1])
+
+mecA_expression <- c(C01[C01$ID == mecA_locus_tag, 4],
+                     C02[C02$ID == mecA_locus_tag, 4],
+                     C03[C03$ID == mecA_locus_tag, 4],
+                     C04[C04$ID == mecA_locus_tag, 4],
+                     C05[C05$ID == mecA_locus_tag, 4],
+                     C06[C06$ID == mecA_locus_tag, 4],
+                     C07[C07$ID == mecA_locus_tag, 4],
+                     C08[C08$ID == mecA_locus_tag, 4],
+                     C09[C09$ID == mecA_locus_tag, 4],
+                     C10[C10$ID == mecA_locus_tag, 4],
+                     C11[C11$ID == mecA_locus_tag, 4],
+                     C12[C12$ID == mecA_locus_tag, 4])
+
+mecA_expression <- (2^abs(mecA_expression))*sign(mecA_expression)
+
+experiments <- c("C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C10", "C11", "C12")
+
+groups <- c(rep("10min", 3), rep("60min", 3), rep("10min<->60min (Experiment)", 3), rep("10min<->60min (Nativ)", 3))
+
+expression_df <- data.frame(Experiments = experiments, Groups = groups, mecA = mecA_expression)
+
+ggplot(data = expression_df, aes(x = Experiments, y = mecA, fill = Groups)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(mecA, 1)), vjust = 1.6 * sign(mecA_expression), color = "white", size = 3.5) +
+  theme(legend.position = "right", axis.text.x = element_text(angle = -45, hjust = 0, vjust = 0.5, size = 10),
+        plot.title = element_text(hjust = 0.5)) +
+  ggtitle(bquote(paste(italic("mec"), "A"))) +
+  xlab("Experiments") +
+  ylab("FC") +
+  scale_x_discrete(labels = c("C01" = "Serum", "C02" = "Ammoniak", "C03" = "Ammoniak+Serum", "C04" = "Serum", "C05" = "Ammoniak", "C06" = "Ammoniak+Serum", "C07" = "Serum", "C08" = "Ammoniak", "C09" = "Ammoniak+Serum", "C10" = "Serum (Nativ)", "C11" = "Ammoniak (Nativ)", "C12" = "Ammoniak+Serum (Nativ)"))
 
 # Exporting
 

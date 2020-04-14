@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 08.04.2020
-# Version: 0.7.9
+# Last Modified: Thue, 14.04.2020
+# Version: 0.8.0
 # --------------------------------------------
 
 # Installers
@@ -114,20 +114,38 @@ calculate_statistics <- function(binaries, consensus){
 }
 
 # Estimates TPM values from raw counts
-calculate_tpm <- function(transcript_counts){
-  transcript_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
-  for (transcript in row.names(transcript_counts)){
-    l = transcript_lengths[transcript_lengths$Transcript_ID == transcript, 2] / 1000
-    transcript_counts[row.names(transcript_counts) == transcript,] <- transcript_counts[row.names(transcript_counts) == transcript,] / l
-  }
-  for (sample in colnames(transcript_counts)){
-    sum_column = sum(transcript_counts[,colnames(transcript_counts) == sample])
-    tpm_scaling_factor = sum_column / 1000000
-    transcript_counts[,colnames(transcript_counts) == sample] <- transcript_counts[,colnames(transcript_counts) == sample] / tpm_scaling_factor
+calculate_tpm <- function(mode, transcript_counts, experiments){
+  # In Benchmarking mode do a rough approximation of TPMs
+  # For normal use extract the kallisto estimation
+  if (mode == TRUE) {
+    transcript_lengths <- read.table(file = "transcript_lengths.csv", sep = ",", header = TRUE)
+    for (transcript in row.names(transcript_counts)) {
+      l = transcript_lengths[transcript_lengths$Transcript_ID == transcript, 2] / 1000
+      transcript_counts[row.names(transcript_counts) == transcript,] <- transcript_counts[row.names(transcript_counts) == transcript,] / l
+    }
+    for (sample in colnames(transcript_counts)) {
+      sum_column = sum(transcript_counts[,colnames(transcript_counts) == sample])
+      tpm_scaling_factor = sum_column / 1000000
+      transcript_counts[,colnames(transcript_counts) == sample] <- transcript_counts[,colnames(transcript_counts) == sample] / tpm_scaling_factor
+    }
+  } else {
+    S1 <- read.table(file = paste("mapped/kallisto/", metadata$V1[1], "/abundance.tsv", sep = ""), header = TRUE)
+    S2 <- read.table(file = paste("mapped/kallisto/", metadata$V1[2], "/abundance.tsv", sep = ""), header = TRUE)
+    S3 <- read.table(file = paste("mapped/kallisto/", metadata$V1[3], "/abundance.tsv", sep = ""), header = TRUE)
+    S4 <- read.table(file = paste("mapped/kallisto/", metadata$V1[4], "/abundance.tsv", sep = ""), header = TRUE)
+    S5 <- read.table(file = paste("mapped/kallisto/", metadata$V1[5], "/abundance.tsv", sep = ""), header = TRUE)
+    S6 <- read.table(file = paste("mapped/kallisto/", metadata$V1[6], "/abundance.tsv", sep = ""), header = TRUE)
+    for (gene in row.names(transcript_counts)) {
+      transcript_counts[row.names(transcript_counts) == gene, 1] <- S1[S1$target_id == gene, 5]
+      transcript_counts[row.names(transcript_counts) == gene, 2] <- S2[S2$target_id == gene, 5]
+      transcript_counts[row.names(transcript_counts) == gene, 3] <- S3[S3$target_id == gene, 5]
+      transcript_counts[row.names(transcript_counts) == gene, 4] <- S4[S4$target_id == gene, 5]
+      transcript_counts[row.names(transcript_counts) == gene, 5] <- S5[S5$target_id == gene, 5]
+      transcript_counts[row.names(transcript_counts) == gene, 6] <- S6[S6$target_id == gene, 5]
+    }
   }
   return(transcript_counts)
 }
-
 # Reads the first counts-file in order to fetch a list of all gene symbols
 create_gene_list <- function(sample){
   sample_path <- paste("mapped/bowtie2/featureCounts/", sample, sep = "")
@@ -712,7 +730,7 @@ if (benchmark_mode == TRUE){
   summary_frame$PRE <- statistics_frame$PRE
 }
 
-tpm_gene_counts = calculate_tpm(filtered_gene_counts)
+tpm_gene_counts = calculate_tpm(benchmark_mode, filtered_gene_counts, metadata)
 
 write.csv(additional_stats_df, file = "deg_stats.csv", row.names = FALSE)
 write.csv(filtered_gene_counts, file = "filtered_gene_counts_raw.csv")
