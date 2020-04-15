@@ -2097,6 +2097,8 @@ ggplot(data = expression_df, aes(x = Experiments, y = mecA, fill = Groups)) +
   ylab("FC") +
   scale_x_discrete(labels = c("C01" = "Serum", "C02" = "Ammoniak", "C03" = "Ammoniak+Serum", "C04" = "Serum", "C05" = "Ammoniak", "C06" = "Ammoniak+Serum", "C07" = "Serum", "C08" = "Ammoniak", "C09" = "Ammoniak+Serum", "C10" = "Serum (Nativ)", "C11" = "Ammoniak (Nativ)", "C12" = "Ammoniak+Serum (Nativ)"))
 
+ggsave("mecA.png", width = 15, height = 10)
+
 # Exporting
 
 if (export == TRUE) {
