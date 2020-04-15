@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 14.04.2020
-# Version: 0.8.0
+# Last Modified: Wed, 15.04.2020
+# Version: 0.8.1
 # --------------------------------------------
 
 # Installers
@@ -129,12 +129,12 @@ calculate_tpm <- function(mode, transcript_counts, experiments){
       transcript_counts[,colnames(transcript_counts) == sample] <- transcript_counts[,colnames(transcript_counts) == sample] / tpm_scaling_factor
     }
   } else {
-    S1 <- read.table(file = paste("mapped/kallisto/", metadata$V1[1], "/abundance.tsv", sep = ""), header = TRUE)
-    S2 <- read.table(file = paste("mapped/kallisto/", metadata$V1[2], "/abundance.tsv", sep = ""), header = TRUE)
-    S3 <- read.table(file = paste("mapped/kallisto/", metadata$V1[3], "/abundance.tsv", sep = ""), header = TRUE)
-    S4 <- read.table(file = paste("mapped/kallisto/", metadata$V1[4], "/abundance.tsv", sep = ""), header = TRUE)
-    S5 <- read.table(file = paste("mapped/kallisto/", metadata$V1[5], "/abundance.tsv", sep = ""), header = TRUE)
-    S6 <- read.table(file = paste("mapped/kallisto/", metadata$V1[6], "/abundance.tsv", sep = ""), header = TRUE)
+    S1 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[1], "/abundance.tsv", sep = ""), header = TRUE)
+    S2 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[2], "/abundance.tsv", sep = ""), header = TRUE)
+    S3 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[3], "/abundance.tsv", sep = ""), header = TRUE)
+    S4 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[4], "/abundance.tsv", sep = ""), header = TRUE)
+    S5 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[5], "/abundance.tsv", sep = ""), header = TRUE)
+    S6 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[6], "/abundance.tsv", sep = ""), header = TRUE)
     for (gene in row.names(transcript_counts)) {
       transcript_counts[row.names(transcript_counts) == gene, 1] <- S1[S1$target_id == gene, 5]
       transcript_counts[row.names(transcript_counts) == gene, 2] <- S2[S2$target_id == gene, 5]
