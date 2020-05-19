@@ -26,6 +26,7 @@ Download and extract the latest stable release of SCORE from [here](https://gith
 * [git](https://git-scm.com/) (Download)
 * [Graphviz](https://www.graphviz.org/) (DAG visualization)
 * [Sequanix](https://github.com/sequana/sequana/) (GUI)
+* [SRA Toolkit](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software) (Accessing test data)
 
 Please ensure that the latest versions of the dependencies listed above are installed on your system.
 
@@ -56,7 +57,21 @@ And run SCORE:
 
 For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki).
 
-## 3. FAQ
+## 3. Test data
+
+The current version of SCORE includes pre-defined configuration files for downloading and analyzing a selection of known data sets:
+
+(1) Houser JR, Barnhart C, Boutz DR, Carroll SM et al. Controlled Measurement and Comparative Analysis of Cellular Components in E. coli Reveals Broad Regulatory Changes in Response to Glucose Starvation. PLoS Comput Biol 2015 Aug;11(8):e1004400. PMID: 26275208
+(2) Peyrusson F, Varet H, Nguyen TK, Legendre R et al. Intracellular Staphylococcus aureus persisters upon antibiotic exposure. Nat Commun 2020 May 4;11(1):2200. PMID: 32366839
+(3) Rodman N, Martinez J, Fung S, Nakanouchi J et al. Human Pleural Fluid Elicits Pyruvate and Phenylalanine Metabolism in *Acinetobacter baumannii* to Enhance Cytotoxicity and Immune Evasion. Front Microbiol 2019;10:1581. PMID: 31379769
+
+The following command can be used to run SCORE on these:
+
+```
+./run-SCORE-test.sh <amount_of_threads> <study_number>
+```
+
+## 4. FAQ
 
 **How can I compute the total runtime of my analysis?**
 
@@ -89,6 +104,6 @@ Please cite the following:
 
 Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin.
 
-## 4. License
+## 5. License
 
 This project is licensed under the GPLv3 License. See the [LICENSE](LICENSE) file for more details.

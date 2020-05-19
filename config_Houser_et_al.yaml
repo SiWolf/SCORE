@@ -4,14 +4,14 @@
 # --------------
 # BASIC SETTINGS
 # --------------
-analysis_name: A1
-metadata_file: raw/Metadata.tsv
+analysis_name: Houser
+metadata_file: raw/Metadata_Houser_et_al.tsv
 param_threshold: 0.05
 param_total_genes: 5000
-ref_annotation_file: references/REF.gff
+ref_annotation_file: references/GCF_000005845.2_ASM584v2_genomic.gff
 ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag
-ref_genome: references/REF.fasta
+ref_genome: references/GCF_000005845.2_ASM584v2_genomic.fna
 genescf_organism: prokaryota
 genescf_go_db: ecocyc
 genescf_kegg_db: eco
@@ -29,7 +29,7 @@ kallisto_read_length: 150
 genescf_path: ./libraries/geneSCF/geneSCF
 ncbi_genetic_code_table: 11
 noiseq_biological_replicates: TRUE
-sra_download: FALSE
+sra_download: TRUE
 # REFERENCES
 ref_go_obo: references/go.obo
 ref_index: REF_INDEX

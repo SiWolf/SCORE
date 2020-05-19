@@ -2,9 +2,9 @@
 @ Please ensure that all files mentioned below are located within the raw/ directory	
 @ The following conditions shall be referred to as condition 1 (first condition) and condition 2 (second condition) in the results files	
 @ SCORE currently supports directly comparing 2 conditions (a 3 biological replicates)	
-Sample01	1
-Sample02	1
-Sample03	1
-Sample04	2
-Sample05	2
-Sample06	2
+SRR10379724	Control
+SRR10379725	Control
+SRR10379726	Control
+SRR10379721	Intracellular_persister
+SRR10379722	Intracellular_persister
+SRR10379723	Intracellular_persister
