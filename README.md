@@ -59,7 +59,7 @@ For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki
 
 ## 3. Test data
 
-The current version of SCORE includes pre-defined configuration files for downloading and analyzing a selection of known data sets:
+The current version of SCORE includes configuration files for downloading and analyzing a selection of published data sets:
 
 1. Houser, John R., et al. "Controlled measurement and comparative analysis of cellular components in E. coli reveals broad regulatory changes in response to glucose starvation." *PLoS computational biology* 11.8 (2015).
 2. Peyrusson, Frédéric, et al. "Intracellular Staphylococcus aureus persisters upon antibiotic exposure." *Nature Communications* 11.1 (2020): 1-14.
