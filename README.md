@@ -61,9 +61,9 @@ For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki
 
 The current version of SCORE includes pre-defined configuration files for downloading and analyzing a selection of known data sets:
 
-(1) Houser JR, Barnhart C, Boutz DR, Carroll SM et al. Controlled Measurement and Comparative Analysis of Cellular Components in E. coli Reveals Broad Regulatory Changes in Response to Glucose Starvation. PLoS Comput Biol 2015 Aug;11(8):e1004400. PMID: 26275208
-(2) Peyrusson F, Varet H, Nguyen TK, Legendre R et al. Intracellular Staphylococcus aureus persisters upon antibiotic exposure. Nat Commun 2020 May 4;11(1):2200. PMID: 32366839
-(3) Rodman N, Martinez J, Fung S, Nakanouchi J et al. Human Pleural Fluid Elicits Pyruvate and Phenylalanine Metabolism in *Acinetobacter baumannii* to Enhance Cytotoxicity and Immune Evasion. Front Microbiol 2019;10:1581. PMID: 31379769
+1. Houser, John R., et al. "Controlled measurement and comparative analysis of cellular components in E. coli reveals broad regulatory changes in response to glucose starvation." *PLoS computational biology* 11.8 (2015).
+2. Peyrusson, Frédéric, et al. "Intracellular Staphylococcus aureus persisters upon antibiotic exposure." *Nature Communications* 11.1 (2020): 1-14.
+3. Rodman, Nyah, et al. "Human pleural fluid elicits pyruvate and phenylalanine metabolism in Acinetobacter baumannii to enhance cytotoxicity and immune evasion." *Frontiers in microbiology* 10 (2019): 1581.
 
 The following command can be used to run SCORE on these:
 
