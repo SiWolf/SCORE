@@ -29,7 +29,6 @@ kallisto_read_length: 150
 genescf_path: ./libraries/geneSCF/geneSCF
 ncbi_genetic_code_table: 11
 noiseq_biological_replicates: TRUE
-sra_download: FALSE
 # REFERENCES
 ref_go_obo: references/go.obo
 ref_index: REF_INDEX

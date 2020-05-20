@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_SE.snk
 # Author: Silver A. Wolf
-# Last Modified: Thue, 19.05.2020
-# Version: 0.9.4
+# Last Modified: Wed, 20.05.2020
+# Version: 0.9.5
 # Usage:
 #		time snakemake -s "SCORE_SE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -22,7 +22,6 @@ configfile: "config.yaml"
 
 # Global parameters
 ENABLE_BENCHMARKING = config["score_benchmarking"]
-ENABLE_DOWNLOAD_SRA = config["sra_download"]
 EXPERIMENT_NAME = config["analysis_name"]
 GENERATE_TRANSCRIPTOME = config["score_generate_transcriptome"]
 METADATA = config["metadata_file"]
@@ -220,8 +219,8 @@ if initial_check == True:
 
 # Option to generate transcriptome from reference genome
 # Or to use own reference transcriptome
-if GENERATE_TRANSCRIPTOME == "TRUE":
-	os.system("rm " + REF_TRANSCRIPTOME)
+if GENERATE_TRANSCRIPTOME == True:
+	os.system("rm " + REF_TRANSCRIPTOME + "*")
 	os.system("python3 libraries/miscellaneous/generate_transcriptome.py -a " + REF_ANNOTATION_FEATURE_ID + " -f " + REF_FASTA + " -g " + REF_ANNOTATION + " -i " + REF_ANNOTATION_GENE_ID + " -t " + REF_TRANSCRIPTOME)
 else:
 	# Rename transcripts in the reference transcriptome for later analysis
@@ -231,17 +230,12 @@ else:
 	os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
 	REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
 
+# gzip raw reads in case some of them were not previously compressed
+os.system("gzip -f raw/*.fastq")
+
 # Samples
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
 SAMPLES = SAMPLES_AND_CONDITIONS.keys()
-
-if ENABLE_DOWNLOAD_SRA == "TRUE":
-	for s in SAMPLES:
-		os.system("prefetch -v " + s)
-		os.system("fastq-dump --outdir raw/ --split-files $HOME/ncbi/public/sra/" + s + ".sra")
-
-# gzip raw reads in case some of them were not previously compressed
-os.system("gzip raw/*.fastq")
 
 # Summarizing
 # ----------------------------------------
