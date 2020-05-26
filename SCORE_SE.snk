@@ -394,7 +394,7 @@ rule mapping:
 		4
 	shell:
 		"""
-		if [ "{PARAM_ORGANISM}" = "prokaryote" ]
+		if [ "{PARAM_ORGANISM}" = "prokaryota" ]
 		then
 				bowtie2-build --quiet {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 				bowtie2 -q --phred33 -p {threads} --no-unal --quiet -x {REF_INDEX}_{wildcards.sample} -U {input} -S {output}

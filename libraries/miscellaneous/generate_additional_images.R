@@ -1144,17 +1144,17 @@ genes_of_interest[!(genes_of_interest$Gene %in% R2_GOI$gene.name), 1]
 genes_of_interest[!(genes_of_interest$Gene %in% R3_GOI$gene.name), 1]
 genes_of_interest[!(genes_of_interest$Gene %in% R4_GOI$gene.name), 1]
 
-df_GOI <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC, TPM_R1 = R1_GOI$Mean.TPM..Mock., TPM_R2 = R2_GOI$Mean.TPM..WT., TPM_R3 = R3_GOI$Mean.TPM..dXCL1., TPM_R4 = R4_GOI$Mean.TPM..UV.)
-df_GOI <- df_GOI[order(df_GOI$Group), ]
-rownames(df_GOI) <- seq(1:nrow(genes_of_interest))
+df_GOI_pathway <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC, TPM_R1 = R1_GOI$Mean.TPM..Mock., TPM_R2 = R2_GOI$Mean.TPM..WT., TPM_R3 = R3_GOI$Mean.TPM..dXCL1., TPM_R4 = R4_GOI$Mean.TPM..UV.)
+df_GOI_pathway <- df_GOI_pathway[order(df_GOI_pathway$Group), ]
+rownames(df_GOI_pathway) <- seq(1:nrow(genes_of_interest))
 
 mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
-mybreaks <- c(seq(min(df_GOI[4:6]), 0, length.out = 25),
-              seq(max(df_GOI[4:6])/50, max(df_GOI[4:6]), length.out = 25)
+mybreaks <- c(seq(min(df_GOI_pathway[4:6]), 0, length.out = 25),
+              seq(max(df_GOI_pathway[4:6])/50, max(df_GOI_pathway[4:6]), length.out = 25)
 )
 
-pheatmap(df_GOI[3:6],
-         annotation_row = df_GOI[2],
+pheatmap(df_GOI_pathway[3:6],
+         annotation_row = df_GOI_pathway[2],
          border_color = "black",
          breaks = mybreaks,
          cellheight = 30,
@@ -1172,6 +1172,91 @@ pheatmap(df_GOI[3:6],
          show_rownames = TRUE,
          labels_col = names,
          labels_row = df_GOI$Gene
+)
+
+genes_h1 = c("Calr", "Pdia3", "Rab27a", "Rac2", "Sec22b", "Tap1", "Tap2", "Ccl17", "Ccl2", "Ccl6", "Cd40", "Cd80", "Cd86", "Ccr7", "Akt3", "Mapk3", "Pik3ca")
+groups_h1 = c(rep("Antigen Presentation", 7), rep("Chemokines", 3), rep("Migration Markers", 1), rep("Maturation Markers", 3), rep("Migration Markers", 3))
+
+genes_h2 = c("Ccl17", "Ccl2", "Ccl24", "Ccl5", "Ccl6", "Ccl7", "Ccr4", "Ccr7", "Cxcl1", "Cxcl9", "Cxcr5", "Il3ra", "Il11", "Il12a", "Il12b", "Il31ra", "Lif", "Osm", "Osmr", "Il15", "Il4", "Il7r", "Il9r", "Ifnl3", "Il10rb", "Il22", "Ifnb1", "Ifng", "Il17a", "Il17d", "Il17f")
+groups_h2 = c(rep("Chemokines - CC subfamily", 3),
+              rep("GPCRs - CC subfamily", 1),
+              rep("Chemokines - CC subfamily", 3),
+              rep("GPCRs - CC subfamily", 1),
+              rep("Chemokines - CXC", 2),
+              rep("GPCRs - CXC", 1),
+              rep("Chemokines - Class I Helical Cytokines", 6),
+              rep("GPCRs - Class I Helical Cytokines", 6),
+              rep("Chemokines - Class II Helical Cytokines", 6),
+              rep("GPCRs - Class II Helical Cytokines", 2)
+              )
+
+h1_1 <- df_GOI[df_GOI$Gene %in% genes_h1, -c(2)]
+h1_2 <- df_GOI_pathway[df_GOI_pathway$Gene %in% genes_h1, -c(2)]
+
+h2_1 <- df_GOI[df_GOI$Gene %in% genes_h2, -c(2)]
+h2_2 <- df_GOI_pathway[df_GOI_pathway$Gene %in% genes_h2, -c(2)]
+
+h1 <- rbind(h1_1, h1_2)
+h2 <- rbind(h2_1, h2_2)
+
+h1_filtered <- distinct(h1)
+h2_filtered <- distinct(h2)
+
+h1_filtered$Group <- groups_h1
+h2_filtered$Group <- groups_h2
+
+h1_filtered <- h1_filtered[order(h1_filtered$Group),]
+h2_filtered <- h2_filtered[order(h2_filtered$Group),]
+
+rownames(h1_filtered) <- seq(1,17)
+rownames(h2_filtered) <- seq(1,31)
+
+#genes_h1[!(genes_h1 %in% h1_filtered$Gene)]
+#genes_h2[!(genes_h2 %in% h2_filtered$Gene)]
+
+#test1 <- h1_filtered[c(1,10)]
+#test2 <- h2_filtered[c(1,10)]
+
+pheatmap(h1_filtered[2:5],
+         annotation_row = h1_filtered[10],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 30,
+         cellwidth = 50,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_t1.png",
+         fontsize_col = 15,
+         fontsize_row = 11,
+         fontsize = 12,
+         #gaps_row = c(4, 7),
+         main = "Genes of interest (Table 01)",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names,
+         labels_row = h1_filtered$Gene
+)
+
+pheatmap(h2_filtered[2:5],
+         annotation_row = h2_filtered[10],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 30,
+         cellwidth = 50,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_t2.png",
+         fontsize_col = 15,
+         fontsize_row = 15,
+         fontsize = 12,
+         #gaps_row = c(4, 7),
+         main = "Genes of interest (Table 02)",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names,
+         labels_row = h2_filtered$Gene
 )
 
 # NEW IMAGES MARCH

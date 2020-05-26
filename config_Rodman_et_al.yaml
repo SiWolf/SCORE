@@ -14,7 +14,7 @@ ref_annotation_identifier: locus_tag
 ref_genome: references/GCF_000746645.1_ASM74664v1_genomic.fna
 genescf_organism: prokaryota
 genescf_go_db: ecocyc
-genescf_kegg_db: acb
+genescf_kegg_db: abm
 # -----------------
 # ADVANCED SETTINGS
 # -----------------

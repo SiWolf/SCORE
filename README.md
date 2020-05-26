@@ -26,7 +26,6 @@ Download and extract the latest stable release of SCORE from [here](https://gith
 * [git](https://git-scm.com/) (Download)
 * [Graphviz](https://www.graphviz.org/) (DAG visualization)
 * [Sequanix](https://github.com/sequana/sequana/) (GUI)
-* [SRA Toolkit](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software) (Accessing test data)
 
 Please ensure that the latest versions of the dependencies listed above are installed on your system.
 

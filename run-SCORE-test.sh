@@ -68,8 +68,8 @@ then
 	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/009/SRR9158219/SRR9158219_2.fastq.gz -o raw/SRR9158219_2.fastq.gz
 	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/000/SRR9158220/SRR9158220_1.fastq.gz -o raw/SRR9158220_1.fastq.gz
 	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/000/SRR9158220/SRR9158220_2.fastq.gz -o raw/SRR9158220_2.fastq.gz
-	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/001/SRR9158221/SRR9158221_1.fastq.gz -o raw/SRR9158221_1.fastq.gz
-	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/001/SRR9158221/SRR9158221_2.fastq.gz -o raw/SRR9158221_2.fastq.gz
+	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/002/SRR9158222/SRR9158222_1.fastq.gz -o raw/SRR9158222_1.fastq.gz
+	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/002/SRR9158222/SRR9158222_2.fastq.gz -o raw/SRR9158222_2.fastq.gz
 	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/005/SRR9158215/SRR9158215_1.fastq.gz -o raw/SRR9158215_1.fastq.gz
 	curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR915/005/SRR9158215/SRR9158215_2.fastq.gz -o raw/SRR9158215_2.fastq.gz
 	wget -P references/ https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/746/645/GCF_000746645.1_ASM74664v1/GCF_000746645.1_ASM74664v1_genomic.fna.gz
