@@ -70,6 +70,8 @@ The following command can be used to run SCORE on these:
 ./run-SCORE-test.sh <amount_of_threads> <study_number>
 ```
 
+Downloads provided by [SRA-Explorer](https://sra-explorer.info/).
+
 ## 4. FAQ
 
 **How can I compute the total runtime of my analysis?**
