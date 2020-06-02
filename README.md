@@ -64,7 +64,7 @@ The current version of SCORE includes configuration files for downloading and an
 2. Peyrusson, Frédéric, et al. "Intracellular Staphylococcus aureus persisters upon antibiotic exposure." *Nature Communications* 11.1 (2020): 1-14.
 3. Rodman, Nyah, et al. "Human pleural fluid elicits pyruvate and phenylalanine metabolism in Acinetobacter baumannii to enhance cytotoxicity and immune evasion." *Frontiers in microbiology* 10 (2019): 1581.
 
-The following command can be used to run SCORE on these:
+The following command can be used to download the data and run SCORE:
 
 ```
 ./run-SCORE-test.sh <amount_of_threads> <study_number>
