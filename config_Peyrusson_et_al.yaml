@@ -7,7 +7,7 @@
 analysis_name: Peyrusson
 metadata_file: raw/Metadata_Peyrusson_et_al.tsv
 param_threshold: 0.05
-param_total_genes: 3000
+param_total_genes: 2800
 ref_annotation_file: references/GCF_000013425.1_ASM1342v1_genomic.gff
 ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag

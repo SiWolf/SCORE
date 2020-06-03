@@ -2,7 +2,7 @@
 # Title: perform_benchmarking.sh
 # Author: Silver A. Wolf
 # Last Modified: We, 03.06.2020
-# Version: 0.0.1
+# Version: 0.0.2
 # --------------------------------
 
 # Script for subsampling reads
@@ -11,6 +11,8 @@ Settings=("0.8"  "0.6"  "0.4"  "0.2")
 
 for val in ${Settings[*]}
 do
+	mkdir raw/$val/
+	
 	seqtk sample -s100 raw/SRR9158217_1.fastq.gz $val > raw/$val/SRR9158217_1.fastq
 	seqtk sample -s100 raw/SRR9158217_2.fastq.gz $val > raw/$val/SRR9158217_2.fastq
 
