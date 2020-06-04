@@ -14,6 +14,8 @@
 
 ## 1. Setup
 
+### 1.1 Manual Setup
+
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 **Dependencies:**
@@ -33,6 +35,25 @@ Then run the installation script:
 
 ```
 ./libraries/miscellaneous/install.sh
+```
+
+### 1.2 Docker Image
+
+Alternatively, SCORE can be installed via Docker.
+
+**Dependencies:**
+* [Docker](https://www.docker.com/)
+
+Use the following command to install the SCORE docker container:
+
+```
+docker pull siwolf/score
+```
+
+And run SCORE:
+
+```
+docker run --rm -it -v <path_to_data>:/raw siwolf/score score
 ```
 
 ## 2. Usage

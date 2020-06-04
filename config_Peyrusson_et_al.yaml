@@ -5,6 +5,8 @@
 # BASIC SETTINGS
 # --------------
 analysis_name: Peyrusson
+analysis_input_dir: raw/
+analysis_output_dir: degs/
 metadata_file: raw/Metadata_Peyrusson_et_al.tsv
 param_threshold: 0.05
 param_total_genes: 2800

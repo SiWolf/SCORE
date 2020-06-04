@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_PE.snk
 # Author: Silver A. Wolf
-# Last Modified: Wed, 20.05.2020
-# Version: 0.9.5
+# Last Modified: Thur, 04.06.2020
+# Version: 0.9.6
 # Usage:
 #		time snakemake -s "SCORE_PE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -26,6 +26,8 @@ EXPERIMENT_NAME = config["analysis_name"]
 GENERATE_TRANSCRIPTOME = config["score_generate_transcriptome"]
 METADATA = config["metadata_file"]
 MERGE_PLOTS_AND_PDF = config["score_merge_plots"]
+INPUT_DIR = config["analysis_input_dir"]
+OUTPUT_DIR = config["analysis_output_dir"]
 PARAM_DEG_GENERAL = config["param_threshold"]
 PARAM_DEG_LOW_EXPRESSED = config["score_low_expression_count"]
 PARAM_DEG_NOISEQ_BIO_MODE = config["noiseq_biological_replicates"]
@@ -231,7 +233,7 @@ else:
 	REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
 
 # gzip raw reads in case some of them were not previously compressed
-os.system("gzip -f raw/*.fastq")
+os.system("gzip -f " + INPUT_DIR + "*.fastq")
 
 # Samples
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
@@ -278,6 +280,7 @@ rule DEG_postprocessing:
 		Rscript libraries/miscellaneous/visualize_kegg.R {PARAM_GENESCF_GO_DB} {PARAM_GENESCF_KEGG_DB}
 		# Move all results files into output dir
 		./libraries/miscellaneous/empty_results.sh fair {EXPERIMENT_NAME}
+		mv degs/{EXPERIMENT_NAME}* {OUTPUT_DIR}
 		"""
 
 # Pathway analysis: GeneSCF (1.1-p2)
@@ -416,9 +419,6 @@ rule mapping:
 # TO-DO: Should not forget adapter trimming when using new data!
 # -----------------------------------
 rule quality_control_and_trimming:
-	input:
-		"raw/{sample}_1.fastq.gz",
-		"raw/{sample}_2.fastq.gz"
 	output:
 		"trimmed/{sample}_trimmed_1.fastq.gz",
 		"trimmed/{sample}_trimmed_2.fastq.gz"
@@ -432,9 +432,9 @@ rule quality_control_and_trimming:
 		"""
 		# Initial FastQC
 		mkdir -p fastqc/{wildcards.sample}_raw/
-		fastqc {input} -o fastqc/{wildcards.sample}_raw/
+		fastqc {INPUT_DIR}/{wildcards.sample}_1.fastq.gz {INPUT_DIR}/{wildcards.sample}_2.fastq.gz -o fastqc/{wildcards.sample}_raw/
 		# Trimming
-		flexbar -r {input[0]} -p {input[1]} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
+		flexbar -r {INPUT_DIR}/{wildcards.sample}_1.fastq.gz -p {INPUT_DIR}/{wildcards.sample}_2.fastq.gz -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
 		mv {wildcards.sample}_trimmed_1.fastq.gz trimmed/
 		mv {wildcards.sample}_trimmed_2.fastq.gz trimmed/
 		mv {wildcards.sample}_trimmed.log {log}
