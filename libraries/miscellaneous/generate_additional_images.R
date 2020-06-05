@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Thue, 06.05.2020
-# Version: 0.3.6
+# Last Modified: Fr, 05.06.2020
+# Version: 0.3.7
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -2738,6 +2738,105 @@ V9 <- vennCounts(Native3)
 png(filename = "venn_diagram_10_60min_nat.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
 vennDiagram(V9, circle.col = c("red", "blue", "green"), main = "\nDEG Overlap (10<->60min) (N)", names = names_V9, cex = 1.1)
 dev.off()
+
+# COVERAGE ANALYSIS
+
+setwd("../../deg/")
+
+CS1 <- read.csv(file = "0.2/summary.tsv", header = TRUE, sep = "\t")
+CS2 <- read.csv(file = "0.4/summary.tsv", header = TRUE, sep = "\t")
+CS3 <- read.csv(file = "0.6/summary.tsv", header = TRUE, sep = "\t")
+CS4 <- read.csv(file = "0.8/summary.tsv", header = TRUE, sep = "\t")
+CS5 <- read.csv(file = "1.0/summary.tsv", header = TRUE, sep = "\t")
+
+C1 <- read.csv(file = "0.2/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C2 <- read.csv(file = "0.4/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C3 <- read.csv(file = "0.6/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C4 <- read.csv(file = "0.8/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C5 <- read.csv(file = "1.0/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+
+values <- c(C1$DEGs[1], C2$DEGs[1], C3$DEGs[1], C4$DEGs[1], C5$DEGs[1],
+            C1$DEGs[2], C2$DEGs[2], C3$DEGs[2], C4$DEGs[2], C5$DEGs[2],
+            C1$DEGs[3], C2$DEGs[3], C3$DEGs[3], C4$DEGs[3], C5$DEGs[3],
+            C1$DEGs[4], C2$DEGs[4], C3$DEGs[4], C4$DEGs[4], C5$DEGs[4],
+            C1$DEGs[5], C2$DEGs[5], C3$DEGs[5], C4$DEGs[5], C5$DEGs[5],
+            C1$DEGs[6], C2$DEGs[6], C3$DEGs[6], C4$DEGs[6], C5$DEGs[6],
+            C1$DEGs[7], C2$DEGs[7], C3$DEGs[7], C4$DEGs[7], C5$DEGs[7]
+            )
+
+tools <- c(rep("baySeq", 5), rep("DESeq2", 5), rep("edgeR", 5),
+           rep("limma", 5), rep("NOISeq", 5), rep("sleuth", 5),
+           rep("SCORE", 5)
+           )
+
+coverages <- c(rep(c("0.2", "0.4", "0.6", "0.8", "1.0"), 7))
+
+coverage_df <- data.frame(tools = tools, coverage = coverages, DEGs = values)
+
+ggplot(coverage_df, aes(x = coverage, y = DEGs, group = tools)) +
+  geom_line(aes(color = tools)) +
+  geom_point(aes(color = tools)) +
+  ggtitle("Predicted DEGs at various sequencing depths") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+b1 <- CS1[CS1$corrected.p.value..baySeq. < 0.05, ]
+b2 <- CS2[CS2$corrected.p.value..baySeq. < 0.05 & !(CS2$ID %in% b1$ID), ]
+b3 <- CS3[CS3$corrected.p.value..baySeq. < 0.05 & !(CS3$ID %in% b1$ID) & !(CS3$ID %in% b2$ID), ]
+b4 <- CS4[CS4$corrected.p.value..baySeq. < 0.05 & !(CS4$ID %in% b1$ID) & !(CS4$ID %in% b2$ID) & !(CS4$ID %in% b3$ID), ]
+b5 <- CS5[CS5$corrected.p.value..baySeq. < 0.05 & !(CS5$ID %in% b1$ID) & !(CS5$ID %in% b2$ID) & !(CS5$ID %in% b3$ID) & !(CS5$ID %in% b4$ID), ]
+
+d1 <- CS1[CS1$corrected.p.value..DESeq2. < 0.05, ]
+d2 <- CS2[CS2$corrected.p.value..DESeq2. < 0.05 & !(CS2$ID %in% d1$ID), ]
+d3 <- CS3[CS3$corrected.p.value..DESeq2. < 0.05 & !(CS3$ID %in% d1$ID) & !(CS3$ID %in% d2$ID), ]
+d4 <- CS4[CS4$corrected.p.value..DESeq2. < 0.05 & !(CS4$ID %in% d1$ID) & !(CS4$ID %in% d2$ID) & !(CS4$ID %in% d3$ID), ]
+d5 <- CS5[CS5$corrected.p.value..DESeq2. < 0.05 & !(CS5$ID %in% d1$ID) & !(CS5$ID %in% d2$ID) & !(CS5$ID %in% d3$ID) & !(CS5$ID %in% d4$ID), ]
+
+e1 <- CS1[CS1$corrected.p.value..edgeR. < 0.05, ]
+e2 <- CS2[CS2$corrected.p.value..edgeR. < 0.05 & !(CS2$ID %in% e1$ID), ]
+e3 <- CS3[CS3$corrected.p.value..edgeR. < 0.05 & !(CS3$ID %in% e1$ID) & !(CS3$ID %in% e2$ID), ]
+e4 <- CS4[CS4$corrected.p.value..edgeR. < 0.05 & !(CS4$ID %in% e1$ID) & !(CS4$ID %in% e2$ID) & !(CS4$ID %in% e3$ID), ]
+e5 <- CS5[CS5$corrected.p.value..edgeR. < 0.05 & !(CS5$ID %in% e1$ID) & !(CS5$ID %in% e2$ID) & !(CS5$ID %in% e3$ID) & !(CS5$ID %in% e4$ID), ]
+
+l1 <- CS1[CS1$corrected.p.value..limma. < 0.05, ]
+l2 <- CS2[CS2$corrected.p.value..limma. < 0.05 & !(CS2$ID %in% l1$ID), ]
+l3 <- CS3[CS3$corrected.p.value..limma. < 0.05 & !(CS3$ID %in% l1$ID) & !(CS3$ID %in% l2$ID), ]
+l4 <- CS4[CS4$corrected.p.value..limma. < 0.05 & !(CS4$ID %in% l1$ID) & !(CS4$ID %in% l2$ID) & !(CS4$ID %in% l3$ID), ]
+l5 <- CS5[CS5$corrected.p.value..limma. < 0.05 & !(CS5$ID %in% l1$ID) & !(CS5$ID %in% l2$ID) & !(CS5$ID %in% l3$ID) & !(CS5$ID %in% l4$ID), ]
+
+n1 <- CS1[CS1$corrected.p.value..NOISeq. < 0.05, ]
+n2 <- CS2[CS2$corrected.p.value..NOISeq. < 0.05 & !(CS2$ID %in% n1$ID), ]
+n3 <- CS3[CS3$corrected.p.value..NOISeq. < 0.05 & !(CS3$ID %in% n1$ID) & !(CS3$ID %in% n2$ID), ]
+n4 <- CS4[CS4$corrected.p.value..NOISeq. < 0.05 & !(CS4$ID %in% n1$ID) & !(CS4$ID %in% n2$ID) & !(CS4$ID %in% n3$ID), ]
+n5 <- CS5[CS5$corrected.p.value..NOISeq. < 0.05 & !(CS5$ID %in% n1$ID) & !(CS5$ID %in% n2$ID) & !(CS5$ID %in% n3$ID) & !(CS5$ID %in% n4$ID), ]
+
+sc1 <- CS1[CS1$DE..SCORE....1..LB...PF..1..LB...PF. != 0, ]
+sc2 <- CS2[CS2$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS2$ID %in% sc1$ID), ]
+sc3 <- CS3[CS3$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS3$ID %in% sc1$ID) & !(CS3$ID %in% sc2$ID), ]
+sc4 <- CS4[CS4$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS4$ID %in% sc1$ID) & !(CS4$ID %in% sc2$ID) & !(CS4$ID %in% sc3$ID), ]
+sc5 <- CS5[CS5$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS5$ID %in% sc1$ID) & !(CS5$ID %in% sc2$ID) & !(CS5$ID %in% sc3$ID) & !(CS5$ID %in% sc4$ID), ]
+
+sl1 <- CS1[CS1$corrected.p.value..sleuth. < 0.05, ]
+sl2 <- CS2[CS2$corrected.p.value..sleuth. < 0.05 & !(CS2$ID %in% sl1$ID), ]
+sl3 <- CS3[CS3$corrected.p.value..sleuth. < 0.05 & !(CS3$ID %in% sl1$ID) & !(CS3$ID %in% sl2$ID), ]
+sl4 <- CS4[CS4$corrected.p.value..sleuth. < 0.05 & !(CS4$ID %in% sl1$ID) & !(CS4$ID %in% sl2$ID) & !(CS4$ID %in% sl3$ID), ]
+sl5 <- CS5[CS5$corrected.p.value..sleuth. < 0.05 & !(CS5$ID %in% sl1$ID) & !(CS5$ID %in% sl2$ID) & !(CS5$ID %in% sl3$ID) & !(CS5$ID %in% sl4$ID), ]
+
+values_2 <- c(nrow(b1), nrow(b2), nrow(b3), nrow(b4), nrow(b5),
+            nrow(d1), nrow(d2), nrow(d3), nrow(d4), nrow(d5),
+            nrow(e1), nrow(e2), nrow(e3), nrow(e4), nrow(e5),
+            nrow(l1), nrow(l2), nrow(l3), nrow(l4), nrow(l5),
+            nrow(n1), nrow(n2), nrow(n3), nrow(n4), nrow(n5),
+            nrow(sc1), nrow(sc2), nrow(sc3), nrow(sc4), nrow(sc5),
+            nrow(sl1), nrow(sl2), nrow(sl3), nrow(sl4), nrow(sl5)
+            )
+
+coverage_df_2 <- data.frame(tools = tools, coverage = coverages, DEGs = values_2)
+
+ggplot(coverage_df_2, aes(x = coverage, y = DEGs, group = tools)) +
+  geom_line(aes(color = tools)) +
+  geom_point(aes(color = tools)) +
+  ggtitle("Newly discovered DEGs at various sequencing depths") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 # Exporting
 
