@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_PE.snk
 # Author: Silver A. Wolf
-# Last Modified: Fr, 05.06.2020
-# Version: 0.9.7
+# Last Modified: Mo, 08.06.2020
+# Version: 0.9.8
 # Usage:
 #		time snakemake -s "SCORE_PE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -280,7 +280,10 @@ rule DEG_postprocessing:
 		Rscript libraries/miscellaneous/visualize_kegg.R {PARAM_GENESCF_GO_DB} {PARAM_GENESCF_KEGG_DB}
 		# Move all results files into output dir
 		./libraries/miscellaneous/empty_results.sh fair {EXPERIMENT_NAME}
-		mv deg/{EXPERIMENT_NAME}* {OUTPUT_DIR}
+		if [ "{OUTPUT_DIR}" != "deg/" ]
+		then
+			mv deg/{EXPERIMENT_NAME}* {OUTPUT_DIR}
+		fi
 		"""
 
 # Pathway analysis: GeneSCF (1.1-p2)
