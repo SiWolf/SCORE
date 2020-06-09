@@ -47,7 +47,7 @@ Alternatively, SCORE can be installed via Docker.
 Use the following command to install the SCORE docker container:
 
 ```
-docker pull eppinglen/score
+docker pull eppinglen/score:v1
 ```
 
 And run SCORE:
