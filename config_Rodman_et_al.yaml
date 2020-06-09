@@ -4,19 +4,19 @@
 # --------------
 # BASIC SETTINGS
 # --------------
-analysis_name: A1
+analysis_name: Rodman
 analysis_input_dir: raw/
 analysis_output_dir: deg/
-metadata_file: raw/Metadata.tsv
+metadata_file: raw/Metadata_Rodman_et_al.tsv
 param_threshold: 0.05
-param_total_genes: 5000
-ref_annotation_file: references/REF.gff
+param_total_genes: 4000
+ref_annotation_file: references/GCF_000746645.1_ASM74664v1_genomic.gff
 ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag
-ref_genome: references/REF.fasta
+ref_genome: references/GCF_000746645.1_ASM74664v1_genomic.fna
 genescf_organism: prokaryota
 genescf_go_db: ecocyc
-genescf_kegg_db: eco
+genescf_kegg_db: abm
 # -----------------
 # ADVANCED SETTINGS
 # -----------------

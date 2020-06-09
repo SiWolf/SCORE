@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_SE.snk
 # Author: Silver A. Wolf
-# Last Modified: Mo, 17.02.2020
-# Version: 0.9.3
+# Last Modified: Mo, 08.06.2020
+# Version: 0.9.8
 # Usage:
 #		time snakemake -s "SCORE_SE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -26,6 +26,8 @@ EXPERIMENT_NAME = config["analysis_name"]
 GENERATE_TRANSCRIPTOME = config["score_generate_transcriptome"]
 METADATA = config["metadata_file"]
 MERGE_PLOTS_AND_PDF = config["score_merge_plots"]
+INPUT_DIR = config["analysis_input_dir"]
+OUTPUT_DIR = config["analysis_output_dir"]
 PARAM_DEG_GENERAL = config["param_threshold"]
 PARAM_DEG_LOW_EXPRESSED = config["score_low_expression_count"]
 PARAM_DEG_NOISEQ_BIO_MODE = config["noiseq_biological_replicates"]
@@ -220,7 +222,7 @@ if initial_check == True:
 # Option to generate transcriptome from reference genome
 # Or to use own reference transcriptome
 if GENERATE_TRANSCRIPTOME == True:
-	os.system("rm " + REF_TRANSCRIPTOME)
+	os.system("rm " + REF_TRANSCRIPTOME + "*")
 	os.system("python3 libraries/miscellaneous/generate_transcriptome.py -a " + REF_ANNOTATION_FEATURE_ID + " -f " + REF_FASTA + " -g " + REF_ANNOTATION + " -i " + REF_ANNOTATION_GENE_ID + " -t " + REF_TRANSCRIPTOME)
 else:
 	# Rename transcripts in the reference transcriptome for later analysis
@@ -231,7 +233,7 @@ else:
 	REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
 
 # gzip raw reads in case some of them were not previously compressed
-os.system("gzip raw/*.fastq")
+os.system("gzip -f " + INPUT_DIR + "*.fastq")
 
 # Samples
 SAMPLES_AND_CONDITIONS = read_tsv(METADATA)
@@ -240,7 +242,7 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 # Summarizing
 # ----------------------------------------
 # Merging QC Reports: MultiQC (1.8)
-# Pathway Visualization: pathview (1.20.0)
+# Pathway Visualization: pathview (1.26.0)
 # Translation: Biopython (1.74)
 # TIGRFAM Classification: Hmmer (3.2.1)
 # ----------------------------------------
@@ -278,6 +280,10 @@ rule DEG_postprocessing:
 		Rscript libraries/miscellaneous/visualize_kegg.R {PARAM_GENESCF_GO_DB} {PARAM_GENESCF_KEGG_DB}
 		# Move all results files into output dir
 		./libraries/miscellaneous/empty_results.sh fair {EXPERIMENT_NAME}
+		if [ "{OUTPUT_DIR}" != "deg/" ]
+		then
+			mv deg/{EXPERIMENT_NAME}* {OUTPUT_DIR}
+		fi
 		"""
 
 # Pathway analysis: GeneSCF (1.1-p2)
@@ -317,11 +323,11 @@ rule pathway_analysis_preprocessing:
 		create_presence_absence_matrix()
 
 # DEG Prediction (R-based):
-# baySeq (2.16.0)
-# DESeq2 (1.22.1)
-# edgeR (3.24.1)
-# limma (3.38.3)
-# NOISeq (2.26.0)
+# baySeq (2.20.0)
+# DESeq2 (1.26.0)
+# edgeR (3.28.0)
+# limma (3.42.0)
+# NOISeq (2.30.0)
 # sleuth (0.30.0)
 # Other Packages:
 # ggplot2 (3.2.1)
@@ -329,7 +335,7 @@ rule pathway_analysis_preprocessing:
 # plyr (1.8.4)
 # rhdf5 (2.30.0)
 # stringr (1.4.0)
-# UpsetR (1.3.3)
+# UpsetR (1.4.0)
 rule DEG_analysis:
 	input:
 		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
@@ -394,7 +400,7 @@ rule mapping:
 		4
 	shell:
 		"""
-		if [ "{PARAM_ORGANISM}" = "prokaryote" ]
+		if [ "{PARAM_ORGANISM}" = "prokaryota" ]
 		then
 				bowtie2-build --quiet {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 				bowtie2 -q --phred33 -p {threads} --no-unal --quiet -x {REF_INDEX}_{wildcards.sample} -U {input} -S {output}
@@ -415,8 +421,6 @@ rule mapping:
 # TO-DO: Should not forget adapter trimming when using new data!
 # -----------------------------------
 rule quality_control_and_trimming:
-	input:
-		"raw/{sample}.fastq.gz"
 	output:
 		"trimmed/{sample}_trimmed.fastq.gz"
 	conda:
@@ -429,9 +433,9 @@ rule quality_control_and_trimming:
 		"""
 		# Initial FastQC
 		mkdir -p fastqc/{wildcards.sample}_raw/
-		fastqc {input} -o fastqc/{wildcards.sample}_raw/
+		fastqc {INPUT_DIR}/{wildcards.sample}.fastq.gz -o fastqc/{wildcards.sample}_raw/
 		# Trimming
-		flexbar -r {input} -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
+		flexbar -r {INPUT_DIR}/{wildcards.sample}.fastq.gz -t {wildcards.sample}_trimmed -n {threads} -u {PARAM_FLEXBAR_UNCALLED} -q TAIL -qf sanger -qt {PARAM_FLEXBAR_QUAL} -m {PARAM_FLEXBAR_LENGTH} -z GZ
 		mv {wildcards.sample}_trimmed.fastq.gz trimmed/
 		mv {wildcards.sample}_trimmed.log {log}
 		mkdir -p fastqc/{wildcards.sample}_trimmed/

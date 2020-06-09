@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Thur, 09.04.2020
-# Version: 0.3.3
+# Last Modified: Fr, 05.06.2020
+# Version: 0.3.7
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -12,6 +12,7 @@
 # Libraries
 
 library("dplyr")
+library("forcats")
 library("ggplot2")
 library("limma")
 library("pheatmap")
@@ -1143,17 +1144,17 @@ genes_of_interest[!(genes_of_interest$Gene %in% R2_GOI$gene.name), 1]
 genes_of_interest[!(genes_of_interest$Gene %in% R3_GOI$gene.name), 1]
 genes_of_interest[!(genes_of_interest$Gene %in% R4_GOI$gene.name), 1]
 
-df_GOI <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC, TPM_R1 = R1_GOI$Mean.TPM..Mock., TPM_R2 = R2_GOI$Mean.TPM..WT., TPM_R3 = R3_GOI$Mean.TPM..dXCL1., TPM_R4 = R4_GOI$Mean.TPM..UV.)
-df_GOI <- df_GOI[order(df_GOI$Group), ]
-rownames(df_GOI) <- seq(1:nrow(genes_of_interest))
+df_GOI_pathway <- data.frame(Gene = R1_GOI$gene.name, Group = genes_of_interest$Group, log2FC_R1 = R1_GOI$log2FC, log2FC_R2 = R2_GOI$log2FC, log2FC_R3 = R3_GOI$log2FC, log2FC_R4 = R4_GOI$log2FC, TPM_R1 = R1_GOI$Mean.TPM..Mock., TPM_R2 = R2_GOI$Mean.TPM..WT., TPM_R3 = R3_GOI$Mean.TPM..dXCL1., TPM_R4 = R4_GOI$Mean.TPM..UV.)
+df_GOI_pathway <- df_GOI_pathway[order(df_GOI_pathway$Group), ]
+rownames(df_GOI_pathway) <- seq(1:nrow(genes_of_interest))
 
 mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
-mybreaks <- c(seq(min(df_GOI[4:6]), 0, length.out = 25),
-              seq(max(df_GOI[4:6])/50, max(df_GOI[4:6]), length.out = 25)
+mybreaks <- c(seq(min(df_GOI_pathway[4:6]), 0, length.out = 25),
+              seq(max(df_GOI_pathway[4:6])/50, max(df_GOI_pathway[4:6]), length.out = 25)
 )
 
-pheatmap(df_GOI[3:6],
-         annotation_row = df_GOI[2],
+pheatmap(df_GOI_pathway[3:6],
+         annotation_row = df_GOI_pathway[2],
          border_color = "black",
          breaks = mybreaks,
          cellheight = 30,
@@ -1171,6 +1172,91 @@ pheatmap(df_GOI[3:6],
          show_rownames = TRUE,
          labels_col = names,
          labels_row = df_GOI$Gene
+)
+
+genes_h1 = c("Calr", "Pdia3", "Rab27a", "Rac2", "Sec22b", "Tap1", "Tap2", "Ccl17", "Ccl2", "Ccl6", "Cd40", "Cd80", "Cd86", "Ccr7", "Akt3", "Mapk3", "Pik3ca")
+groups_h1 = c(rep("Antigen Presentation", 7), rep("Chemokines", 3), rep("Migration Markers", 1), rep("Maturation Markers", 3), rep("Migration Markers", 3))
+
+genes_h2 = c("Ccl17", "Ccl2", "Ccl24", "Ccl5", "Ccl6", "Ccl7", "Ccr4", "Ccr7", "Cxcl1", "Cxcl9", "Cxcr5", "Il3ra", "Il11", "Il12a", "Il12b", "Il31ra", "Lif", "Osm", "Osmr", "Il15", "Il4", "Il7r", "Il9r", "Ifnl3", "Il10rb", "Il22", "Ifnb1", "Ifng", "Il17a", "Il17d", "Il17f")
+groups_h2 = c(rep("Chemokines - CC subfamily", 3),
+              rep("GPCRs - CC subfamily", 1),
+              rep("Chemokines - CC subfamily", 3),
+              rep("GPCRs - CC subfamily", 1),
+              rep("Chemokines - CXC", 2),
+              rep("GPCRs - CXC", 1),
+              rep("Chemokines - Class I Helical Cytokines", 6),
+              rep("GPCRs - Class I Helical Cytokines", 6),
+              rep("Chemokines - Class II Helical Cytokines", 6),
+              rep("GPCRs - Class II Helical Cytokines", 2)
+              )
+
+h1_1 <- df_GOI[df_GOI$Gene %in% genes_h1, -c(2)]
+h1_2 <- df_GOI_pathway[df_GOI_pathway$Gene %in% genes_h1, -c(2)]
+
+h2_1 <- df_GOI[df_GOI$Gene %in% genes_h2, -c(2)]
+h2_2 <- df_GOI_pathway[df_GOI_pathway$Gene %in% genes_h2, -c(2)]
+
+h1 <- rbind(h1_1, h1_2)
+h2 <- rbind(h2_1, h2_2)
+
+h1_filtered <- distinct(h1)
+h2_filtered <- distinct(h2)
+
+h1_filtered$Group <- groups_h1
+h2_filtered$Group <- groups_h2
+
+h1_filtered <- h1_filtered[order(h1_filtered$Group),]
+h2_filtered <- h2_filtered[order(h2_filtered$Group),]
+
+rownames(h1_filtered) <- seq(1,17)
+rownames(h2_filtered) <- seq(1,31)
+
+#genes_h1[!(genes_h1 %in% h1_filtered$Gene)]
+#genes_h2[!(genes_h2 %in% h2_filtered$Gene)]
+
+#test1 <- h1_filtered[c(1,10)]
+#test2 <- h2_filtered[c(1,10)]
+
+pheatmap(h1_filtered[2:5],
+         annotation_row = h1_filtered[10],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 30,
+         cellwidth = 50,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_t1.png",
+         fontsize_col = 15,
+         fontsize_row = 11,
+         fontsize = 12,
+         #gaps_row = c(4, 7),
+         main = "Genes of interest (Table 01)",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names,
+         labels_row = h1_filtered$Gene
+)
+
+pheatmap(h2_filtered[2:5],
+         annotation_row = h2_filtered[10],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 30,
+         cellwidth = 50,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_t2.png",
+         fontsize_col = 15,
+         fontsize_row = 15,
+         fontsize = 12,
+         #gaps_row = c(4, 7),
+         main = "Genes of interest (Table 02)",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names,
+         labels_row = h2_filtered$Gene
 )
 
 # NEW IMAGES MARCH
@@ -1218,6 +1304,10 @@ TPM_BA1 = c()
 TPM_BA2 = c()
 TPM_BC1 = c()
 TPM_BC2 = c()
+TPM_BA1_WT = c()
+TPM_BA2_WT = c()
+TPM_BC1_WT = c()
+TPM_BC2_WT = c()
 DE_BA1 = c()
 DE_BA2 = c()
 DE_BC1 = c()
@@ -1235,52 +1325,59 @@ for (id in B1$ID) {
   B2_fc <- 0
   B2_de <- 0
   B2_tpm <- 0
+  B2_tpm_wt <- 0
   B3_ID <- ""
   B3_gene_name <- ""
   B3_fc <- 0
   B3_de <- 0
   B3_tpm <- 0
+  B3_tpm_wt <- 0
   B4_ID <- ""
   B4_gene_name <- ""
   B4_fc <- 0
   B4_de <- 0
   B4_tpm <- 0
+  B4_tpm_wt <- 0
 
-  B1_ID <- id
+  B1_ID <- as.character(id)
   B1_gene_name <- as.character(B1[B1$ID == id, 2])
-  B1_fc <- B1[B1$ID == id, 4]
-  B1_de <- B1[B1$ID == id, 5]
-  B1_tpm <- B1[B1$ID == id, 15]
-  B1_NS <- B1[B1$ID == id, 20]
+  B1_fc <- as.numeric(B1[B1$ID == id, 4])
+  B1_de <- as.numeric(B1[B1$ID == id, 5])
+  B1_tpm <- as.numeric(B1[B1$ID == id, 15])
+  B1_tpm_wt <- as.numeric(B1[B1$ID == id, 14])
+  B1_NS <- as.character(B1[B1$ID == id, 20])
   
-  t2 <- amatch(B1_NS, B2$nucleotide.sequence, maxDist = length(B1_NS)*0.1)
-  t3 <- amatch(B1_NS, B3$nucleotide.sequence, maxDist = length(B1_NS)*0.1)
-  t4 <- amatch(B1_NS, B4$nucleotide.sequence, maxDist = length(B1_NS)*0.1)
+  t2 <- amatch(B1_NS, B2$nucleotide.sequence, maxDist = nchar(B1_NS)*0.2)
+  t3 <- amatch(B1_NS, B3$nucleotide.sequence, maxDist = nchar(B1_NS)*0.2)
+  t4 <- amatch(B1_NS, B4$nucleotide.sequence, maxDist = nchar(B1_NS)*0.2)
   
   if (is.na(t2) == FALSE) {
     B2_ID <- as.character(B2[t2, 1])
     B2_gene_name <- as.character(B2[t2, 2])
-    B2_fc <- B2[t2, 4]
-    B2_de <- B2[t2, 5]
-    B2_tpm <- B2[t2, 15]
+    B2_fc <- as.numeric(B2[t2, 4])
+    B2_de <- as.numeric(B2[t2, 5])
+    B2_tpm <- as.numeric(B2[t2, 15])
+    B2_tpm_wt <- as.numeric(B2[t2, 14])
     B2 <- B2[-c(t2), ]
   }
 
   if (is.na(t3) == FALSE) {
     B3_ID <- as.character(B3[t3, 1])
     B3_gene_name <- as.character(B3[t3, 2])
-    B3_fc <- B3[t3, 4]
-    B3_de <- B3[t3, 5]
-    B3_tpm <- B3[t3, 15]
+    B3_fc <- as.numeric(B3[t3, 4])
+    B3_de <- as.numeric(B3[t3, 5])
+    B3_tpm <- as.numeric(B3[t3, 15])
+    B3_tpm_wt <- as.numeric(B3[t3, 14])
     B3 <- B3[-c(t3), ]
   }
 
   if (is.na(t4) == FALSE) {
     B4_ID <- as.character(B4[t4, 1])
     B4_gene_name <- as.character(B4[t4, 2])
-    B4_fc <- B4[t4, 4]
-    B4_de <- B4[t4, 5]
-    B4_tpm <- B4[t4, 15]
+    B4_fc <- as.numeric(B4[t4, 4])
+    B4_de <- as.numeric(B4[t4, 5])
+    B4_tpm <- as.numeric(B4[t4, 15])
+    B4_tpm_wt <- as.numeric(B4[t4, 14])
     B4 <- B4[-c(t4), ]
   }
   
@@ -1300,6 +1397,10 @@ for (id in B1$ID) {
   TPM_BA2[i] <- B2_tpm
   TPM_BC1[i] <- B3_tpm
   TPM_BC2[i] <- B4_tpm
+  TPM_BA1_WT[i] <- B1_tpm_wt
+  TPM_BA2_WT[i] <- B2_tpm_wt
+  TPM_BC1_WT[i] <- B3_tpm_wt
+  TPM_BC2_WT[i] <- B4_tpm_wt
   DE_BA1[i] <- B1_de
   DE_BA2[i] <- B2_de
   DE_BC1[i] <- B3_de
@@ -1318,42 +1419,48 @@ for (id in B2$ID) {
   B1_fc <- 0
   B1_de <- 0
   B1_tpm <- 0
+  B1_tpm_wt <- 0
   B3_ID <- ""
   B3_gene_name <- ""
   B3_fc <- 0
   B3_de <- 0
   B3_tpm <- 0
+  B3_tpm_wt <- 0
   B4_ID <- ""
   B4_gene_name <- ""
   B4_fc <- 0
   B4_de <- 0
   B4_tpm <- 0
+  B4_tpm_wt <- 0
   
-  B2_ID <- id
+  B2_ID <- as.character(id)
   B2_gene_name <- as.character(B2[B2$ID == id, 2])
-  B2_fc <- B2[B2$ID == id, 4]
-  B2_de <- B2[B2$ID == id, 5]
-  B2_tpm <- B2[B2$ID == id, 15]
-  B2_NS <- B2[B2$ID == id, 20]
+  B2_fc <- as.numeric(B2[B2$ID == id, 4])
+  B2_de <- as.numeric(B2[B2$ID == id, 5])
+  B2_tpm <- as.numeric(B2[B2$ID == id, 15])
+  B2_tpm_wt <- as.numeric(B2[B2$ID == id, 14])
+  B2_NS <- as.character(B2[B2$ID == id, 20])
   
-  t3 <- amatch(B2_NS, B3$nucleotide.sequence, maxDist = length(B2_NS)*0.1)
-  t4 <- amatch(B2_NS, B4$nucleotide.sequence, maxDist = length(B2_NS)*0.1)
+  t3 <- amatch(B2_NS, B3$nucleotide.sequence, maxDist = nchar(B2_NS)*0.2)
+  t4 <- amatch(B2_NS, B4$nucleotide.sequence, maxDist = nchar(B2_NS)*0.2)
   
   if (is.na(t3) == FALSE) {
     B3_ID <- as.character(B3[t3, 1])
     B3_gene_name <- as.character(B3[t3, 2])
-    B3_fc <- B3[t3, 4]
-    B3_de <- B3[t3, 5]
-    B3_tpm <- B3[t3, 15]
+    B3_fc <- as.numeric(B3[t3, 4])
+    B3_de <- as.numeric(B3[t3, 5])
+    B3_tpm <- as.numeric(B3[t3, 15])
+    B3_tpm_wt <- as.numeric(B3[t3, 14])
     B3 <- B3[-c(t3), ]
   }
   
   if (is.na(t4) == FALSE) {
     B4_ID <- as.character(B4[t4, 1])
     B4_gene_name <- as.character(B4[t4, 2])
-    B4_fc <- B4[t4, 4]
-    B4_de <- B4[t4, 5]
-    B4_tpm <- B4[t4, 15]
+    B4_fc <- as.numeric(B4[t4, 4])
+    B4_de <- as.numeric(B4[t4, 5])
+    B4_tpm <- as.numeric(B4[t4, 15])
+    B4_tpm_wt <- as.numeric(B4[t4, 14])
     B4 <- B4[-c(t4), ]
   }
   
@@ -1373,6 +1480,10 @@ for (id in B2$ID) {
   TPM_BA2[i] <- B2_tpm
   TPM_BC1[i] <- B3_tpm
   TPM_BC2[i] <- B4_tpm
+  TPM_BA1_WT[i] <- B1_tpm_wt
+  TPM_BA2_WT[i] <- B2_tpm_wt
+  TPM_BC1_WT[i] <- B3_tpm_wt
+  TPM_BC2_WT[i] <- B4_tpm_wt
   DE_BA1[i] <- B1_de
   DE_BA2[i] <- B2_de
   DE_BC1[i] <- B3_de
@@ -1390,32 +1501,37 @@ for (id in B3$ID) {
   B1_fc <- 0
   B1_de <- 0
   B1_tpm <- 0
+  B1_tpm_wt <- 0
   B2_ID <- ""
   B2_gene_name <- ""
   B2_fc <- 0
   B2_de <- 0
   B2_tpm <- 0
+  B2_tpm_wt <- 0
   B4_ID <- ""
   B4_gene_name <- ""
   B4_fc <- 0
   B4_de <- 0
   B4_tpm <- 0
+  B4_tpm_wt <- 0
   
-  B3_ID <- id
+  B3_ID <- as.character(id)
   B3_gene_name <- as.character(B3[B3$ID == id, 2])
-  B3_fc <- B3[B3$ID == id, 4]
-  B3_de <- B3[B3$ID == id, 5]
-  B3_tpm <- B3[B3$ID == id, 15]
-  B3_NS <- B3[B3$ID == id, 20]
+  B3_fc <- as.numeric(B3[B3$ID == id, 4])
+  B3_de <- as.numeric(B3[B3$ID == id, 5])
+  B3_tpm <- as.numeric(B3[B3$ID == id, 15])
+  B3_tpm_wt <- as.numeric(B3[B3$ID == id, 14])
+  B3_NS <- as.character(B3[B3$ID == id, 20])
   
-  t4 <- amatch(B3_NS, B4$nucleotide.sequence, maxDist = length(B3_NS)*0.1)
+  t4 <- amatch(B3_NS, B4$nucleotide.sequence, maxDist = nchar(B3_NS)*0.2)
   
   if (is.na(t4) == FALSE) {
     B4_ID <- as.character(B4[t4, 1])
     B4_gene_name <- as.character(B4[t4, 2])
-    B4_fc <- B4[t4, 4]
-    B4_de <- B4[t4, 5]
-    B4_tpm <- B4[t4, 15]
+    B4_fc <- as.numeric(B4[t4, 4])
+    B4_de <- as.numeric(B4[t4, 5])
+    B4_tpm <- as.numeric(B4[t4, 15])
+    B4_tpm_wt <- as.numeric(B4[t4, 14])
     B4 <- B4[-c(t4), ]
   }
   
@@ -1435,6 +1551,10 @@ for (id in B3$ID) {
   TPM_BA2[i] <- B2_tpm
   TPM_BC1[i] <- B3_tpm
   TPM_BC2[i] <- B4_tpm
+  TPM_BA1_WT[i] <- B1_tpm_wt
+  TPM_BA2_WT[i] <- B2_tpm_wt
+  TPM_BC1_WT[i] <- B3_tpm_wt
+  TPM_BC2_WT[i] <- B4_tpm_wt
   DE_BA1[i] <- B1_de
   DE_BA2[i] <- B2_de
   DE_BC1[i] <- B3_de
@@ -1451,23 +1571,27 @@ for (id in B4$ID) {
   B1_fc <- 0
   B1_de <- 0
   B1_tpm <- 0
+  B1_tpm_wt <- 0
   B2_ID <- ""
   B2_gene_name <- ""
   B2_fc <- 0
   B2_de <- 0
   B2_tpm <- 0
+  B2_tpm_wt <- 0
   B3_ID <- ""
   B3_gene_name <- ""
   B3_fc <- 0
   B3_de <- 0
   B3_tpm <- 0
+  B3_tpm_wt <- 0
   
-  B4_ID <- id
+  B4_ID <- as.character(id)
   B4_gene_name <- as.character(B4[B4$ID == id, 2])
-  B4_fc <- B4[B4$ID == id, 4]
-  B4_de <- B4[B4$ID == id, 5]
-  B4_tpm <- B4[B4$ID == id, 15]
-  B4_NS <- B4[B4$ID == id, 20]
+  B4_fc <- as.numeric(B4[B4$ID == id, 4])
+  B4_de <- as.numeric(B4[B4$ID == id, 5])
+  B4_tpm <- as.numeric(B4[B4$ID == id, 15])
+  B4_tpm_wt <- as.numeric(B4[B4$ID == id, 14])
+  B4_NS <- as.character(B4[B4$ID == id, 20])
   
   Gene_Symbol_BA1[i] <- B1_gene_name
   Gene_Symbol_BA2[i] <- B2_gene_name
@@ -1485,6 +1609,10 @@ for (id in B4$ID) {
   TPM_BA2[i] <- B2_tpm
   TPM_BC1[i] <- B3_tpm
   TPM_BC2[i] <- B4_tpm
+  TPM_BA1_WT[i] <- B1_tpm_wt
+  TPM_BA2_WT[i] <- B2_tpm_wt
+  TPM_BC1_WT[i] <- B3_tpm_wt
+  TPM_BC2_WT[i] <- B4_tpm_wt
   DE_BA1[i] <- B1_de
   DE_BA2[i] <- B2_de
   DE_BC1[i] <- B3_de
@@ -1498,25 +1626,25 @@ M5$Gene_BA1 <- ifelse(M5$Gene_BA1 == "", as.character(M5$Gene_BA2), as.character
 M5$Gene_BA1 <- ifelse(M5$Gene_BA1 == "", as.character(M5$Gene_BC2), as.character(M5$Gene_BA1))
 M5$Gene_BA1 <- ifelse(M5$Gene_BA1 == "", as.character(M5$Gene_BC1), as.character(M5$Gene_BA1))
 
-M5$Gene_BA1[211] <- "dnaN"
-M5$Gene_BA1[238] <- "nhaC"
-M5$Gene_BA1[245] <- "proS"
-M5$Gene_BA1[252] <- "opuD"
-M5$Gene_BA1[348] <- "ansA"
-M5$Gene_BA1[367] <- "ilvE"
-M5$Gene_BA1[369] <- "ilvB_1"
-M5$Gene_BA1[414] <- "abc-f"
-M5$Gene_BA1[423] <- "prsA_2"
-M5$Gene_BA1[431] <- "hisC"
-M5$Gene_BA1[456] <- "fsa"
-M5$Gene_BA1[476] <- "dhbF"
-M5$Gene_BA1[496] <- "fabG"
-M5$Gene_BA1[542] <- "tyrS"
-M5$Gene_BA1[545] <- "hpt"
-M5$Gene_BA1[616] <- "yidC"
-M5$Gene_BA1[623] <- "pagA"
-M5$Gene_BA1[629] <- "galU"
-M5$Gene_BA1[635] <- "hfq"
+#M5$Gene_BA1[211] <- "dnaN"
+#M5$Gene_BA1[238] <- "nhaC"
+#M5$Gene_BA1[245] <- "proS"
+#M5$Gene_BA1[252] <- "opuD"
+#M5$Gene_BA1[348] <- "ansA"
+#M5$Gene_BA1[367] <- "ilvE"
+#M5$Gene_BA1[369] <- "ilvB_1"
+#M5$Gene_BA1[414] <- "abc-f"
+#M5$Gene_BA1[423] <- "prsA_2"
+#M5$Gene_BA1[431] <- "hisC"
+#M5$Gene_BA1[456] <- "fsa"
+#M5$Gene_BA1[476] <- "dhbF"
+#M5$Gene_BA1[496] <- "fabG"
+#M5$Gene_BA1[542] <- "tyrS"
+#M5$Gene_BA1[545] <- "hpt"
+#M5$Gene_BA1[616] <- "yidC"
+#M5$Gene_BA1[623] <- "pagA"
+#M5$Gene_BA1[629] <- "galU"
+#M5$Gene_BA1[635] <- "hfq"
 
 M6 <- data.frame(BA1 = ID_BA1, BA2 = ID_BA2, BC1 = ID_BC1, BC2 = ID_BC2)
 M6$BA1 <- ifelse(M6$BA1 == "", as.character(M6$BA2), as.character(M6$BA1))
@@ -1533,6 +1661,20 @@ M4 <- data.frame(ID = M6$BA1, Gene = M5$Gene_BA1,
                  log2FC_BA1 = log2FC_BA1, log2FC_BA2 = log2FC_BA2, log2FC_BC1 = log2FC_BC1, log2FC_BC2 = log2FC_BC2,
                  TPM_BA1 = TPM_BA1, TPM_BA2 = TPM_BA2, TPM_BC1 = TPM_BC1, TPM_BC2 = TPM_BC2,
                  DE_BA1 = DE_BA1, DE_BA2 = DE_BA2, DE_BC1 = DE_BC1, DE_BC2 = DE_BC2)
+
+M4_output <- data.frame(ID = M6$BA1, Gene = M5$Gene_BA1,
+                        log2FC_BA1 = log2FC_BA1, log2FC_BA2 = log2FC_BA2, log2FC_BC1 = log2FC_BC1, log2FC_BC2 = log2FC_BC2,
+                        TPM_BA1 = TPM_BA1, TPM_BA2 = TPM_BA2, TPM_BC1 = TPM_BC1, TPM_BC2 = TPM_BC2,
+                        TPM_BA1_WT = TPM_BA1_WT, TPM_BA2_WT = TPM_BA2_WT, TPM_BC1_WT = TPM_BC1_WT, TPM_BC2_WT = TPM_BC2_WT,
+                        DE_BA1 = DE_BA1, DE_BA2 = DE_BA2, DE_BC1 = DE_BC1, DE_BC2 = DE_BC2)
+
+M4_output_ba <- M4_output[M4_output$DE_BA1 != 0 & M4_output$DE_BA2 != 0 & M4_output$DE_BC1 == 0 & M4_output$DE_BC2 == 0, ] 
+M4_output_bc <- M4_output[M4_output$DE_BA1 == 0 & M4_output$DE_BA2 == 0 & M4_output$DE_BC1 != 0 & M4_output$DE_BC2 != 0, ] 
+M4_output_overlap <- M4_output[M4_output$DE_BA1 != 0 & M4_output$DE_BA2 != 0 & M4_output$DE_BC1 != 0 & M4_output$DE_BC2 != 0, ] 
+
+write.table(M4_output_ba, file = "venn_diagram_ba_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+write.table(M4_output_bc, file = "venn_diagram_bc_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+write.table(M4_output_overlap, file = "venn_diagram_overlapping_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
 
 # Venn Diagram
 names_V5 <- c("Vollum", "Dobichau", "CA", "CI")
@@ -1588,10 +1730,10 @@ for (seq in a1$nucleotide.sequence) {
   b2 <- NA
   b3 <- NA
   b4 <- NA
-  B1_fc <- C1[C1$nucleotide.sequence == seq, 4]
-  B1_de <- C1[C1$nucleotide.sequence == seq, 5]
-  B1_tpm_o2 <- C1[C1$nucleotide.sequence == seq, 14]
-  B1_tpm_co2 <- C1[C1$nucleotide.sequence == seq, 15]
+  B1_fc <- as.numeric(C1[C1$nucleotide.sequence == seq, 4])
+  B1_de <- as.numeric(C1[C1$nucleotide.sequence == seq, 5])
+  B1_tpm_o2 <- as.numeric(C1[C1$nucleotide.sequence == seq, 14])
+  B1_tpm_co2 <- as.numeric(C1[C1$nucleotide.sequence == seq, 15])
   B2_fc <- NA
   B2_de <- NA
   B2_tpm_o2 <- NA
@@ -1608,31 +1750,31 @@ for (seq in a1$nucleotide.sequence) {
   TIGRFAM_Main[i] <- as.character(C1[C1$nucleotide.sequence == seq, 16])
   TIGRFAM_Sub[i] <- as.character(C1[C1$nucleotide.sequence == seq, 17])
 
-  b2 <- amatch(seq, C2$nucleotide.sequence, maxDist = length(seq)*0.1)
-  b3 <- amatch(seq, C3$nucleotide.sequence, maxDist = length(seq)*0.1)
-  b4 <- amatch(seq, C4$nucleotide.sequence, maxDist = length(seq)*0.1)
+  b2 <- amatch(seq, C2$nucleotide.sequence, maxDist = nchar(seq)*0.2)
+  b3 <- amatch(seq, C3$nucleotide.sequence, maxDist = nchar(seq)*0.2)
+  b4 <- amatch(seq, C4$nucleotide.sequence, maxDist = nchar(seq)*0.2)
   
   if (is.na(b2) == FALSE) {
-    B2_fc <- C2[b2, 4]
-    B2_de <- C2[b2, 5]
-    B2_tpm_o2 <- C2[b2, 14]
-    B2_tpm_co2 <- C2[b2, 15]
+    B2_fc <- as.numeric(C2[b2, 4])
+    B2_de <- as.numeric(C2[b2, 5])
+    B2_tpm_o2 <- as.numeric(C2[b2, 14])
+    B2_tpm_co2 <- as.numeric(C2[b2, 15])
     C2 <- C2[-c(b2), ]
   }
   
   if (is.na(b3) == FALSE) {
-    B3_fc <- C3[b3, 4]
-    B3_de <- C3[b3, 5]
-    B3_tpm_o2 <- C3[b3, 14]
-    B3_tpm_co2 <- C3[b3, 15]
+    B3_fc <- as.numeric(C3[b3, 4])
+    B3_de <- as.numeric(C3[b3, 5])
+    B3_tpm_o2 <- as.numeric(C3[b3, 14])
+    B3_tpm_co2 <- as.numeric(C3[b3, 15])
     C3 <- C3[-c(b3), ]
   }
   
   if (is.na(b4) == FALSE) {
-    B4_fc <- C4[b4, 4]
-    B4_de <- C4[b4, 5]
-    B4_tpm_o2 <- C4[b4, 14]
-    B4_tpm_co2 <- C4[b4, 15]
+    B4_fc <- as.numeric(C4[b4, 4])
+    B4_de <- as.numeric(C4[b4, 5])
+    B4_tpm_o2 <- as.numeric(C4[b4, 14])
+    B4_tpm_co2 <- as.numeric(C4[b4, 15])
     C4 <- C4[-c(b4), ]
   }
   
@@ -1668,10 +1810,10 @@ for (seq in a3$nucleotide.sequence) {
   B2_de <- NA
   B2_tpm_o2 <- NA
   B2_tpm_co2 <- NA
-  B3_fc <- C3[C3$nucleotide.sequence == seq, 4]
-  B3_de <- C3[C3$nucleotide.sequence == seq, 5]
-  B3_tpm_o2 <- C3[C3$nucleotide.sequence == seq, 14]
-  B3_tpm_co2 <- C3[C3$nucleotide.sequence == seq, 15]
+  B3_fc <- as.numeric(C3[C3$nucleotide.sequence == seq, 4])
+  B3_de <- as.numeric(C3[C3$nucleotide.sequence == seq, 5])
+  B3_tpm_o2 <- as.numeric(C3[C3$nucleotide.sequence == seq, 14])
+  B3_tpm_co2 <- as.numeric(C3[C3$nucleotide.sequence == seq, 15])
   B4_fc <- NA
   B4_de <- NA
   B4_tpm_o2 <- NA
@@ -1680,31 +1822,31 @@ for (seq in a3$nucleotide.sequence) {
   TIGRFAM_Main[i] <- as.character(C3[C3$nucleotide.sequence == seq, 16])
   TIGRFAM_Sub[i] <- as.character(C3[C3$nucleotide.sequence == seq, 17])
 
-  b1 <- amatch(seq, C1$nucleotide.sequence, maxDist = length(seq)*0.1)
-  b2 <- amatch(seq, C2$nucleotide.sequence, maxDist = length(seq)*0.1)
-  b4 <- amatch(seq, C4$nucleotide.sequence, maxDist = length(seq)*0.1)
+  b1 <- amatch(seq, C1$nucleotide.sequence, maxDist = nchar(seq)*0.2)
+  b2 <- amatch(seq, C2$nucleotide.sequence, maxDist = nchar(seq)*0.2)
+  b4 <- amatch(seq, C4$nucleotide.sequence, maxDist = nchar(seq)*0.2)
   
   if (is.na(b1) == FALSE) {
-    B1_fc <- C1[b1, 4]
-    B1_de <- C1[b1, 5]
-    B1_tpm_o2 <- C1[b1, 14]
-    B1_tpm_co2 <- C1[b1, 15]
+    B1_fc <- as.numeric(C1[b1, 4])
+    B1_de <- as.numeric(C1[b1, 5])
+    B1_tpm_o2 <- as.numeric(C1[b1, 14])
+    B1_tpm_co2 <- as.numeric(C1[b1, 15])
     C1 <- C1[-c(b1), ]
   }
   
   if (is.na(b2) == FALSE) {
-    B2_fc <- C2[b2, 4]
-    B2_de <- C2[b2, 5]
-    B2_tpm_o2 <- C2[b2, 14]
-    B2_tpm_co2 <- C2[b2, 15]
+    B2_fc <- as.numeric(C2[b2, 4])
+    B2_de <- as.numeric(C2[b2, 5])
+    B2_tpm_o2 <- as.numeric(C2[b2, 14])
+    B2_tpm_co2 <- as.numeric(C2[b2, 15])
     C2 <- C2[-c(b2), ]
   }
   
   if (is.na(b4) == FALSE) {
-    B4_fc <- C4[b4, 4]
-    B4_de <- C4[b4, 5]
-    B4_tpm_o2 <- C4[b4, 14]
-    B4_tpm_co2 <- C4[b4, 15]
+    B4_fc <- as.numeric(C4[b4, 4])
+    B4_de <- as.numeric(C4[b4, 5])
+    B4_tpm_o2 <- as.numeric(C4[b4, 14])
+    B4_tpm_co2 <- as.numeric(C4[b4, 15])
     C4 <- C4[-c(b4), ]
   }
   
@@ -1736,8 +1878,8 @@ M7 <- data.frame(ID = ID,
                  TIGRFAM_Main = TIGRFAM_Main, TIGRFAM_Sub = TIGRFAM_Sub)
 
 # Pie Chart of Genes
-M8_S1_Full <- M7[1:28, ]
-M8_S2_Full <- M7[29:89, ]
+M8_S1_Full <- M7[1:7, ]
+M8_S2_Full <- M7[8:52, ]
 
 M8_S1 <- (M8_S1_Full[M8_S1_Full$TIGRFAM_Main != "" & M8_S1_Full$TIGRFAM_Main != "Unknown function", ])
 M8_S2 <- (M8_S2_Full[M8_S2_Full$TIGRFAM_Main != "" & M8_S2_Full$TIGRFAM_Main != "Unknown function", ])
@@ -2048,6 +2190,245 @@ plot <- ggplot(tmp_data, aes(x = Rank, y = -log10(Pval), size = Genes, label = n
 print(plot)
 dev.off()
 
+# Shortend list of genes of interest
+
+genes_of_interest_co <- c("eag", "sap", "gerN", "inhA1", "npr1", "clo", "calY1", "bla1", "bla2", "rpoB", "gyrB", "bslA", "atxA", "lef", "cya", "pagA", "hasA", "capB", "pXO2-60", "pXO2-61", "acpA", "pagR", "RS28540", "sat", "glpD")
+ids_of_interest_co <- c("BACI_RS04665", "BACI_RS04660", "BACI_RS08305", "BACI_RS06635", "BACI_RS03085", "BACI_RS16175", "BACI_RS06620", "BACI_RS12390", "BACI_RS16910", "BACI_RS00715", "BACI_RS00115", "BACI_RS27810", "BACI_RS27915", "BACI_RS28000", "BACI_RS27890", "BACI_RS27975", "BACI_RS27830", "BACI_RS28455", "BACI_RS28485", "BACI_RS28490", "BACI_RS28520", "BACI_RS28460", "BACI_RS28540", "BACI_RS07355", "BACI_RS05365")
+df_of_interest <- data.frame(ID = ids_of_interest_co, Gene = genes_of_interest_co)
+
+BA1_O2 <- c()
+BA1_CO2 <- c()
+BA2_O2 <- c()
+BA2_CO2 <- c()
+BC1_O2 <- c()
+BC1_CO2 <- c()
+BC2_O2 <- c()
+BC2_CO2 <- c()
+TIGRFAM_list <- c()
+
+i = 1
+for (id in df_of_interest$ID) {
+  current_row <- BC2[BC2$ID == id, ]
+  ns <- as.character(unlist(current_row[20]))
+  TIGRFAM_list[i] <- as.character(unlist(current_row[16]))
+  BC2_O2[i] <- as.numeric(unlist(current_row[14]))
+  BC2_CO2[i] <- as.numeric(unlist(current_row[15]))
+  
+  b1 <- amatch(ns, BA1$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b2 <- amatch(ns, BA2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b3 <- amatch(ns, BC1$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  
+  if (is.na(b1) == FALSE) {
+    BA1_O2[i] <- as.numeric(BA1[b1, 14])
+    BA1_CO2[i] <- as.numeric(BA1[b1, 15])
+  } else {
+    BA1_O2[i] <- 0
+    BA1_CO2[i] <- 0
+  }
+  
+  if (is.na(b2) == FALSE) {
+    BA2_O2[i] <- as.numeric(BA2[b2, 14])
+    BA2_CO2[i] <- as.numeric(BA2[b2, 15])
+  } else {
+    BA2_O2[i] <- 0
+    BA2_CO2[i] <- 0
+  }
+  
+  if (is.na(b3) == FALSE) {
+    BC1_O2[i] <- as.numeric(BC1[b3, 14])
+    BC1_CO2[i] <- as.numeric(BC1[b3, 15])
+  } else {
+    BC1_O2[i] <- 0
+    BC1_CO2[i] <- 0
+  }
+  
+  i = i + 1
+}
+
+final_df_full = data.frame(ID = df_of_interest$ID, Gene = df_of_interest$Gene, TIGRFAM = TIGRFAM_list, Vollum_O2 = BA1_O2, Dobichau_O2 = BA2_O2, CA_O2 = BC1_O2, CI_O2 = BC2_O2, Vollum_CO2 = BA1_CO2, Dobichau_CO2 = BA2_CO2, CA_CO2 = BC1_CO2, CI_CO2 = BC2_CO2)
+final_df_full[final_df_full$TIGRFAM == "", 3] <- "Unknown function"
+rownames(final_df_full) <- final_df_full$ID
+#final_df_top = final_df_full[1:22, ]
+#final_df_low = final_df_full[23:25, ]
+
+annotations <- data.frame(condition = c(rep("O2", 4), rep("CO2", 4)))
+rownames(annotations) <- colnames(final_df_full[4:11])
+
+my_colour = list(
+  condition = c(O2 = "chartreuse2", CO2 = "cornflowerblue"),
+  TIGRFAM = c("Biosynthesis of cofactors" = "#2f4f4f",
+              "Cell envelope" = "#a0522d",
+              "Cellular processes" = "#228b22",
+              "Central intermediary metabolism" = "#4b0082",
+              "DNA metabolism" = "#ff0000",
+              "Energy metabolism" = "#ffff00",
+              "Fatty acid and phospholipid metabolism" = "#00ff00",
+              "Protein fate" = "#00ffff",
+              "Protein synthesis" = "#0000ff",
+              "Regulatory functions" = "#ff00ff",
+              "Transcription" = "#ff69b4",
+              "Transport and binding proteins" = "#6495ed",
+              "Unknown function" = "#eee8aa")
+)
+
+names <- c("Vollum", "Dobichau", "CA", "CI", "Vollum", "Dobichau", "CA", "CI")
+
+pheatmap(log(final_df_full[4:11] + 1, 2),
+         annotation_row = final_df_full[3],
+         annotation_col = annotations,
+         annotation_colors = my_colour,
+         border_color = "black",
+         #breaks = mybreaks,
+         cellheight = 20,
+         cellwidth = 20,
+         cluster_cols = FALSE,
+         cluster_rows = FALSE,
+         color = rev(heat.colors(10)),
+         file = "pheatmap_genes_april.png",
+         fontsize_col = 12,
+         fontsize_row = 12,
+         fontsize = 11,
+         gaps_row = c(22),
+         gaps_col = c(4),
+         main = "Transcription of genelist",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names,
+         labels_row = as.character(final_df_full$Gene)
+)
+
+ids_of_interest_ba <- as.character(unlist(M4_output_ba$ID))
+
+BA1_log <- c()
+BA2_log <- c()
+BC1_log <- c()
+BC2_log <- c()
+BA1_O2 <- c()
+BA1_CO2 <- c()
+BA2_O2 <- c()
+BA2_CO2 <- c()
+BC1_O2 <- c()
+BC1_CO2 <- c()
+BC2_O2 <- c()
+BC2_CO2 <- c()
+gene_list <- c()
+
+i = 1
+for (id in ids_of_interest_ba) {
+  current_row <- BA1[BA1$ID == id, ]
+  gene_list[i] <- as.character(unlist(current_row[2]))
+  ns <- as.character(unlist(current_row[20]))
+  BA1_log[i] <- as.numeric(unlist(current_row[4]))
+  BA1_O2[i] <- as.numeric(unlist(current_row[14]))
+  BA1_CO2[i] <- as.numeric(unlist(current_row[15]))
+  
+  b1 <- amatch(ns, BA2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b2 <- amatch(ns, BC1$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b3 <- amatch(ns, BC2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  
+  if (is.na(b1) == FALSE) {
+    BA2_log[i] <- as.numeric(BA2[b1, 4])
+    BA2_O2[i] <- as.numeric(BA2[b1, 14])
+    BA2_CO2[i] <- as.numeric(BA2[b1, 15])
+  } else {
+    BA2_log[i] <- 0
+    BA2_O2[i] <- 0
+    BA2_CO2[i] <- 0
+  }
+  
+  if (is.na(b2) == FALSE) {
+    BC1_log[i] <- as.numeric(BC1[b2, 4])
+    BC1_O2[i] <- as.numeric(BC1[b2, 14])
+    BC1_CO2[i] <- as.numeric(BC1[b2, 15])
+  } else {
+    BC1_log[i] <- 0
+    BC1_O2[i] <- 0
+    BC1_CO2[i] <- 0
+  }
+  
+  if (is.na(b3) == FALSE) {
+    BC2_log[i] <- as.numeric(BC2[b3, 4])
+    BC2_O2[i] <- as.numeric(BC2[b3, 14])
+    BC2_CO2[i] <- as.numeric(BC2[b3, 15])
+  } else {
+    BC2_log[i] <- 0
+    BC2_O2[i] <- 0
+    BC2_CO2[i] <- 0
+  }
+  
+  i = i + 1
+}
+
+final_df_full_ba = data.frame(ID = ids_of_interest_ba, Gene = gene_list, Vollum_log2FC = BA1_log, Dobichau_log2FC = BA2_log, CA_log2FC = BC1_log, CI_log2FC = BC2_log, Vollum_O2 = BA1_O2, Dobichau_O2 = BA2_O2, CA_O2 = BC1_O2, CI_O2 = BC2_O2, Vollum_CO2 = BA1_CO2, Dobichau_CO2 = BA2_CO2, CA_CO2 = BC1_CO2, CI_CO2 = BC2_CO2)
+rownames(final_df_full_ba) <- final_df_full_ba$ID
+write.table(final_df_full_ba, file = "venn_diagram_ba_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+
+ids_of_interest_bc <- as.character(unlist(M4_output_bc$ID))
+
+BA1_log <- c()
+BA2_log <- c()
+BC1_log <- c()
+BC2_log <- c()
+BA1_O2 <- c()
+BA1_CO2 <- c()
+BA2_O2 <- c()
+BA2_CO2 <- c()
+BC1_O2 <- c()
+BC1_CO2 <- c()
+BC2_O2 <- c()
+BC2_CO2 <- c()
+gene_list <- c()
+
+i = 1
+for (id in ids_of_interest_bc) {
+  current_row <- BC2[BC2$ID == id, ]
+  gene_list[i] <- as.character(unlist(current_row[2]))
+  ns <- as.character(unlist(current_row[20]))
+  BC2_log[i] <- as.numeric(unlist(current_row[4]))
+  BC2_O2[i] <- as.numeric(unlist(current_row[14]))
+  BC2_CO2[i] <- as.numeric(unlist(current_row[15]))
+  
+  b1 <- amatch(ns, BA1$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b2 <- amatch(ns, BA2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b3 <- amatch(ns, BC1$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  
+  if (is.na(b1) == FALSE) {
+    BA1_log[i] <- as.numeric(BA1[b1, 4])
+    BA1_O2[i] <- as.numeric(BA1[b1, 14])
+    BA1_CO2[i] <- as.numeric(BA1[b1, 15])
+  } else {
+    BA1_log[i] <- 0
+    BA1_O2[i] <- 0
+    BA1_CO2[i] <- 0
+  }
+  
+  if (is.na(b2) == FALSE) {
+    BA2_log[i] <- as.numeric(BA2[b2, 4])
+    BA2_O2[i] <- as.numeric(BA2[b2, 14])
+    BA2_CO2[i] <- as.numeric(BA2[b2, 15])
+  } else {
+    BA2_log[i] <- 0
+    BA2_O2[i] <- 0
+    BA2_CO2[i] <- 0
+  }
+  
+  if (is.na(b3) == FALSE) {
+    BC1_log[i] <- as.numeric(BC1[b3, 4])
+    BC1_O2[i] <- as.numeric(BC1[b3, 14])
+    BC1_CO2[i] <- as.numeric(BC1[b3, 15])
+  } else {
+    BC1_log[i] <- 0
+    BC1_O2[i] <- 0
+    BC1_CO2[i] <- 0
+  }
+  
+  i = i + 1
+}
+
+final_df_full_bc = data.frame(ID = ids_of_interest_bc, Gene = gene_list, Vollum_log2FC = BA1_log, Dobichau_log2FC = BA2_log, CA_log2FC = BC1_log, CI_log2FC = BC2_log, Vollum_O2 = BA1_O2, Dobichau_O2 = BA2_O2, CA_O2 = BC1_O2, CI_O2 = BC2_O2, Vollum_CO2 = BA1_CO2, Dobichau_CO2 = BA2_CO2, CA_CO2 = BC1_CO2, CI_CO2 = BC2_CO2)
+rownames(final_df_full_bc) <- final_df_full_bc$ID
+write.table(final_df_full_bc, file = "venn_diagram_bc_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+
 # NEW IMAGES APRIL
 
 setwd("../../deg/")
@@ -2064,40 +2445,398 @@ C10 <- read.csv(file = "C10/summary.tsv", header = TRUE, sep = "\t", quote = "")
 C11 <- read.csv(file = "C11/summary.tsv", header = TRUE, sep = "\t", quote = "")
 C12 <- read.csv(file = "C12/summary.tsv", header = TRUE, sep = "\t", quote = "")
 
-mecA_locus_tag <- as.character(C01[C01$gene.name == "mecA", 1])
+# FC >= 4
+FC4_C01 <- C01[C01$DE..SCORE....1..Nativ...Serum..1..Nativ...Serum. != "0" & abs(C01$log2FC) > 2, ]
+FC4_C02 <- C02[C02$DE..SCORE....1..Nativ...Ammoniak..1..Nativ...Ammoniak. != "0" & abs(C02$log2FC) > 2, ]
+FC4_C03 <- C03[C03$DE..SCORE....1..Nativ...Kombination..1..Nativ...Kombination. != "0" & abs(C03$log2FC) > 2, ]
+FC4_C04 <- C04[C04$DE..SCORE....1..Nativ...Serum..1..Nativ...Serum. != "0" & abs(C04$log2FC) > 2, ]
+FC4_C05 <- C05[C05$DE..SCORE....1..Nativ...Ammoniak..1..Nativ...Ammoniak. != "0" & abs(C05$log2FC) > 2, ]
+FC4_C06 <- C06[C06$DE..SCORE....1..Nativ...Kombination..1..Nativ...Kombination. != "0" & abs(C06$log2FC) > 2, ]
+FC4_C07 <- C07[C07$DE..SCORE....1..10min...60min..1..10min...60min. != "0" & abs(C07$log2FC) > 2, ]
+FC4_C08 <- C08[C08$DE..SCORE....1..10min...60min..1..10min...60min. != "0" & abs(C08$log2FC) > 2, ]
+FC4_C09 <- C09[C09$DE..SCORE....1..10min...60min..1..10min...60min. != "0" & abs(C09$log2FC) > 2, ]
+FC4_C10 <- C10[C10$DE..SCORE....1..10min...60min..1..10min...60min. != "0" & abs(C10$log2FC) > 2, ]
+FC4_C11 <- C11[C11$DE..SCORE....1..10min...60min..1..10min...60min. != "0" & abs(C11$log2FC) > 2, ]
+FC4_C12 <- C12[C12$DE..SCORE....1..10min...60min..1..10min...60min. != "0" & abs(C12$log2FC) > 2, ]
 
-mecA_expression <- c(C01[C01$ID == mecA_locus_tag, 4],
-                     C02[C02$ID == mecA_locus_tag, 4],
+# Strong downregulated genes
+FC4_down_C01 <- C01[C01$DE..SCORE....1..Nativ...Serum..1..Nativ...Serum. == "-1" & abs(C01$log2FC) > 2, ]
+FC4_down_C02 <- C02[C02$DE..SCORE....1..Nativ...Ammoniak..1..Nativ...Ammoniak. == "-1" & abs(C02$log2FC) > 2, ]
+FC4_down_C03 <- C03[C03$DE..SCORE....1..Nativ...Kombination..1..Nativ...Kombination. == "-1" & abs(C03$log2FC) > 2, ]
+FC4_down_C04 <- C04[C04$DE..SCORE....1..Nativ...Serum..1..Nativ...Serum. == "-1" & abs(C04$log2FC) > 2, ]
+FC4_down_C05 <- C05[C05$DE..SCORE....1..Nativ...Ammoniak..1..Nativ...Ammoniak. == "-1" & abs(C05$log2FC) > 2, ]
+FC4_down_C06 <- C06[C06$DE..SCORE....1..Nativ...Kombination..1..Nativ...Kombination. == "-1" & abs(C06$log2FC) > 2, ]
+FC4_down_C07 <- C07[C07$DE..SCORE....1..10min...60min..1..10min...60min. == "-1" & abs(C07$log2FC) > 2, ]
+FC4_down_C08 <- C08[C08$DE..SCORE....1..10min...60min..1..10min...60min. == "-1" & abs(C08$log2FC) > 2, ]
+FC4_down_C09 <- C09[C09$DE..SCORE....1..10min...60min..1..10min...60min. == "-1" & abs(C09$log2FC) > 2, ]
+FC4_down_C10 <- C10[C10$DE..SCORE....1..10min...60min..1..10min...60min. == "-1" & abs(C10$log2FC) > 2, ]
+FC4_down_C11 <- C11[C11$DE..SCORE....1..10min...60min..1..10min...60min. == "-1" & abs(C11$log2FC) > 2, ]
+FC4_down_C12 <- C12[C12$DE..SCORE....1..10min...60min..1..10min...60min. == "-1" & abs(C12$log2FC) > 2, ]
+
+# Strong upregulated genes
+FC4_up_C01 <- C01[C01$DE..SCORE....1..Nativ...Serum..1..Nativ...Serum. == "1" & abs(C01$log2FC) > 2, ]
+FC4_up_C02 <- C02[C02$DE..SCORE....1..Nativ...Ammoniak..1..Nativ...Ammoniak. == "1" & abs(C02$log2FC) > 2, ]
+FC4_up_C03 <- C03[C03$DE..SCORE....1..Nativ...Kombination..1..Nativ...Kombination. == "1" & abs(C03$log2FC) > 2, ]
+FC4_up_C04 <- C04[C04$DE..SCORE....1..Nativ...Serum..1..Nativ...Serum. == "1" & abs(C04$log2FC) > 2, ]
+FC4_up_C05 <- C05[C05$DE..SCORE....1..Nativ...Ammoniak..1..Nativ...Ammoniak. == "1" & abs(C05$log2FC) > 2, ]
+FC4_up_C06 <- C06[C06$DE..SCORE....1..Nativ...Kombination..1..Nativ...Kombination. == "1" & abs(C06$log2FC) > 2, ]
+FC4_up_C07 <- C07[C07$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C07$log2FC) > 2, ]
+FC4_up_C08 <- C08[C08$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C08$log2FC) > 2, ]
+FC4_up_C09 <- C09[C09$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C09$log2FC) > 2, ]
+FC4_up_C10 <- C10[C10$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C10$log2FC) > 2, ]
+FC4_up_C11 <- C11[C11$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C11$log2FC) > 2, ]
+FC4_up_C12 <- C12[C12$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C12$log2FC) > 2, ]
+
+# ccrB_1 expression
+#mecA_locus_tag <- "SAPI_01966"
+
+# mecA expression (old)
+#mecA_locus_tag <- as.character(C01[C01$gene.name == "mecA", 1])
+
+# mecA expression (new)
+mecA_locus_tag <- "SAPI_01975"
+
+# ccrB_2 expression
+#mecA_locus_tag <- "SAPI_01983"
+
+mecA_expression <- c(C02[C02$ID == mecA_locus_tag, 4],
                      C03[C03$ID == mecA_locus_tag, 4],
-                     C04[C04$ID == mecA_locus_tag, 4],
+                     C01[C01$ID == mecA_locus_tag, 4],
                      C05[C05$ID == mecA_locus_tag, 4],
                      C06[C06$ID == mecA_locus_tag, 4],
-                     C07[C07$ID == mecA_locus_tag, 4],
+                     C04[C04$ID == mecA_locus_tag, 4],
                      C08[C08$ID == mecA_locus_tag, 4],
                      C09[C09$ID == mecA_locus_tag, 4],
-                     C10[C10$ID == mecA_locus_tag, 4],
+                     C07[C07$ID == mecA_locus_tag, 4],
                      C11[C11$ID == mecA_locus_tag, 4],
-                     C12[C12$ID == mecA_locus_tag, 4])
+                     C12[C12$ID == mecA_locus_tag, 4],
+                     C10[C10$ID == mecA_locus_tag, 4]
+                     )
 
-mecA_expression <- (2^abs(mecA_expression))*sign(mecA_expression)
+#mecA_expression <- (2^abs(mecA_expression))*sign(mecA_expression)
 
-experiments <- c("C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C10", "C11", "C12")
+experiments <- c("C02", "C03", "C01", "C05", "C06", "C04", "C08", "C09", "C07", "C11", "C12", "C10")
 
-groups <- c(rep("10min", 3), rep("60min", 3), rep("10min<->60min (Experiment)", 3), rep("10min<->60min (Nativ)", 3))
+groups <- c(rep("10min", 3), rep("60min", 3), rep("10min<->60min (E)", 3), rep("10min<->60min (N)", 3))
 
 expression_df <- data.frame(Experiments = experiments, Groups = groups, mecA = mecA_expression)
 
-ggplot(data = expression_df, aes(x = Experiments, y = mecA, fill = Groups)) +
+ggplot(data = expression_df, aes(x = fct_inorder(Experiments), y = mecA, fill = Groups)) +
   geom_bar(stat = "identity") +
-  geom_text(aes(label = round(mecA, 1)), vjust = 1.6 * sign(mecA_expression), color = "white", size = 3.5) +
+  geom_text(aes(label = round(mecA, 1)), vjust = -1.6 * sign(mecA_expression), color = "dimgray", size = 3.5) +
   theme(legend.position = "right", axis.text.x = element_text(angle = -45, hjust = 0, vjust = 0.5, size = 10),
         plot.title = element_text(hjust = 0.5)) +
   ggtitle(bquote(paste(italic("mec"), "A"))) +
   xlab("Experiments") +
-  ylab("FC") +
-  scale_x_discrete(labels = c("C01" = "Serum", "C02" = "Ammoniak", "C03" = "Ammoniak+Serum", "C04" = "Serum", "C05" = "Ammoniak", "C06" = "Ammoniak+Serum", "C07" = "Serum", "C08" = "Ammoniak", "C09" = "Ammoniak+Serum", "C10" = "Serum (Nativ)", "C11" = "Ammoniak (Nativ)", "C12" = "Ammoniak+Serum (Nativ)"))
+  ylab("log2FC") +
+  scale_x_discrete(labels = c("C01" = "Serum", "C02" = "Ammonia", "C03" = "Ammonia+Serum", "C04" = "Serum", "C05" = "Ammonia", "C06" = "Ammonia+Serum", "C07" = "Serum (E)", "C08" = "Ammonia (E)", "C09" = "Ammonia+Serum (E)", "C10" = "Serum (N)", "C11" = "Ammonia (N)", "C12" = "Ammonia+Serum (N)"))
 
-ggsave("mecA.png", width = 15, height = 10)
+ggsave("mecA.png", height = 10, width = 10)
+
+# Complete cassette
+
+ids_short <- 1957:2018
+ids_mrsa <- paste("SAPI_0", ids_short, sep = "")
+
+FC4_C01[FC4_C01$ID %in% ids_mrsa, 1]
+FC4_C02[FC4_C02$ID %in% ids_mrsa, 1]
+FC4_C03[FC4_C03$ID %in% ids_mrsa, 1]
+FC4_C04[FC4_C04$ID %in% ids_mrsa, 1]
+FC4_C05[FC4_C05$ID %in% ids_mrsa, 1]
+FC4_C06[FC4_C06$ID %in% ids_mrsa, 1]
+FC4_C07[FC4_C07$ID %in% ids_mrsa, 1]
+FC4_C08[FC4_C08$ID %in% ids_mrsa, 1]
+FC4_C09[FC4_C09$ID %in% ids_mrsa, 1]
+FC4_C10[FC4_C10$ID %in% ids_mrsa, 1]
+FC4_C11[FC4_C11$ID %in% ids_mrsa, 1]
+FC4_C12[FC4_C12$ID %in% ids_mrsa, 1]
+
+samples <- c("A[10]", "AS[10]", "S[10]","AN[10]", "ASN[10]", "SN[10]", "A[60]", "AS[60]", "S[60]","AN[60]", "ASN[60]", "SN[60]")
+samples_short <- c("A", "AS", "S","AN", "ASN", "SN", "A", "AS", "S","AN", "ASN", "SN")
+groups <- c(rep("10min", 6), rep("60min", 6))
+
+expression_df_new <- data.frame(Samples = samples, Groups = groups)
+
+gene_names <- rep("", 2)
+i = 3
+for (gene in ids_mrsa){
+  gene_names[i] <- ""
+  tpm <- rep(0, 12)
+  if (length(C02[C02$ID == gene, 15]) != 0) {
+    tpm[1] <- C02[C02$ID == gene, 15]
+    gene_names[i] <- as.character(C02[C02$ID == gene, 2])
+  }
+  if (length(C03[C03$ID == gene, 15]) != 0) {
+    tpm[2] <- C03[C03$ID == gene, 15]
+  }
+  if (length(C01[C01$ID == gene, 15]) != 0) {
+    tpm[3] <- C01[C01$ID == gene, 15]
+  }
+  if (length(C11[C11$ID == gene, 14]) != 0) {
+    tpm[4] <- C11[C11$ID == gene, 14]
+  }
+  if (length(C12[C12$ID == gene, 14]) != 0) {
+    tpm[5] <- C12[C12$ID == gene, 14]
+  }
+  if (length(C10[C10$ID == gene, 14]) != 0) {
+    tpm[6] <- C10[C10$ID == gene, 14]
+  }
+  if (length(C05[C05$ID == gene, 15]) != 0) {
+    tpm[7] <- C05[C05$ID == gene, 15]
+  }
+  if (length(C06[C06$ID == gene, 15]) != 0) {
+    tpm[8] <- C06[C06$ID == gene, 15]
+  }
+  if (length(C04[C04$ID == gene, 15]) != 0) {
+    tpm[9] <- C04[C04$ID == gene, 15]
+  }
+  if (length(C11[C11$ID == gene, 15]) != 0) {
+    tpm[10] <- C11[C11$ID == gene, 15]
+  }
+  if (length(C12[C12$ID == gene, 15]) != 0) {
+    tpm[11] <- C12[C12$ID == gene, 15]
+  }
+  if (length(C10[C10$ID == gene, 15]) != 0) {
+    tpm[12] <- C10[C10$ID == gene, 15]
+  }
+  expression_df_new[, i] <- tpm
+  i = i + 1
+}
+
+colnames(expression_df_new) <- c("Samples", "Group", ids_mrsa)
+
+j = 1
+for (symbol in gene_names) {
+  if (nchar(symbol) != 0) {
+    colnames(expression_df_new)[j]  <- symbol
+  }
+  j = j + 1
+}
+
+rownames(expression_df_new) <- samples
+
+#df_transposed <- as.data.frame(t(as.matrix(expression_df_new[,c(-1, -2)])))
+
+pheatmap(log(expression_df_new[3:64] + 1, 2),
+         #annotation_row = expression_df_new[2],
+         #annotation_col = expression_df_new,
+         #annotation_colors = my_colour,
+         border_color = "black",
+         #breaks = mybreaks,
+         cellheight = 10,
+         cellwidth = 10,
+         cluster_cols = FALSE,
+         cluster_rows = TRUE,
+         #color = rev(heat.colors(100)),
+         file = "pheatmap_sccmec.png",
+         fontsize_col = 8,
+         fontsize_row = 8,
+         #gaps_row = c(5, 9, 15, 30),
+         #gaps_col = c(4),
+         main = "SCCmec cassette",
+         #scale = "row",
+         show_rownames = TRUE,
+         #labels_col = names,
+         #labels_row = M8_S2_Full[1]
+)
+
+rowSums(expression_df_new[,3:64])
+write.table(expression_df_new, file = "sccmec_expression.tsv", dec = ",", sep = "\t")
+
+# Reference Framework
+ids_ref <- c(paste("000", c(1:9), sep = ""), paste("00", c(10:99), sep = ""), paste("0", c(100:999), sep = ""), c(1000:2940))
+ids_ref_full <- paste("SAPI_0", ids_ref, sep = "")
+
+# First Venn Diagram
+Ten1 <- merge(FC4_C01, FC4_C02, by = "ID", all = TRUE)
+Ten2 <- merge(Ten1, FC4_C03, by = "ID", all = TRUE)
+Ten3 <- Ten2[c(5,25,45)]
+rownames(Ten3) <- Ten2$ID
+Ten3[is.na(Ten3)] = 0
+Ten3[Ten3 == "1"] = 1
+Ten3[Ten3 == "-1"] = 1
+
+for (id in ids_ref_full) {
+  if (!(id %in% rownames(Ten3))) {
+    pos = nrow(Ten3) + 1
+    Ten3[pos, ] = c(0, 0, 0)
+    rownames(Ten3)[pos] <- id
+  }
+}
+
+names_V6 <- c("Serum", "Ammonia", "Ammonia+Serum")
+V6 <- vennCounts(Ten3)
+png(filename = "venn_diagram_10min.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(V6, circle.col = c("red", "blue", "green"), main = "\nDEG Overlap (10min)", names = names_V6, cex = 1.1)
+dev.off()
+
+# Second Venn Diagram
+Sixty1 <- merge(FC4_C04, FC4_C05, by = "ID", all = TRUE)
+Sixty2 <- merge(Sixty1, FC4_C06, by = "ID", all = TRUE)
+Sixty3 <- Sixty2[c(5,25,45)]
+rownames(Sixty3) <- Sixty2$ID
+Sixty3[is.na(Sixty3)] = 0
+Sixty3[Sixty3 == "1"] = 1
+Sixty3[Sixty3 == "-1"] = 1
+
+for (id in ids_ref_full) {
+  if (!(id %in% rownames(Sixty3))) {
+    pos = nrow(Sixty3) + 1
+    Sixty3[pos, ] = c(0, 0, 0)
+    rownames(Sixty3)[pos] <- id
+  }
+}
+
+names_V7 <- c("Serum", "Ammonia", "Ammonia+Serum")
+V7 <- vennCounts(Sixty3)
+png(filename = "venn_diagram_60min.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(V7, circle.col = c("red", "blue", "green"), main = "\nDEG Overlap (60min)", names = names_V7, cex = 1.1)
+dev.off()
+
+# Third Venn Diagram
+Experiments1 <- merge(FC4_C07, FC4_C08, by = "ID", all = TRUE)
+Experiments2 <- merge(Experiments1, FC4_C09, by = "ID", all = TRUE)
+Experiments3 <- Experiments2[c(5,25,45)]
+rownames(Experiments3) <- Experiments2$ID
+Experiments3[is.na(Experiments3)] = 0
+Experiments3[Experiments3 == "1"] = 1
+Experiments3[Experiments3 == "-1"] = 1
+
+for (id in ids_ref_full) {
+  if (!(id %in% rownames(Experiments3))) {
+    pos = nrow(Experiments3) + 1
+    Experiments3[pos, ] = c(0, 0, 0)
+    rownames(Experiments3)[pos] <- id
+  }
+}
+
+names_V8 <- c("Serum", "Ammonia", "Ammonia+Serum")
+V8 <- vennCounts(Experiments3)
+png(filename = "venn_diagram_10_60min_exp.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(V8, circle.col = c("red", "blue", "green"), main = "\nDEG Overlap (10<->60min) (E)", names = names_V8, cex = 1.1)
+dev.off()
+
+# Forth Venn Diagram
+Native1 <- merge(FC4_C10, FC4_C11, by = "ID", all = TRUE)
+Native2 <- merge(Native1, FC4_C12, by = "ID", all = TRUE)
+Native3 <- Native2[c(5,25,45)]
+rownames(Native3) <- Native2$ID
+Native3[is.na(Native3)] = 0
+Native3[Native3 == "1"] = 1
+Native3[Native3 == "-1"] = 1
+
+for (id in ids_ref_full) {
+  if (!(id %in% rownames(Native3))) {
+    pos = nrow(Native3) + 1
+    Native3[pos, ] = c(0, 0, 0)
+    rownames(Native3)[pos] <- id
+  }
+}
+
+names_V9 <- c("Serum", "Ammonia", "Ammonia+Serum")
+V9 <- vennCounts(Native3)
+png(filename = "venn_diagram_10_60min_nat.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(V9, circle.col = c("red", "blue", "green"), main = "\nDEG Overlap (10<->60min) (N)", names = names_V9, cex = 1.1)
+dev.off()
+
+# COVERAGE ANALYSIS
+
+setwd("../../deg/")
+
+CS1 <- read.csv(file = "0.2/summary.tsv", header = TRUE, sep = "\t")
+CS2 <- read.csv(file = "0.4/summary.tsv", header = TRUE, sep = "\t")
+CS3 <- read.csv(file = "0.6/summary.tsv", header = TRUE, sep = "\t")
+CS4 <- read.csv(file = "0.8/summary.tsv", header = TRUE, sep = "\t")
+CS5 <- read.csv(file = "1.0/summary.tsv", header = TRUE, sep = "\t")
+
+C1 <- read.csv(file = "0.2/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C2 <- read.csv(file = "0.4/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C3 <- read.csv(file = "0.6/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C4 <- read.csv(file = "0.8/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+C5 <- read.csv(file = "1.0/deg_summary.csv", header = TRUE, sep = ",", row.names = 1)
+
+values <- c(C1$DEGs[1], C2$DEGs[1], C3$DEGs[1], C4$DEGs[1], C5$DEGs[1],
+            C1$DEGs[2], C2$DEGs[2], C3$DEGs[2], C4$DEGs[2], C5$DEGs[2],
+            C1$DEGs[3], C2$DEGs[3], C3$DEGs[3], C4$DEGs[3], C5$DEGs[3],
+            C1$DEGs[4], C2$DEGs[4], C3$DEGs[4], C4$DEGs[4], C5$DEGs[4],
+            C1$DEGs[5], C2$DEGs[5], C3$DEGs[5], C4$DEGs[5], C5$DEGs[5],
+            C1$DEGs[6], C2$DEGs[6], C3$DEGs[6], C4$DEGs[6], C5$DEGs[6],
+            C1$DEGs[7], C2$DEGs[7], C3$DEGs[7], C4$DEGs[7], C5$DEGs[7]
+            )
+
+tools <- c(rep("baySeq", 5), rep("DESeq2", 5), rep("edgeR", 5),
+           rep("limma", 5), rep("NOISeq", 5), rep("sleuth", 5),
+           rep("SCORE", 5)
+           )
+
+coverages <- c(rep(c("0.2", "0.4", "0.6", "0.8", "1.0"), 7))
+
+coverage_df <- data.frame(tools = tools, coverage = coverages, DEGs = values)
+
+ggplot(coverage_df, aes(x = coverage, y = DEGs, group = tools)) +
+  geom_line(aes(color = tools)) +
+  geom_point(aes(color = tools)) +
+  ggtitle("Predicted DEGs at various sequencing depths") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+b1 <- CS1[CS1$corrected.p.value..baySeq. < 0.05, ]
+b2 <- CS2[CS2$corrected.p.value..baySeq. < 0.05 & !(CS2$ID %in% b1$ID), ]
+b3 <- CS3[CS3$corrected.p.value..baySeq. < 0.05 & !(CS3$ID %in% b1$ID) & !(CS3$ID %in% b2$ID), ]
+b4 <- CS4[CS4$corrected.p.value..baySeq. < 0.05 & !(CS4$ID %in% b1$ID) & !(CS4$ID %in% b2$ID) & !(CS4$ID %in% b3$ID), ]
+b5 <- CS5[CS5$corrected.p.value..baySeq. < 0.05 & !(CS5$ID %in% b1$ID) & !(CS5$ID %in% b2$ID) & !(CS5$ID %in% b3$ID) & !(CS5$ID %in% b4$ID), ]
+
+d1 <- CS1[CS1$corrected.p.value..DESeq2. < 0.05, ]
+d2 <- CS2[CS2$corrected.p.value..DESeq2. < 0.05 & !(CS2$ID %in% d1$ID), ]
+d3 <- CS3[CS3$corrected.p.value..DESeq2. < 0.05 & !(CS3$ID %in% d1$ID) & !(CS3$ID %in% d2$ID), ]
+d4 <- CS4[CS4$corrected.p.value..DESeq2. < 0.05 & !(CS4$ID %in% d1$ID) & !(CS4$ID %in% d2$ID) & !(CS4$ID %in% d3$ID), ]
+d5 <- CS5[CS5$corrected.p.value..DESeq2. < 0.05 & !(CS5$ID %in% d1$ID) & !(CS5$ID %in% d2$ID) & !(CS5$ID %in% d3$ID) & !(CS5$ID %in% d4$ID), ]
+
+e1 <- CS1[CS1$corrected.p.value..edgeR. < 0.05, ]
+e2 <- CS2[CS2$corrected.p.value..edgeR. < 0.05 & !(CS2$ID %in% e1$ID), ]
+e3 <- CS3[CS3$corrected.p.value..edgeR. < 0.05 & !(CS3$ID %in% e1$ID) & !(CS3$ID %in% e2$ID), ]
+e4 <- CS4[CS4$corrected.p.value..edgeR. < 0.05 & !(CS4$ID %in% e1$ID) & !(CS4$ID %in% e2$ID) & !(CS4$ID %in% e3$ID), ]
+e5 <- CS5[CS5$corrected.p.value..edgeR. < 0.05 & !(CS5$ID %in% e1$ID) & !(CS5$ID %in% e2$ID) & !(CS5$ID %in% e3$ID) & !(CS5$ID %in% e4$ID), ]
+
+l1 <- CS1[CS1$corrected.p.value..limma. < 0.05, ]
+l2 <- CS2[CS2$corrected.p.value..limma. < 0.05 & !(CS2$ID %in% l1$ID), ]
+l3 <- CS3[CS3$corrected.p.value..limma. < 0.05 & !(CS3$ID %in% l1$ID) & !(CS3$ID %in% l2$ID), ]
+l4 <- CS4[CS4$corrected.p.value..limma. < 0.05 & !(CS4$ID %in% l1$ID) & !(CS4$ID %in% l2$ID) & !(CS4$ID %in% l3$ID), ]
+l5 <- CS5[CS5$corrected.p.value..limma. < 0.05 & !(CS5$ID %in% l1$ID) & !(CS5$ID %in% l2$ID) & !(CS5$ID %in% l3$ID) & !(CS5$ID %in% l4$ID), ]
+
+n1 <- CS1[CS1$corrected.p.value..NOISeq. < 0.05, ]
+n2 <- CS2[CS2$corrected.p.value..NOISeq. < 0.05 & !(CS2$ID %in% n1$ID), ]
+n3 <- CS3[CS3$corrected.p.value..NOISeq. < 0.05 & !(CS3$ID %in% n1$ID) & !(CS3$ID %in% n2$ID), ]
+n4 <- CS4[CS4$corrected.p.value..NOISeq. < 0.05 & !(CS4$ID %in% n1$ID) & !(CS4$ID %in% n2$ID) & !(CS4$ID %in% n3$ID), ]
+n5 <- CS5[CS5$corrected.p.value..NOISeq. < 0.05 & !(CS5$ID %in% n1$ID) & !(CS5$ID %in% n2$ID) & !(CS5$ID %in% n3$ID) & !(CS5$ID %in% n4$ID), ]
+
+sc1 <- CS1[CS1$DE..SCORE....1..LB...PF..1..LB...PF. != 0, ]
+sc2 <- CS2[CS2$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS2$ID %in% sc1$ID), ]
+sc3 <- CS3[CS3$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS3$ID %in% sc1$ID) & !(CS3$ID %in% sc2$ID), ]
+sc4 <- CS4[CS4$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS4$ID %in% sc1$ID) & !(CS4$ID %in% sc2$ID) & !(CS4$ID %in% sc3$ID), ]
+sc5 <- CS5[CS5$DE..SCORE....1..LB...PF..1..LB...PF. != 0 & !(CS5$ID %in% sc1$ID) & !(CS5$ID %in% sc2$ID) & !(CS5$ID %in% sc3$ID) & !(CS5$ID %in% sc4$ID), ]
+
+sl1 <- CS1[CS1$corrected.p.value..sleuth. < 0.05, ]
+sl2 <- CS2[CS2$corrected.p.value..sleuth. < 0.05 & !(CS2$ID %in% sl1$ID), ]
+sl3 <- CS3[CS3$corrected.p.value..sleuth. < 0.05 & !(CS3$ID %in% sl1$ID) & !(CS3$ID %in% sl2$ID), ]
+sl4 <- CS4[CS4$corrected.p.value..sleuth. < 0.05 & !(CS4$ID %in% sl1$ID) & !(CS4$ID %in% sl2$ID) & !(CS4$ID %in% sl3$ID), ]
+sl5 <- CS5[CS5$corrected.p.value..sleuth. < 0.05 & !(CS5$ID %in% sl1$ID) & !(CS5$ID %in% sl2$ID) & !(CS5$ID %in% sl3$ID) & !(CS5$ID %in% sl4$ID), ]
+
+values_2 <- c(nrow(b1), nrow(b2), nrow(b3), nrow(b4), nrow(b5),
+            nrow(d1), nrow(d2), nrow(d3), nrow(d4), nrow(d5),
+            nrow(e1), nrow(e2), nrow(e3), nrow(e4), nrow(e5),
+            nrow(l1), nrow(l2), nrow(l3), nrow(l4), nrow(l5),
+            nrow(n1), nrow(n2), nrow(n3), nrow(n4), nrow(n5),
+            nrow(sc1), nrow(sc2), nrow(sc3), nrow(sc4), nrow(sc5),
+            nrow(sl1), nrow(sl2), nrow(sl3), nrow(sl4), nrow(sl5)
+            )
+
+coverage_df_2 <- data.frame(tools = tools, coverage = coverages, DEGs = values_2)
+
+ggplot(coverage_df_2, aes(x = coverage, y = DEGs, group = tools)) +
+  geom_line(aes(color = tools)) +
+  geom_point(aes(color = tools)) +
+  ggtitle("Newly discovered DEGs at various sequencing depths") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 # Exporting
 

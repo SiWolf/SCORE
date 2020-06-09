@@ -4,4 +4,7 @@
 *
 # Add an exception for this file
 !Metadata.tsv
+!Metadata_Houser_et_al.tsv
+!Metadata_Peyrusson_et_al.tsv
+!Metadata_Rodman_et_al.tsv
 !.gitignore

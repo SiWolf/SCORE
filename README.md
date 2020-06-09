@@ -14,6 +14,8 @@
 
 ## 1. Setup
 
+### 1.1 Manual Setup
+
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 **Dependencies:**
@@ -33,6 +35,25 @@ Then run the installation script:
 
 ```
 ./libraries/miscellaneous/install.sh
+```
+
+### 1.2 Docker Image
+
+Alternatively, SCORE can be installed via Docker.
+
+**Dependencies:**
+* [Docker](https://www.docker.com/)
+
+Use the following command to install the SCORE docker container:
+
+```
+docker pull siwolf/score
+```
+
+And run SCORE:
+
+```
+docker run --rm -it -v <path_to_data>:/raw siwolf/score score
 ```
 
 ## 2. Usage
@@ -56,7 +77,23 @@ And run SCORE:
 
 For more details please refer to our [wiki](https://github.com/SiWolf/SCORE/wiki).
 
-## 3. FAQ
+## 3. Test data
+
+The current version of SCORE includes configuration files for downloading and analyzing a selection of published data sets:
+
+1. Houser, John R., et al. "Controlled measurement and comparative analysis of cellular components in E. coli reveals broad regulatory changes in response to glucose starvation." *PLoS computational biology* 11.8 (2015).
+2. Peyrusson, Frédéric, et al. "Intracellular Staphylococcus aureus persisters upon antibiotic exposure." *Nature Communications* 11.1 (2020): 1-14.
+3. Rodman, Nyah, et al. "Human pleural fluid elicits pyruvate and phenylalanine metabolism in Acinetobacter baumannii to enhance cytotoxicity and immune evasion." *Frontiers in microbiology* 10 (2019): 1581.
+
+The following command can be used to download the data and run SCORE:
+
+```
+./run-SCORE-test.sh <amount_of_threads> <study_number>
+```
+
+Downloads provided by [SRA-Explorer](https://sra-explorer.info/).
+
+## 4. FAQ
 
 **How can I compute the total runtime of my analysis?**
 
@@ -89,6 +126,6 @@ Please cite the following:
 
 Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin.
 
-## 4. License
+## 5. License
 
 This project is licensed under the GPLv3 License. See the [LICENSE](LICENSE) file for more details.

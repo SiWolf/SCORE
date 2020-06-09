@@ -4,19 +4,19 @@
 # --------------
 # BASIC SETTINGS
 # --------------
-analysis_name: A1
+analysis_name: Peyrusson
 analysis_input_dir: raw/
 analysis_output_dir: deg/
-metadata_file: raw/Metadata.tsv
+metadata_file: raw/Metadata_Peyrusson_et_al.tsv
 param_threshold: 0.05
-param_total_genes: 5000
-ref_annotation_file: references/REF.gff
+param_total_genes: 2800
+ref_annotation_file: references/GCF_000013425.1_ASM1342v1_genomic.gff
 ref_annotation_feature: gene
 ref_annotation_identifier: locus_tag
-ref_genome: references/REF.fasta
+ref_genome: references/GCF_000013425.1_ASM1342v1_genomic.fna
 genescf_organism: prokaryota
 genescf_go_db: ecocyc
-genescf_kegg_db: eco
+genescf_kegg_db: sau
 # -----------------
 # ADVANCED SETTINGS
 # -----------------
@@ -27,7 +27,7 @@ flexbar_min_qual: 20
 # MISCELLANEOUS
 kallisto_bootstrap: 100
 kallisto_length_deviation: 5
-kallisto_read_length: 150
+kallisto_read_length: 65
 genescf_path: ./libraries/geneSCF/geneSCF
 ncbi_genetic_code_table: 11
 noiseq_biological_replicates: TRUE
