@@ -47,13 +47,13 @@ Alternatively, SCORE can be installed via Docker.
 Use the following command to install the SCORE docker container:
 
 ```
-docker pull siwolf/score
+docker pull eppinglen/score
 ```
 
 And run SCORE:
 
 ```
-docker run --rm -it -v <path_to_data>:/raw siwolf/score score
+docker run --rm -it -v <directory with reads and metadata>:/SCORE/raw -v <references genomes directory>:/SCORE/references -v <output directory>:/SCORE/deg -w /SCORE score:v1 /bin/bash run-SCORE.sh <amount_of_threads> <PE/SE>
 ```
 
 ## 2. Usage
