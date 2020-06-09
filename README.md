@@ -56,6 +56,10 @@ And run SCORE:
 docker run --rm -it -v <directory with reads and metadata>:/SCORE/raw -v <references genomes directory>:/SCORE/references -v <output directory>:/SCORE/deg -w /SCORE score:v1 /bin/bash run-SCORE.sh <amount_of_threads> <PE/SE>
 ```
 
+Test data:
+```
+docker run --rm -it -v <output directory>:/SCORE/deg -w /SCORE score:v1 /bin/bash run-SCORE-test.sh <amount_of_threads> <study_number>
+```
 ## 2. Usage
 
 **Requirements:**
