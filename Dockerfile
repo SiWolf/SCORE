@@ -6,7 +6,7 @@ FROM continuumio/miniconda
 RUN conda update -y conda
 RUN conda config --add channels conda-forge \
     && conda config --add channels bioconda \
-    && conda install -y python=3.6 snakemake=4.6.0 curl graphviz libuuid
+    && conda install -y python=3.6 snakemake=4.6.0 gffutils curl graphviz libuuid
 
 #Get the latest code from github and install
 RUN git clone https://github.com/SiWolf/SCORE

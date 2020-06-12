@@ -20,6 +20,7 @@ Download and extract the latest stable release of SCORE from [here](https://gith
 
 **Dependencies:**
 * [Anaconda](https://anaconda.org/) or [Miniconda](https://conda.io/en/latest/miniconda.html)
+* [gffutils](http://daler.github.io/gffutils/installation.html)
 * [Python 3](https://www.python.org/)
 * [Snakemake](https://snakemake.readthedocs.io/en/stable/) (< 4.6.0)
 

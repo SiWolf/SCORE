@@ -1,8 +1,0 @@
-name: score_preproc_env
-channels:
-  - r
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - gffutils=0.10.1
