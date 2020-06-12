@@ -14,6 +14,8 @@
 
 ## 1. Setup
 
+### 1.1 Manual Setup
+
 Download and extract the latest stable release of SCORE from [here](https://github.com/SiWolf/SCORE/releases).
 
 **Dependencies:**
@@ -33,6 +35,36 @@ Then run the installation script:
 
 ```
 ./libraries/miscellaneous/install.sh
+```
+
+### 1.2 Docker Image
+
+Alternatively, SCORE can be installed via Docker.
+
+**Dependencies:**
+* [Docker](https://www.docker.com/)
+
+Use the following command to install the SCORE docker container:
+
+```
+docker pull eppinglen/score:v1
+```
+
+Download and edit the SCORE config file:
+
+```
+wget https://github.com/SiWolf/SCORE/blob/master/config.yaml
+```
+
+And run SCORE for your data:
+
+```
+sudo docker run --rm -it -v <your config.yaml>:/SCORE/config.yaml  -v <directory with reads and metadata>:/SCORE/raw -v <references genomes directory>:/SCORE/references -v <output directory>:/SCORE/deg -w /SCORE eppinglen/score:v1 /bin/bash run-SCORE.sh <amount_of_threads> <PE/SE>
+```
+
+Or for the test data:
+```
+sudo docker run --rm -it -v <output directory>:/SCORE/deg -w /SCORE eppinglen/score:v1 /bin/bash run-SCORE-test.sh <amount_of_threads> <study_number>
 ```
 
 ## 2. Usage
@@ -64,11 +96,13 @@ The current version of SCORE includes configuration files for downloading and an
 2. Peyrusson, Frédéric, et al. "Intracellular Staphylococcus aureus persisters upon antibiotic exposure." *Nature Communications* 11.1 (2020): 1-14.
 3. Rodman, Nyah, et al. "Human pleural fluid elicits pyruvate and phenylalanine metabolism in Acinetobacter baumannii to enhance cytotoxicity and immune evasion." *Frontiers in microbiology* 10 (2019): 1581.
 
-The following command can be used to run SCORE on these:
+The following command can be used to download the data and run SCORE:
 
 ```
 ./run-SCORE-test.sh <amount_of_threads> <study_number>
 ```
+
+Downloads provided by [SRA-Explorer](https://sra-explorer.info/).
 
 ## 4. FAQ
 

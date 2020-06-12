@@ -5,6 +5,8 @@
 # BASIC SETTINGS
 # --------------
 analysis_name: A1
+analysis_input_dir: raw/
+analysis_output_dir: deg/
 metadata_file: raw/Metadata.tsv
 param_threshold: 0.05
 param_total_genes: 5000

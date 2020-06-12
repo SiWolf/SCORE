@@ -5,6 +5,8 @@
 # BASIC SETTINGS
 # --------------
 analysis_name: Rodman
+analysis_input_dir: raw/
+analysis_output_dir: deg/
 metadata_file: raw/Metadata_Rodman_et_al.tsv
 param_threshold: 0.05
 param_total_genes: 4000
