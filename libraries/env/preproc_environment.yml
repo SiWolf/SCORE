@@ -1,0 +1,4 @@
+channels:
+  - bioconda
+dependencies:
+  - gffutils=0.10.1
