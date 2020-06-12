@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_SE.snk
 # Author: Silver A. Wolf
-# Last Modified: Mo, 08.06.2020
-# Version: 0.9.8
+# Last Modified: Fr, 12.06.2020
+# Version: 0.9.9
 # Usage:
 #		time snakemake -s "SCORE_SE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -223,14 +223,10 @@ if initial_check == True:
 # Or to use own reference transcriptome
 if GENERATE_TRANSCRIPTOME == True:
 	os.system("rm " + REF_TRANSCRIPTOME + "*")
-	os.system("python3 libraries/miscellaneous/generate_transcriptome.py -a " + REF_ANNOTATION_FEATURE_ID + " -f " + REF_FASTA + " -g " + REF_ANNOTATION + " -i " + REF_ANNOTATION_GENE_ID + " -t " + REF_TRANSCRIPTOME)
+	REF_TRANSCRIPTOME_ = REF_TRANSCRIPTOME
 else:
-	# Rename transcripts in the reference transcriptome for later analysis
-	# Checks for user-specified ID in headers of fasta entries
-	# Iff these cannot be found: Removes spaces in the headers as an alternative
-	# Also performs duplicate check and filters duplicated IDs (keeps first entry with specific ID)
-	os.system("python3 libraries/miscellaneous/preprocess_transcriptome.py -f " + REF_TRANSCRIPTOME + " -i " + REF_ANNOTATION_GENE_ID)
-	REF_TRANSCRIPTOME = REF_TRANSCRIPTOME + ".tmp"
+	os.system("rm " + REF_TRANSCRIPTOME + ".tmp")
+	REF_TRANSCRIPTOME_ = REF_TRANSCRIPTOME + ".tmp"
 
 # gzip raw reads in case some of them were not previously compressed
 os.system("gzip -f " + INPUT_DIR + "*.fastq")
@@ -249,7 +245,8 @@ SAMPLES = SAMPLES_AND_CONDITIONS.keys()
 rule DEG_postprocessing:
 	input:
 		"deg/pathway_analysis_GO",
-		"deg/pathway_analysis_KEGG"
+		"deg/pathway_analysis_KEGG",
+		REF_TRANSCRIPTOME_
 	conda:
 		"libraries/env/score_summary_environment.yml"
 	shell:
@@ -258,7 +255,7 @@ rule DEG_postprocessing:
 		multiqc fastqc/*_raw -q -i qc_raw_samples -o fastqc/multiqc
 		multiqc fastqc/*_trimmed -q -i qc_trimmed_samples -o fastqc/multiqc
 		# Generate initial summary file
-		python3 libraries/miscellaneous/generate_summary.py -c {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA} -t {REF_TRANSCRIPTOME}
+		python3 libraries/miscellaneous/generate_summary.py -c {PARAM_NCBI_GENETIC_CODE_TABLE} -m {METADATA} -t {input[2]}
 		# Analyze proteins using TIGRFAM DB
 		hmmpress -f {REF_TIGRFAM_DB}
 		hmmscan -o deg/hmmer_log.txt --domtblout deg/hmmer_output.txt {REF_TIGRFAM_DB} deg/proteins.fasta
@@ -338,7 +335,7 @@ rule pathway_analysis_preprocessing:
 # UpsetR (1.4.0)
 rule DEG_analysis:
 	input:
-		expand("mapped/bowtie2/featureCounts/{sample}/", sample = SAMPLES)
+		expand("mapped/bowtie2/featureCounts/{sample}/counts_{sample}", sample = SAMPLES)
 	output:
 		"deg/deg_analysis_graphs.pdf"
 	conda:
@@ -366,7 +363,7 @@ rule counting:
 	input:
 		"mapped/bowtie2/{sample}.sam"
 	output:
-		"mapped/bowtie2/featureCounts/{sample}/"
+		"mapped/bowtie2/featureCounts/{sample}/counts_{sample}"
 	conda:
 		"libraries/env/score_count_environment.yml"
 	threads:
@@ -374,7 +371,7 @@ rule counting:
 	shell:
 		"""
 		featureCounts -T {threads} -a {REF_ANNOTATION} -o counts_{wildcards.sample} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}
-		mv counts_{wildcards.sample}* {output}
+		#mv counts_{wildcards.sample}* {output}
 		"""
 
 # Mapping
@@ -391,7 +388,8 @@ rule counting:
 # -----------------------------------
 rule mapping:
 	input:
-		"trimmed/{sample}_trimmed.fastq.gz"
+		"trimmed/{sample}_trimmed.fastq.gz",
+		REF_TRANSCRIPTOME_
 	output:
 		"mapped/bowtie2/{sample}.sam"
 	conda:
@@ -408,7 +406,7 @@ rule mapping:
 				hisat2-build -p {threads} -q {REF_FASTA} {REF_INDEX}_{wildcards.sample}
 				hisat2 -x {REF_INDEX}_{wildcards.sample} -U {input} -p {threads} -S {output}
 		fi
-		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {REF_TRANSCRIPTOME}
+		kallisto index -i {REF_INDEX}_{wildcards.sample}_kallisto.idx {input[1]}
 		kallisto quant -i {REF_INDEX}_{wildcards.sample}_kallisto.idx -o mapped/kallisto/{wildcards.sample}/ -b {PARAM_KALLISTO_BOOTSTRAP} -t {threads} --single -l {PARAM_KALLISTO_READ_LENGTH} -s {PARAM_KALLISTO_READ_DEVIATION} {input}
 		rm {REF_INDEX}_{wildcards.sample}*
 		"""
@@ -426,7 +424,7 @@ rule quality_control_and_trimming:
 	conda:
 		"libraries/env/score_qc_environment.yml"
 	log:
-		"trimmed/logs/"
+		"trimmed/logs/{sample}/"
 	threads:
 		4
 	shell:
@@ -442,6 +440,35 @@ rule quality_control_and_trimming:
 		# Second FastQC
 		fastqc trimmed/{wildcards.sample}_trimmed.fastq.gz -o fastqc/{wildcards.sample}_trimmed/
 		"""
+
+rule generate_transcriptome:
+	input:
+		f = REF_FASTA,
+		g = REF_ANNOTATION
+	output:
+		REF_TRANSCRIPTOME
+	conda:
+		"libraries/env/score_preproc_environment.yml"
+	params:
+		i = REF_ANNOTATION_GENE_ID,
+		a = REF_ANNOTATION_FEATURE_ID
+	script:
+		"libraries/miscellaneous/generate_transcriptome.py"
+
+# Rename transcripts in the reference transcriptome for later analysis
+# Checks for user-specified ID in headers of fasta entries
+# Iff these cannot be found: Removes spaces in the headers as an alternative
+# Also performs duplicate check and filters duplicated IDs (keeps first entry with specific ID)
+rule preproc_transcriptome:
+	input:
+		i = REF_ANNOTATION_GENE_ID,
+	   	f = REF_TRANSCRIPTOME 
+	output:
+		REF_TRANSCRIPTOME + ".tmp"
+	conda:
+		"libraries/env/score_preproc_environment.yml"
+	script:
+		"libraries/miscellaneous/preprocess_transcriptome.py"
 
 onstart:
 	print("\n Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")

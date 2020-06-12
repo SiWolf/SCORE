@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_PE.snk
 # Author: Silver A. Wolf
-# Last Modified: Mo, 08.06.2020
-# Version: 0.9.8
+# Last Modified: Fr, 12.06.2020
+# Version: 0.9.9
 # Usage:
 #		time snakemake -s "SCORE_PE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -228,7 +228,6 @@ else:
 	os.system("rm " + REF_TRANSCRIPTOME + ".tmp")
 	REF_TRANSCRIPTOME_ = REF_TRANSCRIPTOME + ".tmp"
 
-
 # gzip raw reads in case some of them were not previously compressed
 os.system("gzip -f " + INPUT_DIR + "*.fastq")
 
@@ -372,7 +371,7 @@ rule counting:
 	shell:
 		"""
 		featureCounts -T {threads} -a {REF_ANNOTATION} -o counts_{wildcards.sample} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}
-#mv counts_{wildcards.sample}* {output}
+		#mv counts_{wildcards.sample}* {output}
 		"""
 
 # Mapping
@@ -453,7 +452,7 @@ rule generate_transcriptome:
 	output:
 		REF_TRANSCRIPTOME
 	conda:
-		"libraries/env/preproc_environment.yml"
+		"libraries/env/score_preproc_environment.yml"
 	params:
 		i = REF_ANNOTATION_GENE_ID,
 		a = REF_ANNOTATION_FEATURE_ID
@@ -471,10 +470,10 @@ rule preproc_transcriptome:
 	output:
 		REF_TRANSCRIPTOME + ".tmp"
 	conda:
-		"libraries/env/preproc_environment.yml"
+		"libraries/env/score_preproc_environment.yml"
 	script:
 		"libraries/miscellaneous/preprocess_transcriptome.py"
- 
+
 onstart:
 	print("\n Welcome to SCORE: Smart Consensus Of RNA-Seq Expression pipelines")
 	print(" Please ensure all input files are located within the raw/ folder and your parameters have been set accordingly.")
