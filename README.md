@@ -47,7 +47,7 @@ Alternatively, SCORE can be installed via Docker.
 Use the following command to install the SCORE docker container:
 
 ```
-docker pull eppinglen/score:v1
+docker pull eppinglen/score:v1.0.1
 ```
 
 Download and edit the SCORE config file:
@@ -59,12 +59,12 @@ wget https://github.com/SiWolf/SCORE/blob/master/config.yaml
 And run SCORE for your data:
 
 ```
-sudo docker run --rm -it -v <your config.yaml>:/SCORE/config.yaml  -v <directory with reads and metadata>:/SCORE/raw -v <references genomes directory>:/SCORE/references -v <output directory>:/SCORE/deg -w /SCORE eppinglen/score:v1 /bin/bash run-SCORE.sh <amount_of_threads> <PE/SE>
+sudo docker run --rm -it -v <your config.yaml>:/SCORE/config.yaml  -v <directory with reads and metadata>:/SCORE/raw -v <references genomes directory>:/SCORE/references -v <output directory>:/SCORE/deg -w /SCORE eppinglen/score:v1.0.1 /bin/bash run-SCORE.sh <amount_of_threads> <PE/SE>
 ```
 
 Or for the test data:
 ```
-sudo docker run --rm -it -v <output directory>:/SCORE/deg -w /SCORE eppinglen/score:v1 /bin/bash run-SCORE-test.sh <amount_of_threads> <study_number>
+sudo docker run --rm -it -v <output directory>:/SCORE/deg -w /SCORE eppinglen/score:v1.0.1 /bin/bash run-SCORE-test.sh <amount_of_threads> <study_number>
 ```
 
 ## 2. Usage
