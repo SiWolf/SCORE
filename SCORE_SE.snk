@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_SE.snk
 # Author: Silver A. Wolf
-# Last Modified: Fr, 12.06.2020
-# Version: 0.9.9
+# Last Modified: Wed, 17.06.2020
+# Version: 1.0.0
 # Usage:
 #		time snakemake -s "SCORE_SE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -373,7 +373,12 @@ rule counting:
 		4
 	shell:
 		"""
-		featureCounts -T {threads} -a {REF_ANNOTATION} -o {output} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}
+		if [ "{PARAM_ORGANISM}" = "prokaryota" ]
+		then
+				featureCounts -T {threads} -a {REF_ANNOTATION} -o {output} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}
+		else
+				featureCounts -T {threads} -a {REF_ANNOTATION} -o {output} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID} -O
+		fi
 		"""
 
 # Mapping
