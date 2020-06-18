@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: SCORE.R
 # Author: Silver A. Wolf
-# Last Modified: Wed, 15.04.2020
-# Version: 0.8.1
+# Last Modified: Wed, 17.06.2020
+# Version: 0.8.2
 # --------------------------------------------
 
 # Installers
@@ -135,13 +135,77 @@ calculate_tpm <- function(mode, transcript_counts, experiments){
     S4 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[4], "/abundance.tsv", sep = ""), header = TRUE)
     S5 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[5], "/abundance.tsv", sep = ""), header = TRUE)
     S6 <- read.table(file = paste("../mapped/kallisto/", metadata$V1[6], "/abundance.tsv", sep = ""), header = TRUE)
+    
+    # Verify that the kallisto labels have been correctly labeled
+    i = 1
+    s = c()
+    tmp <- strsplit(as.character(S1$target_id), "\\|")
+    for (t in tmp){
+      s[i] <- t[1]
+      i = i + 1
+    }
+    S1$target_id <- s
+    
+    i = 1
+    s = c()
+    tmp <- strsplit(as.character(S2$target_id), "\\|")
+    for (t in tmp){
+      s[i] <- t[1]
+      i = i + 1
+    }
+    S2$target_id <- s
+    
+    i = 1
+    s = c()
+    tmp <- strsplit(as.character(S3$target_id), "\\|")
+    for (t in tmp){
+      s[i] <- t[1]
+      i = i + 1
+    }
+    S3$target_id <- s
+    
+    i = 1
+    s = c()
+    tmp <- strsplit(as.character(S4$target_id), "\\|")
+    for (t in tmp){
+      s[i] <- t[1]
+      i = i + 1
+    }
+    S4$target_id <- s
+    
+    i = 1
+    s = c()
+    tmp <- strsplit(as.character(S5$target_id), "\\|")
+    for (t in tmp){
+      s[i] <- t[1]
+      i = i + 1
+    }
+    S5$target_id <- s
+    
+    i = 1
+    s = c()
+    tmp <- strsplit(as.character(S6$target_id), "\\|")
+    for (t in tmp){
+      s[i] <- t[1]
+      i = i + 1
+    }
+    S6$target_id <- s
+    
     for (gene in row.names(transcript_counts)) {
-      transcript_counts[row.names(transcript_counts) == gene, 1] <- S1[S1$target_id == gene, 5]
-      transcript_counts[row.names(transcript_counts) == gene, 2] <- S2[S2$target_id == gene, 5]
-      transcript_counts[row.names(transcript_counts) == gene, 3] <- S3[S3$target_id == gene, 5]
-      transcript_counts[row.names(transcript_counts) == gene, 4] <- S4[S4$target_id == gene, 5]
-      transcript_counts[row.names(transcript_counts) == gene, 5] <- S5[S5$target_id == gene, 5]
-      transcript_counts[row.names(transcript_counts) == gene, 6] <- S6[S6$target_id == gene, 5]
+      if (gene %in% S1$target_id) {
+        g1 <- S1[S1$target_id == gene, 5]
+        g2 <- S2[S2$target_id == gene, 5]
+        g3 <- S3[S3$target_id == gene, 5]
+        g4 <- S4[S4$target_id == gene, 5]
+        g5 <- S5[S5$target_id == gene, 5]
+        g6 <- S6[S6$target_id == gene, 5]
+      }
+      transcript_counts[row.names(transcript_counts) == gene, 1] <- g1
+      transcript_counts[row.names(transcript_counts) == gene, 2] <- g2
+      transcript_counts[row.names(transcript_counts) == gene, 3] <- g3
+      transcript_counts[row.names(transcript_counts) == gene, 4] <- g4
+      transcript_counts[row.names(transcript_counts) == gene, 5] <- g5
+      transcript_counts[row.names(transcript_counts) == gene, 6] <- g6
     }
   }
   return(transcript_counts)
@@ -221,6 +285,17 @@ export_results <- function(bayseq_result, deseq2_result, edger_result, limma_res
   write.csv(edger_result, file = "diffexpr_results_edger.csv")
   write.csv(limma_result, file = "diffexpr_results_limma.csv")
   write.csv(noiseq_result, file = "diffexpr_results_noiseq.csv")
+  
+  # sleuth requires some additional preprocessing
+  # For correctly identifying transcripts
+  i = 1
+  s = c()
+  tmp <- strsplit(as.character(sleuth_result$target_id), "\\|")
+  for (t in tmp){
+    s[i] <- t[1]
+    i = i + 1
+  }
+  sleuth_result$target_id <- s
   
   # Filtering sleuth -> gene subset
   # This will remove genes which did not pass the low expression filter
