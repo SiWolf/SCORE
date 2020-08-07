@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # Title: SCORE_PE.snk
 # Author: Silver A. Wolf
-# Last Modified: Wed, 17.06.2020
-# Version: 1.0.0
+# Last Modified: Fr, 07.08.2020
+# Version: 1.0.2
 # Usage:
 #		time snakemake -s "SCORE_PE.snk" -j {max_amount_of_threads} --use-conda
 # Additional options:
@@ -39,6 +39,7 @@ PARAM_DEG_WEIGHT_EDGER = config["weight_edger"]
 PARAM_DEG_WEIGHT_LIMMA = config["weight_limma"]
 PARAM_DEG_WEIGHT_NOISEQ = config["weight_noiseq"]
 PARAM_DEG_WEIGHT_SLEUTH = config["weight_sleuth"]
+PARAM_EXON = config["featurecounts_level"]
 PARAM_FLEXBAR_LENGTH = config["flexbar_min_length"]
 PARAM_FLEXBAR_QUAL = config["flexbar_min_qual"]
 PARAM_FLEXBAR_UNCALLED = config["flexbar_max_uncalled"]
@@ -112,7 +113,7 @@ def fetch_annotation_counts(count_file, gff_file, annotation_feature, id_tag):
 								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
 								if id == current_id:
 									product = fetch_gene_product(id, gff_line[8], gff_file)
-									if gff_line[8].split("ID=")[1].count("gene=") > 0:
+									if "gene=" in gff_line[8]:
 										gene = gff_line[8].split("gene=")[1].split(";")[0]
 									break
 				counts_extended.write(id + "," + gene + "," + product + "," + count_line[1] + "," + count_line[2] + "," + count_line[3] + "," + count_line[4] + "," + count_line[5] + "," + count_line[6] + "\n")
@@ -137,7 +138,7 @@ def fetch_annotation_diffexpr(gff_file, annotation_feature, id_tag):
 								current_id = gff_line[8].split(id_tag + "=")[1].split(";")[0]
 								if id == current_id:
 									product = fetch_gene_product(id, gff_line[8], gff_file)
-									if gff_line[8].split("ID=")[1].count("gene=") > 0:
+									if "gene=" in gff_line[8]:
 										gene = gff_line[8].split("gene=")[1].split(";")[0]
 									break
 				with open("deg/diffexpr_results_bayseq.csv") as bayseq_results:
@@ -373,11 +374,11 @@ rule counting:
 		4
 	shell:
 		"""
-		if [ "{PARAM_ORGANISM}" = "prokaryota" ]
+		if [ "{PARAM_EXON}" = "exon" ]
 		then
-				featureCounts -T {threads} -a {REF_ANNOTATION} -o {output} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}
-		else
 				featureCounts -T {threads} -a {REF_ANNOTATION} -o {output} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID} -O
+		else
+				featureCounts -T {threads} -a {REF_ANNOTATION} -o {output} {input} -t {REF_ANNOTATION_FEATURE_ID} -g {REF_ANNOTATION_GENE_ID}
 		fi
 		"""
 

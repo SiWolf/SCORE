@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 05.06.2020
-# Version: 0.3.7
+# Last Modified: Fr, 07.08.2020
+# Version: 0.3.9
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -1259,6 +1259,78 @@ pheatmap(h2_filtered[2:5],
          labels_row = h2_filtered$Gene
 )
 
+# Heatmaps August
+
+setwd("../../deg/")
+RO1 <- read.csv(file = "old/I1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RO2 <- read.csv(file = "old/I2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RO3 <- read.csv(file = "old/I3/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RO4 <- read.csv(file = "old/I4/summary.tsv", header = TRUE, sep = "\t", quote = "")
+
+RN1 <- read.csv(file = "new/I1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RN2 <- read.csv(file = "new/I2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RN3 <- read.csv(file = "new/I3/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RN4 <- read.csv(file = "new/I4/summary.tsv", header = TRUE, sep = "\t", quote = "")
+
+genes_of_interest_O <- c("Cd40", "Cd86", "Cd80", "Ccr7", "Tap2", "Rab27a", "Rac2")
+
+GOI_RO1 <- RO1[RO1$gene.name %in% genes_of_interest_O, ]
+GOI_RO2 <- RO2[RO2$gene.name %in% genes_of_interest_O, ]
+GOI_RO3 <- RO3[RO3$gene.name %in% genes_of_interest_O, ]
+GOI_RO4 <- RO4[RO4$gene.name %in% genes_of_interest_O, ]
+
+GOI_df <- data.frame(Gene = GOI_RO1$gene.name,
+                     log2FC_R1 = GOI_RO1$log2FC,
+                     log2FC_R2 = GOI_RO2$log2FC,
+                     log2FC_R3 = GOI_RO3$log2FC,
+                     log2FC_R4 = GOI_RO4$log2FC,
+                     TPM_R1 = GOI_RO1$Mean.TPM..Mock.,
+                     TPM_R2 = GOI_RO2$Mean.TPM..WT.,
+                     TPM_R3 = GOI_RO3$Mean.TPM..dXCL1.,
+                     TPM_R4 = GOI_RO4$Mean.TPM..UV.,
+                     TPM_Input = (GOI_RO1$Mean.TPM..Input. + GOI_RO2$Mean.TPM..Input. + GOI_RO3$Mean.TPM..Input. + GOI_RO4$Mean.TPM..Input.)/4
+                     )
+rownames(GOI_df) <- GOI_RO1$gene.name
+GOI_df <- GOI_df[match(genes_of_interest_O, GOI_df$Gene),]
+
+mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
+mybreaks <- c(seq(min(GOI_df[2:5]), 0, length.out = 25),
+              seq(max(GOI_df[2:5])/50, max(GOI_df[2:5]), length.out = 25)
+              )
+names <- c("Mock", "RCMV-E wt", expression(paste("RCMV-E ", Delta, italic("vxcl1"), sep = "")), "UV")
+
+pheatmap(GOI_df[2:5],
+         #annotation_row = df_GOI[2],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 50,
+         cellwidth = 50,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_august.png",
+         fontsize_col = 15,
+         fontsize_row = 15,
+         fontsize = 12,
+         #gaps_row = c(4, 7),
+         #main = "Heatmap of genes of interest",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = names,
+         #labels_row = df_GOI$Gene
+)
+
+GOI_df_TPM <- data.frame(Gene = rep(GOI_df$Gene, 5), TPM = c(GOI_df$TPM_Input, GOI_df$TPM_R1, GOI_df$TPM_R2, GOI_df$TPM_R3, GOI_df$TPM_R4), Sample = c(rep("Input", length(genes_of_interest_O)), rep("Mock", length(genes_of_interest_O)), rep("RCMV-E wt", length(genes_of_interest_O)), rep("RCMV-E dvxcl1", length(genes_of_interest_O)), rep("UV", length(genes_of_interest_O))))
+
+ggplot(data = GOI_df_TPM, aes(x = Gene, y = log(TPM+1, 10), fill = Sample)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = "black") +
+  scale_fill_manual(labels = c("Input", "Mock", bquote(paste("RCMV-E ", Delta, italic("vxcl1"))), "RCMV-E wt", "UV"), values = c("#ff7e00", "#010080", "#f2b77d", "#a00000", "#addfae")) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Expression of selected genes (RNA-Seq)", x = "Genes of interest")
+
+ggsave("bar_chart_august.png", width = 15, height = 5, dpi = 500)
+
 # NEW IMAGES MARCH
 
 setwd("../../deg/")
@@ -2429,6 +2501,277 @@ final_df_full_bc = data.frame(ID = ids_of_interest_bc, Gene = gene_list, Vollum_
 rownames(final_df_full_bc) <- final_df_full_bc$ID
 write.table(final_df_full_bc, file = "venn_diagram_bc_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
 
+# Downregulated Venn Diagrams
+
+setwd("../../deg/")
+BA1 <- read.csv(file = "BA1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+BA2 <- read.csv(file = "BA2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+BC1 <- read.csv(file = "BC1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+BC2 <- read.csv(file = "BC2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+
+gene_id <- c()
+BA1_gene_symbol <- c()
+BA2_gene_symbol <- c()
+BC1_gene_symbol <- c()
+BC2_gene_symbol <- c()
+BA1_log <- c()
+BA2_log <- c()
+BC1_log <- c()
+BC2_log <- c()
+BA1_O2 <- c()
+BA2_O2 <- c()
+BC1_O2 <- c()
+BC2_O2 <- c()
+BA1_CO2 <- c()
+BA2_CO2 <- c()
+BC1_CO2 <- c()
+BC2_CO2 <- c()
+BA1_SCORE <- c()
+BA2_SCORE <- c()
+BC1_SCORE <- c()
+BC2_SCORE <- c()
+
+i = 1
+for (id in BA1$ID) {
+  current_row <- BA1[BA1$ID == id, ]
+  gene_id[i] <- as.character(unlist(current_row[1]))
+  BA1_gene_symbol[i] <- as.character(unlist(current_row[2]))
+  ns <- as.character(unlist(current_row[20]))
+  BA1_log[i] <- as.numeric(unlist(current_row[4]))
+  BA1_SCORE[i] <- as.numeric(unlist(current_row[5]))
+  BA1_O2[i] <- as.numeric(unlist(current_row[14]))
+  BA1_CO2[i] <- as.numeric(unlist(current_row[15]))
+  
+  b1 <- amatch(ns, BA2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b2 <- amatch(ns, BC1$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b3 <- amatch(ns, BC2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  
+  if (is.na(b1) == FALSE) {
+    BA2_gene_symbol[i] <- as.character(BA2[b1, 2])
+    BA2_log[i] <- as.numeric(BA2[b1, 4])
+    BA2_SCORE[i] <- as.numeric(BA2[b1, 5])
+    BA2_O2[i] <- as.numeric(BA2[b1, 14])
+    BA2_CO2[i] <- as.numeric(BA2[b1, 15])
+    BA2 <- BA2[-c(b1), ]
+  } else {
+    BA2_gene_symbol[i] <- ""
+    BA2_log[i] <- 0
+    BA2_SCORE[i] <- 0
+    BA2_O2[i] <- 0
+    BA2_CO2[i] <- 0
+  }
+  
+  if (is.na(b2) == FALSE) {
+    BC1_gene_symbol[i] <- as.character(BC1[b2, 2])
+    BC1_log[i] <- as.numeric(BC1[b2, 4])
+    BC1_SCORE[i] <- as.numeric(BC1[b2, 5])
+    BC1_O2[i] <- as.numeric(BC1[b2, 14])
+    BC1_CO2[i] <- as.numeric(BC1[b2, 15])
+    BC1 <- BC1[-c(b2), ]
+  } else {
+    BC1_gene_symbol[i] <- ""
+    BC1_log[i] <- 0
+    BC1_SCORE[i] <- 0
+    BC1_O2[i] <- 0
+    BC1_CO2[i] <- 0
+  }
+  
+  if (is.na(b3) == FALSE) {
+    BC2_gene_symbol[i] <- as.character(BC2[b3, 2])
+    BC2_log[i] <- as.numeric(BC2[b3, 4])
+    BC2_SCORE[i] <- as.numeric(BC2[b3, 5])
+    BC2_O2[i] <- as.numeric(BC2[b3, 14])
+    BC2_CO2[i] <- as.numeric(BC2[b3, 15])
+    BC2 <- BC2[-c(b3), ]
+  } else {
+    BC2_gene_symbol[i] <- ""
+    BC2_log[i] <- 0
+    BC2_SCORE[i] <- 0
+    BC2_O2[i] <- 0
+    BC2_CO2[i] <- 0
+  }
+  
+  i = i + 1
+}
+
+for (id in BA2$ID) {
+  current_row <- BA2[BA2$ID == id, ]
+  gene_id[i] <- as.character(unlist(current_row[1]))
+  BA2_gene_symbol[i] <- as.character(unlist(current_row[2]))
+  ns <- as.character(unlist(current_row[20]))
+  BA2_log[i] <- as.numeric(unlist(current_row[4]))
+  BA2_SCORE[i] <- as.numeric(unlist(current_row[5]))
+  BA2_O2[i] <- as.numeric(unlist(current_row[14]))
+  BA2_CO2[i] <- as.numeric(unlist(current_row[15]))
+
+  b2 <- amatch(ns, BC1$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  b3 <- amatch(ns, BC2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  
+  BA1_gene_symbol[i] <- ""
+  BA1_log[i] <- 0
+  BA1_SCORE[i] <- 0
+  BA1_O2[i] <- 0
+  BA1_CO2[i] <- 0
+  
+  if (is.na(b2) == FALSE) {
+    BC1_gene_symbol[i] <- as.character(BC1[b2, 2])
+    BC1_log[i] <- as.numeric(BC1[b2, 4])
+    BC1_SCORE[i] <- as.numeric(BC1[b2, 5])
+    BC1_O2[i] <- as.numeric(BC1[b2, 14])
+    BC1_CO2[i] <- as.numeric(BC1[b2, 15])
+    BC1 <- BC1[-c(b2), ]
+  } else {
+    BC1_gene_symbol[i] <- ""
+    BC1_log[i] <- 0
+    BC1_SCORE[i] <- 0
+    BC1_O2[i] <- 0
+    BC1_CO2[i] <- 0
+  }
+  
+  if (is.na(b3) == FALSE) {
+    BC2_gene_symbol[i] <- as.character(BC2[b3, 2])
+    BC2_log[i] <- as.numeric(BC2[b3, 4])
+    BC2_SCORE[i] <- as.numeric(BC2[b3, 5])
+    BC2_O2[i] <- as.numeric(BC2[b3, 14])
+    BC2_CO2[i] <- as.numeric(BC2[b3, 15])
+    BC2 <- BC2[-c(b3), ]
+  } else {
+    BC2_gene_symbol[i] <- ""
+    BC2_log[i] <- 0
+    BC2_SCORE[i] <- 0
+    BC2_O2[i] <- 0
+    BC2_CO2[i] <- 0
+  }
+  
+  i = i + 1
+}
+
+for (id in BC1$ID) {
+  current_row <- BC1[BC1$ID == id, ]
+  gene_id[i] <- as.character(unlist(current_row[1]))
+  BC1_gene_symbol[i] <- as.character(unlist(current_row[2]))
+  ns <- as.character(unlist(current_row[20]))
+  BC1_log[i] <- as.numeric(unlist(current_row[4]))
+  BC1_SCORE[i] <- as.numeric(unlist(current_row[5]))
+  BC1_O2[i] <- as.numeric(unlist(current_row[14]))
+  BC1_CO2[i] <- as.numeric(unlist(current_row[15]))
+
+  b3 <- amatch(ns, BC2$nucleotide.sequence, maxDist = nchar(ns)*0.2)
+  
+  BA1_gene_symbol[i] <- ""
+  BA1_log[i] <- 0
+  BA1_SCORE[i] <- 0
+  BA1_O2[i] <- 0
+  BA1_CO2[i] <- 0
+  
+  BA2_gene_symbol[i] <- ""
+  BA2_log[i] <- 0
+  BA2_SCORE[i] <- 0
+  BA2_O2[i] <- 0
+  BA2_CO2[i] <- 0
+  
+  if (is.na(b3) == FALSE) {
+    BC2_gene_symbol[i] <- as.character(BC2[b3, 2])
+    BC2_log[i] <- as.numeric(BC2[b3, 4])
+    BC2_SCORE[i] <- as.numeric(BC2[b3, 5])
+    BC2_O2[i] <- as.numeric(BC2[b3, 14])
+    BC2_CO2[i] <- as.numeric(BC2[b3, 15])
+    BC2 <- BC2[-c(b3), ]
+  } else {
+    BC2_gene_symbol[i] <- ""
+    BC2_log[i] <- 0
+    BC2_SCORE[i] <- 0
+    BC2_O2[i] <- 0
+    BC2_CO2[i] <- 0
+  }
+  
+  i = i + 1
+}
+
+s <- nrow(BC2)
+
+if (s > 0) {
+  gene_id <- c(gene_id, as.character(BC2$ID))
+  BC2_gene_symbol <- c(BC2_gene_symbol, as.character(BC2$gene.name))
+  BC2_SCORE <- c(BC2_SCORE, as.numeric(BC2$DE..SCORE....1..O2...CO2..1..O2...CO2.))
+  BC2_log <- c(BC2_log, as.numeric(BC2$log2FC))
+  BC2_O2 <- c(BC2_O2, as.numeric(BC2$Mean.TPM..O2.))
+  BC2_CO2 <- c(BC2_CO2, as.numeric(BC2$Mean.TPM..CO2.))
+  BC1_gene_symbol <- c(BC1_gene_symbol, rep("", s))
+  BC1_log <- c(BC1_log, rep(0, s))
+  BC1_SCORE <- c(BC1_SCORE, rep(0, s))
+  BC1_O2 <- c(BC1_O2, rep(0, s))
+  BC1_CO2 <- c(BC1_CO2, rep(0, s))
+  BA1_gene_symbol <- c(BA1_gene_symbol, rep("", s))
+  BA1_log <- c(BA1_log, rep(0, s))
+  BA1_SCORE <- c(BA1_SCORE, rep(0, s))
+  BA1_O2 <- c(BA1_O2, rep(0, s))
+  BA1_CO2 <- c(BA1_CO2, rep(0, s))
+  BA2_gene_symbol <- c(BA2_gene_symbol, rep("", s))
+  BA2_log <- c(BA2_log, rep(0, s))
+  BA2_SCORE <- c(BA2_SCORE, rep(0, s))
+  BA2_O2 <- c(BA2_O2, rep(0, s))
+  BA2_CO2 <- c(BA2_CO2, rep(0, s))
+}
+
+final_df_gene_symbols <- data.frame(BA1 = BA1_gene_symbol, BA2 = BA2_gene_symbol, BC1 = BC1_gene_symbol, BC2 = BC2_gene_symbol)
+final_df_gene_symbols_short <- c()
+
+for (i in 1:nrow(final_df_gene_symbols)) {
+  r1 = as.character(final_df_gene_symbols[i, 1])
+  r2 = as.character(final_df_gene_symbols[i, 2])
+  r3 = as.character(final_df_gene_symbols[i, 3])
+  r4 = as.character(final_df_gene_symbols[i, 4])
+  rz <- c(r1, r2, r3, r4)
+  final_df_gene_symbols_short[i] <- max(rz)
+}
+
+final_df_july = data.frame(ID = gene_id, Gene = final_df_gene_symbols_short, Vollum_log2FC = BA1_log, Dobichau_log2FC = BA2_log, CA_log2FC = BC1_log, CI_log2FC = BC2_log, Vollum_O2 = BA1_O2, Dobichau_O2 = BA2_O2, CA_O2 = BC1_O2, CI_O2 = BC2_O2, Vollum_CO2 = BA1_CO2, Dobichau_CO2 = BA2_CO2, CA_CO2 = BC1_CO2, CI_CO2 = BC2_CO2, DE_BA1 = BA1_SCORE, DE_BA2 = BA2_SCORE, DE_BC1 = BC1_SCORE, DE_BC2 = BC2_SCORE)
+rownames(final_df_july) <- final_df_july$ID
+
+# Genes of interest
+genes_of_interest_july <- c("DJ46_RS00900", "DJ46_RS23330", "DJ46_RS23855")
+final_df_july_filtered <- final_df_july[final_df_july$ID %in% genes_of_interest_july, ]
+write.table(final_df_july_filtered, file = "genes_of_interest_july.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+
+# Downregulated genes
+final_df_july_downregulated <- final_df_july[(final_df_july$DE_BA1 == -1) | (final_df_july$DE_BA2 == -1) | (final_df_july$DE_BC1 == -1) | (final_df_july$DE_BC2 == -1), ]
+final_df_july_downregulated <- final_df_july_downregulated[(final_df_july_downregulated$Vollum_log2FC < -2) | (final_df_july_downregulated$Dobichau_log2FC < -2) | (final_df_july_downregulated$CA_log2FC < -2) | (final_df_july_downregulated$CI_log2FC < -2), ]
+final_df_july_downregulated$DE_BA1[final_df_july_downregulated$DE_BA1 > 0] <- 0
+final_df_july_downregulated$DE_BA2[final_df_july_downregulated$DE_BA2 > 0] <- 0
+final_df_july_downregulated$DE_BC1[final_df_july_downregulated$DE_BC1 > 0] <- 0
+final_df_july_downregulated$DE_BC2[final_df_july_downregulated$DE_BC2 > 0] <- 0
+
+VJ <- vennCounts(final_df_july_downregulated[,15:18])
+png(filename = "venn_diagram_downregulated_july.png", width = 30, height = 30, units = "cm", res = 600, pointsize = 20)
+vennDiagram(VJ, circle.col = c("red", "blue", "green"), names = c("Vollum", "Dobichau", "CA" , "CI"), main = "\nOverlap of downregulated genes", cex = 1.1)
+dev.off()
+
+final_df_july_downregulated_vollum <- final_df_july_downregulated[(final_df_july_downregulated$DE_BA1 != 0) &
+                                                                  (final_df_july_downregulated$DE_BA2 == 0) &
+                                                                  (final_df_july_downregulated$DE_BC1 == 0) &
+                                                                  (final_df_july_downregulated$DE_BC2 == 0), ]
+
+final_df_july_downregulated_dobichau <- final_df_july_downregulated[(final_df_july_downregulated$DE_BA1 == 0) &
+                                                                   (final_df_july_downregulated$DE_BA2 != 0) &
+                                                                   (final_df_july_downregulated$DE_BC1 == 0) &
+                                                                   (final_df_july_downregulated$DE_BC2 == 0), ]
+
+final_df_july_downregulated_ca <- final_df_july_downregulated[(final_df_july_downregulated$DE_BA1 == 0) &
+                                                              (final_df_july_downregulated$DE_BA2 == 0) &
+                                                              (final_df_july_downregulated$DE_BC1 != 0) &
+                                                              (final_df_july_downregulated$DE_BC2 == 0), ]
+
+final_df_july_downregulated_ci <- final_df_july_downregulated[(final_df_july_downregulated$DE_BA1 == 0) &
+                                                              (final_df_july_downregulated$DE_BA2 == 0) &
+                                                              (final_df_july_downregulated$DE_BC1 == 0) &
+                                                              (final_df_july_downregulated$DE_BC2 != 0), ]
+
+write.table(final_df_july_downregulated_vollum, file = "venn_diagram_vollum_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+write.table(final_df_july_downregulated_dobichau, file = "venn_diagram_dobichau_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+write.table(final_df_july_downregulated_ca, file = "venn_diagram_ca_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+write.table(final_df_july_downregulated_ci, file = "venn_diagram_ci_genes.tsv", append = FALSE, sep = "\t", dec = ",", row.names = FALSE)
+
 # NEW IMAGES APRIL
 
 setwd("../../deg/")
@@ -2487,17 +2830,15 @@ FC4_up_C10 <- C10[C10$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & 
 FC4_up_C11 <- C11[C11$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C11$log2FC) > 2, ]
 FC4_up_C12 <- C12[C12$DE..SCORE....1..10min...60min..1..10min...60min. == "1" & abs(C12$log2FC) > 2, ]
 
-# ccrB_1 expression
-#mecA_locus_tag <- "SAPI_01966"
+experiments <- c("C02", "C03", "C01", "C05", "C06", "C04", "C08", "C09", "C07", "C11", "C12", "C10")
+
+groups <- c(rep("10min", 3), rep("60min", 3), rep("10min<->60min (E)", 3), rep("10min<->60min (N)", 3))
 
 # mecA expression (old)
 #mecA_locus_tag <- as.character(C01[C01$gene.name == "mecA", 1])
 
 # mecA expression (new)
 mecA_locus_tag <- "SAPI_01975"
-
-# ccrB_2 expression
-#mecA_locus_tag <- "SAPI_01983"
 
 mecA_expression <- c(C02[C02$ID == mecA_locus_tag, 4],
                      C03[C03$ID == mecA_locus_tag, 4],
@@ -2511,17 +2852,13 @@ mecA_expression <- c(C02[C02$ID == mecA_locus_tag, 4],
                      C11[C11$ID == mecA_locus_tag, 4],
                      C12[C12$ID == mecA_locus_tag, 4],
                      C10[C10$ID == mecA_locus_tag, 4]
-                     )
+)
 
 #mecA_expression <- (2^abs(mecA_expression))*sign(mecA_expression)
 
-experiments <- c("C02", "C03", "C01", "C05", "C06", "C04", "C08", "C09", "C07", "C11", "C12", "C10")
+mecA_expression_df <- data.frame(Experiments = experiments, Groups = groups, mecA = mecA_expression)
 
-groups <- c(rep("10min", 3), rep("60min", 3), rep("10min<->60min (E)", 3), rep("10min<->60min (N)", 3))
-
-expression_df <- data.frame(Experiments = experiments, Groups = groups, mecA = mecA_expression)
-
-ggplot(data = expression_df, aes(x = fct_inorder(Experiments), y = mecA, fill = Groups)) +
+ggplot(data = mecA_expression_df, aes(x = fct_inorder(Experiments), y = mecA, fill = Groups)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = round(mecA, 1)), vjust = -1.6 * sign(mecA_expression), color = "dimgray", size = 3.5) +
   theme(legend.position = "right", axis.text.x = element_text(angle = -45, hjust = 0, vjust = 0.5, size = 10),
@@ -2531,7 +2868,71 @@ ggplot(data = expression_df, aes(x = fct_inorder(Experiments), y = mecA, fill = 
   ylab("log2FC") +
   scale_x_discrete(labels = c("C01" = "Serum", "C02" = "Ammonia", "C03" = "Ammonia+Serum", "C04" = "Serum", "C05" = "Ammonia", "C06" = "Ammonia+Serum", "C07" = "Serum (E)", "C08" = "Ammonia (E)", "C09" = "Ammonia+Serum (E)", "C10" = "Serum (N)", "C11" = "Ammonia (N)", "C12" = "Ammonia+Serum (N)"))
 
-ggsave("mecA.png", height = 10, width = 10)
+ggsave("mecA.png", height = 10, width = 10, device = "png")
+
+# ccrB_1 expression
+ccrB_1_locus_tag <- "SAPI_01966"
+
+ccrB_1_expression <- c(C02[C02$ID == ccrB_1_locus_tag, 4],
+                       C03[C03$ID == ccrB_1_locus_tag, 4],
+                       C01[C01$ID == ccrB_1_locus_tag, 4],
+                       C05[C05$ID == ccrB_1_locus_tag, 4],
+                       C06[C06$ID == ccrB_1_locus_tag, 4],
+                       C04[C04$ID == ccrB_1_locus_tag, 4],
+                       C08[C08$ID == ccrB_1_locus_tag, 4],
+                       C09[C09$ID == ccrB_1_locus_tag, 4],
+                       C07[C07$ID == ccrB_1_locus_tag, 4],
+                       C11[C11$ID == ccrB_1_locus_tag, 4],
+                       C12[C12$ID == ccrB_1_locus_tag, 4],
+                       C10[C10$ID == ccrB_1_locus_tag, 4]
+)
+
+#mecA_expression <- (2^abs(mecA_expression))*sign(mecA_expression)
+
+ccrB_1_expression_df <- data.frame(Experiments = experiments, Groups = groups, ccrB_1 = ccrB_1_expression)
+
+ggplot(data = ccrB_1_expression_df, aes(x = fct_inorder(Experiments), y = ccrB_1, fill = Groups)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(ccrB_1, 1)), vjust = -1.6 * sign(ccrB_1_expression), color = "dimgray", size = 3.5) +
+  theme(legend.position = "right", axis.text.x = element_text(angle = -45, hjust = 0, vjust = 0.5, size = 10),
+        plot.title = element_text(hjust = 0.5)) +
+  ggtitle(bquote(paste(italic("ccr"), "B_1"))) +
+  xlab("Experiments") +
+  ylab("log2FC") +
+  scale_x_discrete(labels = c("C01" = "Serum", "C02" = "Ammonia", "C03" = "Ammonia+Serum", "C04" = "Serum", "C05" = "Ammonia", "C06" = "Ammonia+Serum", "C07" = "Serum (E)", "C08" = "Ammonia (E)", "C09" = "Ammonia+Serum (E)", "C10" = "Serum (N)", "C11" = "Ammonia (N)", "C12" = "Ammonia+Serum (N)"))
+
+ggsave("ccrB_1.png", height = 10, width = 10, device = "png")
+
+# ccrB_2 expression
+ccrB_2_locus_tag <- "SAPI_01983"
+
+ccrB_2_expression <- c(C02[C02$ID == ccrB_2_locus_tag, 4],
+                       C03[C03$ID == ccrB_2_locus_tag, 4],
+                       C01[C01$ID == ccrB_2_locus_tag, 4],
+                       C05[C05$ID == ccrB_2_locus_tag, 4],
+                       C06[C06$ID == ccrB_2_locus_tag, 4],
+                       C04[C04$ID == ccrB_2_locus_tag, 4],
+                       C08[C08$ID == ccrB_2_locus_tag, 4],
+                       C09[C09$ID == ccrB_2_locus_tag, 4],
+                       C07[C07$ID == ccrB_2_locus_tag, 4],
+                       C11[C11$ID == ccrB_2_locus_tag, 4],
+                       C12[C12$ID == ccrB_2_locus_tag, 4],
+                       C10[C10$ID == ccrB_2_locus_tag, 4]
+)
+
+ccrB_2_expression_df <- data.frame(Experiments = experiments, Groups = groups, ccrB_2 = ccrB_2_expression)
+
+ggplot(data = ccrB_2_expression_df, aes(x = fct_inorder(Experiments), y = ccrB_2, fill = Groups)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(ccrB_2, 1)), vjust = -1.6 * sign(ccrB_2_expression), color = "dimgray", size = 3.5) +
+  theme(legend.position = "right", axis.text.x = element_text(angle = -45, hjust = 0, vjust = 0.5, size = 10),
+        plot.title = element_text(hjust = 0.5)) +
+  ggtitle(bquote(paste(italic("ccr"), "B_2"))) +
+  xlab("Experiments") +
+  ylab("log2FC") +
+  scale_x_discrete(labels = c("C01" = "Serum", "C02" = "Ammonia", "C03" = "Ammonia+Serum", "C04" = "Serum", "C05" = "Ammonia", "C06" = "Ammonia+Serum", "C07" = "Serum (E)", "C08" = "Ammonia (E)", "C09" = "Ammonia+Serum (E)", "C10" = "Serum (N)", "C11" = "Ammonia (N)", "C12" = "Ammonia+Serum (N)"))
+
+ggsave("ccrB_2.png", height = 10, width = 10, device = "png")
 
 # Complete cassette
 

@@ -25,6 +25,7 @@ dependencies:
   - chardet=3.0.4=py36h9f0ad1d_1006
   - configargparse=1.2.3=pyh9f0ad1d_0
   - cryptography=2.9.2=py36h45558ae_0
+  - curl=7.69.1=h33f0ec9_0
   - docutils=0.15.2=py36_0
   - dropbox=10.1.1=pyh9f0ad1d_0
   - expat=2.2.9=he1b5a44_2
@@ -49,9 +50,12 @@ dependencies:
   - importlib_metadata=1.6.1=0
   - jmespath=0.10.0=pyh9f0ad1d_0
   - jpeg=9d=h516909a_0
+  - krb5=1.17.1=h2fd8d38_0
   - ld_impl_linux-64=2.34=h53a641e_5
   - libblas=3.8.0=16_openblas
   - libcblas=3.8.0=16_openblas
+  - libcurl=7.69.1=hf7181ac_0
+  - libedit=3.1.20191231=h46ee950_0
   - libffi=3.2.1=he1b5a44_1007
   - libgcc-ng=9.2.0=h24d8f2e_2
   - libgfortran-ng=7.5.0=hdf63c60_6
@@ -60,6 +64,7 @@ dependencies:
   - libopenblas=0.3.9=h5ec1e0e_0
   - libpng=1.6.37=hed695b0_1
   - libprotobuf=3.12.3=h8b12597_0
+  - libssh2=1.9.0=hab1572f_2
   - libstdcxx-ng=9.2.0=hdf63c60_2
   - libtiff=4.1.0=hc7e4089_6
   - libtool=2.4.6=h14c3975_1002
