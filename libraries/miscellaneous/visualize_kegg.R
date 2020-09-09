@@ -1,8 +1,8 @@
 # -----------------------------
 # Title: visualize_kegg.R
 # Author: Silver A. Wolf
-# Last Modified: Mo, 10.02.2020
-# Version: 0.0.5
+# Last Modified: Fr, 14.08.2020
+# Version: 0.0.6
 # -----------------------------
 
 # Installers
@@ -98,7 +98,7 @@ kegg_species = argument_2
 dir.create("deg/pathway_analysis_KEGG/pathview/")
 setwd("deg/pathway_analysis_KEGG/pathview/")
 
-data_1 <- read.delim(file = "../../summary.tsv", header = TRUE)
+data_1 <- read.delim(file = "../../summary.tsv", header = TRUE, quote = "")
 data_2 <- read.delim(file = "../deg_gene_symbols_user_mapped.list", header = FALSE)
 data_3 <- read.delim(file = paste("../deg_gene_symbols_KEGG_", kegg_species, "_functional_classification.tsv", sep = ""), header = TRUE)
 data_4 <- read.delim(file = paste("../../pathway_analysis_GO/deg_gene_symbols_GO_all_", go_species, "_functional_classification.tsv", sep = ""), header = TRUE)

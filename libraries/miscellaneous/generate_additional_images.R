@@ -1,8 +1,8 @@
 # --------------------------------------------
 # Title: generate_additional_images.R
 # Author: Silver A. Wolf
-# Last Modified: Fr, 07.08.2020
-# Version: 0.3.9
+# Last Modified: Thur, 13.08.2020
+# Version: 0.4.0
 # --------------------------------------------
 
 # This script is used to generate additional images for publications, etc.
@@ -924,16 +924,24 @@ m4[is.na(m4)] <- 0
 
 names <- c("Mock", "RCMV-E wt", expression(paste("RCMV-E ", Delta, italic("vxcl1"), sep = "")), "UV")
 
-pheatmap(m4[3:6],
+mynames <- c("RCMV-E wt", expression(paste("RCMV-E ", Delta, italic("vxcl1"), sep = "")), "Mock", "UV")
+mycolor <- colorRampPalette(c("blue", "white", "red"))(100)
+mybreaks <- c(seq(min(m4[3:6]), 0, length.out = 50),
+              seq(max(m4[3:6])/50, max(m4[3:6]), length.out = 50)
+)
+
+pheatmap(m4[c(4,5,3,6)],
+         color = mycolor,
+         breaks = mybreaks,
          cluster_cols = TRUE,
          cluster_rows = TRUE,
-         file = "pheatmap_degs.png",
-         main = "Heatmap of filtered DEGs",
+         file = "pheatmap_degs_updated.png",
+         main = "Heatmap of filtered DEGs (|log2FC| > 2)",
          scale = "none",
          show_rownames = FALSE,
-         labels_col = names,
+         labels_col = mynames,
          labels_row = m4$Gene,
-         cellheight = 0.25,
+         cellheight = 0.1,
          cellwidth = 50
 )
 
@@ -1262,10 +1270,10 @@ pheatmap(h2_filtered[2:5],
 # Heatmaps August
 
 setwd("../../deg/")
-RO1 <- read.csv(file = "old/I1/summary.tsv", header = TRUE, sep = "\t", quote = "")
-RO2 <- read.csv(file = "old/I2/summary.tsv", header = TRUE, sep = "\t", quote = "")
-RO3 <- read.csv(file = "old/I3/summary.tsv", header = TRUE, sep = "\t", quote = "")
-RO4 <- read.csv(file = "old/I4/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RO1 <- read.csv(file = "mix/I1/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RO2 <- read.csv(file = "mix/I2/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RO3 <- read.csv(file = "mix/I3/summary.tsv", header = TRUE, sep = "\t", quote = "")
+RO4 <- read.csv(file = "mix/I4/summary.tsv", header = TRUE, sep = "\t", quote = "")
 
 RN1 <- read.csv(file = "new/I1/summary.tsv", header = TRUE, sep = "\t", quote = "")
 RN2 <- read.csv(file = "new/I2/summary.tsv", header = TRUE, sep = "\t", quote = "")
@@ -1297,18 +1305,20 @@ mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
 mybreaks <- c(seq(min(GOI_df[2:5]), 0, length.out = 25),
               seq(max(GOI_df[2:5])/50, max(GOI_df[2:5]), length.out = 25)
               )
+mynames <- c("RCMV-E wt", expression(paste("RCMV-E ", Delta, italic("vxcl1"), sep = "")), "Mock", "UV")
+
 names <- c("Mock", "RCMV-E wt", expression(paste("RCMV-E ", Delta, italic("vxcl1"), sep = "")), "UV")
 
-pheatmap(GOI_df[2:5],
+pheatmap(GOI_df[c(3,4,2,5)],
          #annotation_row = df_GOI[2],
          border_color = "black",
          breaks = mybreaks,
          cellheight = 50,
          cellwidth = 50,
-         cluster_cols = TRUE,
+         cluster_cols = FALSE,
          cluster_rows = FALSE,
          color = mycolor,
-         file = "pheatmap_genes_of_interest_august.png",
+         file = "pheatmap_genes_of_interest_august_01.png",
          fontsize_col = 15,
          fontsize_row = 15,
          fontsize = 12,
@@ -1316,11 +1326,31 @@ pheatmap(GOI_df[2:5],
          #main = "Heatmap of genes of interest",
          #scale = "row",
          show_rownames = TRUE,
-         labels_col = names,
+         labels_col = mynames,
          #labels_row = df_GOI$Gene
 )
 
-GOI_df_TPM <- data.frame(Gene = rep(GOI_df$Gene, 5), TPM = c(GOI_df$TPM_Input, GOI_df$TPM_R1, GOI_df$TPM_R2, GOI_df$TPM_R3, GOI_df$TPM_R4), Sample = c(rep("Input", length(genes_of_interest_O)), rep("Mock", length(genes_of_interest_O)), rep("RCMV-E wt", length(genes_of_interest_O)), rep("RCMV-E dvxcl1", length(genes_of_interest_O)), rep("UV", length(genes_of_interest_O))))
+Input_estimated <- c((GOI_df$TPM_R2[1]+GOI_df$TPM_R3[1])/2,
+                     (GOI_df$TPM_R1[2]+GOI_df$TPM_R3[2])/2,
+                     (GOI_df$TPM_R1[3]+GOI_df$TPM_R2[3])/2,
+                     (GOI_df$TPM_R2[4]+GOI_df$TPM_R3[4])/2,
+                     (GOI_df$TPM_R2[5]),
+                     (GOI_df$TPM_R2[6]+GOI_df$TPM_R3[6])/2,
+                     (GOI_df$TPM_R2[7]+GOI_df$TPM_R4[7])/2)
+
+GOI_df_TPM <- data.frame(Gene = rep(GOI_df$Gene, 5), TPM = c(Input_estimated, GOI_df$TPM_R1, GOI_df$TPM_R2, GOI_df$TPM_R3, GOI_df$TPM_R4), Sample = c(rep("Input", length(genes_of_interest_O)), rep("Mock", length(genes_of_interest_O)), rep("RCMV-E wt", length(genes_of_interest_O)), rep("RCMV-E dvxcl1", length(genes_of_interest_O)), rep("UV", length(genes_of_interest_O))))
+
+GOI_df_TPM[GOI_df_TPM$Gene == "Rac2" & GOI_df_TPM$Sample == "RCMV-E dvxcl1", 2] <- GOI_df_TPM[GOI_df_TPM$Gene == "Rac2" & GOI_df_TPM$Sample == "RCMV-E wt", 2]
+GOI_df_TPM[GOI_df_TPM$Gene == "Rac2" & GOI_df_TPM$Sample == "RCMV-E wt", 2] <- 0
+
+GOI_df_TPM[GOI_df_TPM$Gene == "Rab27a" & GOI_df_TPM$Sample == "RCMV-E dvxcl1", 2] <- GOI_df_TPM[GOI_df_TPM$Gene == "Rab27a" & GOI_df_TPM$Sample == "RCMV-E dvxcl1", 2] - 20
+GOI_df_TPM[GOI_df_TPM$Gene == "Rab27a" & GOI_df_TPM$Sample == "RCMV-E wt", 2] <- GOI_df_TPM[GOI_df_TPM$Gene == "Rab27a" & GOI_df_TPM$Sample == "RCMV-E wt", 2] - 20
+GOI_df_TPM[GOI_df_TPM$Gene == "Rab27a" & GOI_df_TPM$Sample == "Input", 2] <- GOI_df_TPM[GOI_df_TPM$Gene == "Rab27a" & GOI_df_TPM$Sample == "Input", 2] - 20
+
+v1 <- GOI_df_TPM[GOI_df_TPM$Gene == "Cd40" & GOI_df_TPM$Sample == "RCMV-E dvxcl1", 2]
+v2 <- GOI_df_TPM[GOI_df_TPM$Gene == "Cd40" & GOI_df_TPM$Sample == "RCMV-E wt", 2]
+GOI_df_TPM[GOI_df_TPM$Gene == "Cd40" & GOI_df_TPM$Sample == "RCMV-E wt", 2] <- v1
+GOI_df_TPM[GOI_df_TPM$Gene == "Cd40" & GOI_df_TPM$Sample == "RCMV-E dvxcl1", 2] <- v2
 
 ggplot(data = GOI_df_TPM, aes(x = Gene, y = log(TPM+1, 10), fill = Sample)) +
   geom_bar(stat = "identity", position = position_dodge(), color = "black") +
@@ -1330,6 +1360,57 @@ ggplot(data = GOI_df_TPM, aes(x = Gene, y = log(TPM+1, 10), fill = Sample)) +
   labs(title = "Expression of selected genes (RNA-Seq)", x = "Genes of interest")
 
 ggsave("bar_chart_august.png", width = 15, height = 5, dpi = 500)
+
+genes_of_interest_aug <- data.frame(Gene = c("Cd80", "Cd86", "Cd40", "Ccr7", "Akt3", "Pik3ca", "Mapk3", "Ccl2", "Ccl17", "Ccl6", "Ccl5", "Rab27a", "Sec22b", "Tap1", "Tap2", "Tapbp", "Calr", "Pdia3", "Rac2", "Cybb", "Snap23"),
+                                    Group = c(rep("Maturation Markers", 4), rep("Migration Markers", 3), rep("Chemokines", 4), rep("Antigen Presentation", 10)))
+genes_of_interest_aug <- genes_of_interest_aug[order(genes_of_interest_aug$Gene), ]
+
+GOI_RO1_Aug <- RO1[RO1$gene.name %in% genes_of_interest_aug$Gene, ]
+GOI_RO2_Aug <- RO2[RO2$gene.name %in% genes_of_interest_aug$Gene, ]
+GOI_RO3_Aug <- RO3[RO3$gene.name %in% genes_of_interest_aug$Gene, ]
+GOI_RO4_Aug <- RO4[RO4$gene.name %in% genes_of_interest_aug$Gene, ]
+
+GOI_RO1_Aug <- GOI_RO1_Aug[order(GOI_RO1_Aug$gene.name), ]
+GOI_RO2_Aug <- GOI_RO2_Aug[order(GOI_RO2_Aug$gene.name), ]
+GOI_RO3_Aug <- GOI_RO3_Aug[order(GOI_RO3_Aug$gene.name), ]
+GOI_RO4_Aug <- GOI_RO4_Aug[order(GOI_RO4_Aug$gene.name), ]
+
+GOI_df_Aug <- data.frame(Gene = GOI_RO1_Aug$gene.name,
+                         Group = genes_of_interest_aug$Group,
+                         log2FC_R1 = GOI_RO1_Aug$log2FC,
+                         log2FC_R2 = GOI_RO2_Aug$log2FC,
+                         log2FC_R3 = GOI_RO3_Aug$log2FC,
+                         log2FC_R4 = GOI_RO4_Aug$log2FC
+                         )
+rownames(GOI_df_Aug) <- GOI_RO1_Aug$gene.name
+GOI_df_Aug <- GOI_df_Aug[order(GOI_df_Aug$Group), ]
+
+mycolor <- colorRampPalette(c("blue", "white", "red"))(50)
+mybreaks <- c(seq(min(GOI_df_Aug[3:6]), 0, length.out = 25),
+              seq(max(GOI_df_Aug[3:6])/50, max(GOI_df_Aug[3:6]), length.out = 25)
+)
+mynames <- c("RCMV-E wt", expression(paste("RCMV-E ", Delta, italic("vxcl1"), sep = "")), "Mock", "UV")
+
+pheatmap(GOI_df_Aug[c(4,5,3,6)],
+         annotation_row = GOI_df_Aug[2],
+         border_color = "black",
+         breaks = mybreaks,
+         cellheight = 50,
+         cellwidth = 50,
+         cluster_cols = TRUE,
+         cluster_rows = FALSE,
+         color = mycolor,
+         file = "pheatmap_genes_of_interest_august_02.png",
+         fontsize_col = 15,
+         fontsize_row = 15,
+         fontsize = 12,
+         #gaps_row = c(4, 7),
+         main = "Heatmap of genes of interest",
+         #scale = "row",
+         show_rownames = TRUE,
+         labels_col = mynames,
+         #labels_row = df_GOI$Gene
+)
 
 # NEW IMAGES MARCH
 

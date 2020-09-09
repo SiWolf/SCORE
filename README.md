@@ -135,7 +135,7 @@ Starting with Snakemake version 5 and above, the syntax for dynamic rules has be
 
 Please cite the following:
 
-Wolf, S. (2018) SCORE: Smart Consensus Of RNA Expression pipelines - a consensus tool for detecting differentially expressed genes in bacteria. Free University of Berlin.
+Wolf, Silver A., et al. "SCORE: Smart Consensus Of RNA Expression-a consensus tool for detecting differentially expressed genes in bacteria." Bioinformatics (2020).
 
 ## 5. License
 
