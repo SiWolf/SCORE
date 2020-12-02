@@ -1,8 +1,8 @@
 name: score_qc_environment
 channels:
-  - r
   - conda-forge
   - bioconda
+  - r
   - defaults
 dependencies:
   - fastqc=0.11.8=2

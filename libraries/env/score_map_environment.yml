@@ -1,8 +1,8 @@
 name: score_map_env
 channels:
-  - r
   - conda-forge
   - bioconda
+  - r
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main

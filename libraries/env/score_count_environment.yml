@@ -1,8 +1,8 @@
 name: score_count_env
 channels:
-  - r
   - conda-forge
   - bioconda
+  - r
   - defaults
 dependencies:
   - subread=1.6.4=h84994c4_1
